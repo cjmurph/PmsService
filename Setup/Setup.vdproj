@@ -87,6 +87,19 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Net.Client.3.5"
+                    {
+                    "Name" = "8:.NET Framework 3.5 SP1 Client Profile"
+                    "ProductCode" = "8:Microsoft.Net.Client.3.5"
+                    }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
+                    {
+                    "Name" = "8:Windows Installer 3.1"
+                    "ProductCode" = "8:Microsoft.Windows.Installer.3.1"
+                    }
+                }
             }
         }
     }
@@ -165,7 +178,7 @@
                 {
                 "Name" = "8:.NET Framework"
                 "Message" = "8:[VSDNETMSG]"
-                "FrameworkVersion" = "8:.NETFramework,Version=v4.0,Profile=Client"
+                "FrameworkVersion" = "8:.NETFramework,Version=v3.5,Profile=Client"
                 "AllowLaterVersions" = "11:FALSE"
                 "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=131000"
                 }
@@ -230,7 +243,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Plex Service"
         "ProductCode" = "8:{E11355AD-BD64-4A65-BB53-9F6AFF824DA4}"
-        "PackageCode" = "8:{8DD29C9E-D14B-403D-9274-37E86413A2AF}"
+        "PackageCode" = "8:{CD9DAAD1-64BF-45EC-A014-E2DE7517BAC7}"
         "UpgradeCode" = "8:{3C09613F-4E46-4885-BCF6-F02E35906D4A}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -751,7 +764,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_9C58FF48FEC74C8690E179F79A996229"
             {
-            "SourcePath" = "8:..\\PlexMediaServer-Service\\obj\\x86\\Debug\\PlexMediaServer-Service.exe"
+            "SourcePath" = "8:..\\PlexMediaServer-Service\\obj\\x86\\Release\\PlexMediaServer-Service.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_2AC60C9A8E744F58AF06C6030A7D3BC9"
