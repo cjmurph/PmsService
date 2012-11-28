@@ -287,7 +287,23 @@ namespace PlexMediaServer_Service
 
             if (string.IsNullOrEmpty(result))
             {
-                //do a more exhaustive search. either msi interop or trawl the installer locatations in the registry
+                //do a more exhaustive search. Trawl the installer locatations in the registry.
+                RegistryKey componentsKey = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Installer\UserData\S-1-5-18\Components");
+                if (componentsKey != null)       // Make sure there are Assemblies
+                {
+                    foreach (string guidKeyName in componentsKey.GetSubKeyNames())
+                    {
+                        RegistryKey guidKey = componentsKey.OpenSubKey(guidKeyName);
+                        foreach (string valueName in guidKey.GetValueNames())
+                        {
+                            if (guidKey.GetValue(valueName).ToString().ToLower().Contains("plex media server.exe"))
+                            {
+                                result = guidKey.GetValue(valueName).ToString();
+                                break;
+                            }
+                        }
+                    }
+                }
             }
             
             return result;
