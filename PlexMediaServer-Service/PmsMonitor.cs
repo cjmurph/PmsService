@@ -18,6 +18,8 @@ namespace PlexMediaServer_Service
 
         //Process names
         private static string plexName = "Plex Media Server";
+        private static string dlnaServerName = "PlexDlnaServer";
+        private static string plexScriptHostName = "PlexScriptHost";
         //private static string explorerName = "explorer";
 
         #endregion
@@ -211,7 +213,7 @@ namespace PlexMediaServer_Service
         /// </summary>
         private void endExplorer()
         {
-            this.OnPlexStatusChange(this, new PlexRunningStatusChangeEventArgs("Killing explorer."));
+            this.OnPlexStatusChange(this, new PlexRunningStatusChangeEventArgs("Killing Explorer."));
             if (this.explorer != null)
             {
                 try
@@ -235,7 +237,7 @@ namespace PlexMediaServer_Service
             
             if (this.plex != null)
             {
-                this.OnPlexStatusChange(this, new PlexRunningStatusChangeEventArgs("Killing plex."));
+                this.OnPlexStatusChange(this, new PlexRunningStatusChangeEventArgs("Killing Plex."));
                 try
                 {
                     this.plex.Kill();
@@ -246,6 +248,57 @@ namespace PlexMediaServer_Service
                     this.plex.Dispose();
                     this.plex = null;
                 }
+            }
+            //kill the supporting processes.
+            killDlnaServer();
+            killPlexScriptHost();
+        }
+
+        private void killDlnaServer()
+        {
+            //see if its running
+            Process[] dlnaServers = Process.GetProcessesByName(PmsMonitor.dlnaServerName);
+            if (dlnaServers.Length > 0)
+            {
+                foreach (Process dlnaServer in dlnaServers)
+                {
+                    try
+                    {
+                        dlnaServer.Kill();
+                    }
+                    catch
+                    {
+                    }
+                    finally
+                    {
+                        dlnaServer.Dispose();
+                    }
+                }
+                this.OnPlexStatusChange(this, new PlexRunningStatusChangeEventArgs("Plex Dlna Server Stopped."));
+            }
+        }
+
+        private void killPlexScriptHost()
+        {
+            //see if its running
+            Process[] scriptHosts = Process.GetProcessesByName(PmsMonitor.plexScriptHostName);
+            if (scriptHosts.Length > 0)
+            {
+                foreach (Process scriptHost in scriptHosts)
+                {
+                    try
+                    {
+                        scriptHost.Kill();
+                    }
+                    catch
+                    {
+                    }
+                    finally
+                    {
+                        scriptHost.Dispose();
+                    }
+                }
+                this.OnPlexStatusChange(this, new PlexRunningStatusChangeEventArgs("Plex Script Host Stopped."));
             }
         }
 
