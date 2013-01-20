@@ -25,7 +25,7 @@ namespace PlexMediaServer_Service
 
             logPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PlexService\\Logs\\");
 
-            this.pms = new PmsMonitor();
+            this.pms = new PmsMonitor(logPath);
 
             this.pms.PlexStatusChange += new PmsMonitor.PlexStatusChangeHandler(pms_PlexStatusChange);
             this.pms.PlexStop += new PmsMonitor.PlexStopHandler(pms_PlexStop);
@@ -87,7 +87,7 @@ namespace PlexMediaServer_Service
             List<string> files = System.IO.Directory.GetFiles(logPath, "*plxLog.txt", System.IO.SearchOption.TopDirectoryOnly).ToList();
             //get them in order (there is no guarantee according to msdn).
             files = files = files.OrderBy(f => f).ToList();
-            while (files.Count > 3)
+            while (files.Count > 10)
             {
                 System.IO.File.Delete(files[0]);
                 files.RemoveAt(0);

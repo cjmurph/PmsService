@@ -44,6 +44,8 @@ namespace PlexMediaServer_Service
         /// </summary>
         private bool stopping;
 
+        private string logPath;
+
         #endregion
 
         #region Properties
@@ -51,8 +53,11 @@ namespace PlexMediaServer_Service
         #endregion
 
         #region Constructor
-        internal PmsMonitor()
+        internal PmsMonitor() : this("") { }
+
+        internal PmsMonitor(string logPath)
         {
+            this.logPath = logPath;
         }
         #endregion
 
@@ -73,6 +78,7 @@ namespace PlexMediaServer_Service
             }
             else
             {
+                this.OnPlexStatusChange(this, new PlexRunningStatusChangeEventArgs("Plex executable found at " + this.executableFileName));
                 this.startPlexWithExplorer(10000);
             }
         }
@@ -315,50 +321,112 @@ namespace PlexMediaServer_Service
         private string getPlexExecutable()
         {
             string result = string.Empty;
-            //plex doesnt put this nice stuff in the registry so we need to go hunting for it ourselves
-            //this method is crap. I dont like having to iterate through directories looking to see if a file exists or not.
-            //start by looking in the program files directory, even if we are on 64bit windows, plex may be 64bit one day... maybe
-            
-            List<string> possibleLocations = new List<string>();
 
-            //some hard coded attempts
-            possibleLocations.Add(@"C:\Program Files\Plex\Plex Media Server\Plex Media Server.exe");
-            possibleLocations.Add(@"C:\Program Files (x86)\Plex\Plex Media Server\Plex Media Server.exe");
-            //special folder
-            possibleLocations.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Plex\Plex Media Server\Plex Media Server.exe"));
-            
-
-            foreach (string location in possibleLocations)
+            //first we will do a dirty check for a text file with the executable path in our log folder.
+            //this is here to help anyone having issues and let them specify it manually themseves.
+            if(!string.IsNullOrEmpty(this.logPath))
             {
+                string location = Path.Combine(logPath, "location.txt");
                 if (File.Exists(location))
                 {
-                    result = location;
-                    this.OnPlexStatusChange(this, new PlexRunningStatusChangeEventArgs("Plex executable found at " + location));
-                    break;
+                    string userSpecified = string.Empty;
+                    using (StreamReader sr = new StreamReader(location))
+                    {
+                        userSpecified = sr.ReadLine();
+                    }
+                    if (File.Exists(userSpecified))
+                    {
+                        result = userSpecified;
+                    }
                 }
             }
 
+            //if theres nothing there go for the easy defaults
             if (string.IsNullOrEmpty(result))
             {
-                //do a more exhaustive search. Trawl the installer locatations in the registry.
-                RegistryKey componentsKey = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Installer\UserData\S-1-5-18\Components");
-                if (componentsKey != null)       // Make sure there are Assemblies
+
+                //plex doesnt put this nice stuff in the registry so we need to go hunting for it ourselves
+                //this method is crap. I dont like having to iterate through directories looking to see if a file exists or not.
+                //start by looking in the program files directory, even if we are on 64bit windows, plex may be 64bit one day... maybe
+
+                List<string> possibleLocations = new List<string>();
+
+                //some hard coded attempts, this is nice and fast and should hit 90% of the time... even if it is ugly
+                possibleLocations.Add(@"C:\Program Files\Plex\Plex Media Server\Plex Media Server.exe");
+                possibleLocations.Add(@"C:\Program Files (x86)\Plex\Plex Media Server\Plex Media Server.exe");
+                //special folder
+                possibleLocations.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Plex\Plex Media Server\Plex Media Server.exe"));
+
+
+                foreach (string location in possibleLocations)
                 {
-                    foreach (string guidKeyName in componentsKey.GetSubKeyNames())
+                    if (File.Exists(location))
                     {
-                        RegistryKey guidKey = componentsKey.OpenSubKey(guidKeyName);
-                        foreach (string valueName in guidKey.GetValueNames())
+                        result = location;
+                        break;
+                    }
+                }
+            }
+
+            //so if we still can't find it, we need to do a more exhaustive check through the installer locations in the registry
+            if (string.IsNullOrEmpty(result))
+            {
+                //let's have a flag to break out of the loops below for faster execution, because this is nasty.
+                bool resultFound = false;
+
+                //work out the os type (32 or 64) and set the registry view to suit. this is only a reliable check when this project is compiled to x86.
+                bool is64bit = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"));
+
+                RegistryView architecture = RegistryView.Registry32;
+                if (is64bit)
+                {
+                    architecture = RegistryView.Registry64;
+                }
+
+                using (RegistryKey userDataKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, architecture).OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Installer\UserData"))
+                {
+                    if(userDataKey != null)
+                    {
+                        foreach (string userKeyName in userDataKey.GetSubKeyNames())
                         {
-                            if (guidKey.GetValue(valueName).ToString().ToLower().Contains("plex media server.exe"))
+                            using (RegistryKey userKey = userDataKey.OpenSubKey(userKeyName))
                             {
-                                result = guidKey.GetValue(valueName).ToString();
+                                using (RegistryKey componentsKey = userKey.OpenSubKey("Components"))
+                                {
+                                    if (componentsKey != null)       // Make sure there are Assemblies
+                                    {
+                                        foreach (string guidKeyName in componentsKey.GetSubKeyNames())
+                                        {
+                                            using (RegistryKey guidKey = componentsKey.OpenSubKey(guidKeyName))
+                                            {
+                                                foreach (string valueName in guidKey.GetValueNames())
+                                                {
+                                                    string value = guidKey.GetValue(valueName).ToString();
+                                                    if (value.ToLower().Contains("plex media server.exe"))
+                                                    {
+                                                        //found it hooray!
+                                                        result = value;
+                                                        resultFound = true;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            if (resultFound) //don't keep looping if we have a result
+                                            {
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (resultFound) //break this loop if we have a result
+                            {
                                 break;
                             }
                         }
                     }
                 }
             }
-            
             return result;
         }
 
