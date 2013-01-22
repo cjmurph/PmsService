@@ -26,7 +26,7 @@ namespace PlexServiceTray
 
         private readonly static TimeSpan timeOut = TimeSpan.FromMilliseconds(30000);
 
-        private string logPath;
+        private string logFile;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -48,11 +48,13 @@ namespace PlexServiceTray
             initializeContext();
         }
 
+        /// <summary>
+        /// Setup our tray icon
+        /// </summary>
         private void initializeContext()
         {
-            string appFolder = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            logPath = System.IO.Path.Combine(appFolder, @"Logs\");
-            //this.logPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PlexService\\Logs\\");
+            this.logFile = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Plex Service\plexServiceLog.txt");
+
             this.components = new System.ComponentModel.Container();
             this.pmsService = new ServiceController(serviceName);
             this.notifyIcon = new NotifyIcon(this.components);
@@ -64,13 +66,22 @@ namespace PlexServiceTray
             this.notifyIcon.ContextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(ContextMenuStrip_Opening);
         }
 
+        /// <summary>
+        /// Open the context menu if we left click too
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void notifyIcon_Click(object sender, EventArgs e)
         {
             MethodInfo mi = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
             mi.Invoke(this.notifyIcon, null);
         }
 
-
+        /// <summary>
+        /// build the context menu each time it opens to ensure appropriate options
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = false;
@@ -95,6 +106,10 @@ namespace PlexServiceTray
             this.notifyIcon.ContextMenuStrip.Items.Add("Exit", null, exitCommand);
         }
 
+        /// <summary>
+        /// See if the service is running
+        /// </summary>
+        /// <returns></returns>
         private bool? serviceIsRunning()
         {
             bool? result = null;
@@ -155,13 +170,13 @@ namespace PlexServiceTray
 
         private void viewLogs_Click(object sender, EventArgs e)
         {
-            if (Directory.Exists(this.logPath))
+            if (File.Exists(this.logFile))
             {
-                Process.Start(this.logPath);
+                Process.Start(this.logFile);
             }
             else
             {
-                MessageBox.Show("Unable to find log path");
+                MessageBox.Show("Unable to find log file");
             }
         }
 

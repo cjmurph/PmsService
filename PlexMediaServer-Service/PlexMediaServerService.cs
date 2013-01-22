@@ -15,8 +15,8 @@ namespace PlexMediaServer_Service
     public partial class PlexMediaServerService : ServiceBase
     {
         private PmsMonitor pms;
-        private string logPath;
-        private string appPath;
+
+        private string appDataPath;
 
         public PlexMediaServerService()
         {
@@ -24,10 +24,9 @@ namespace PlexMediaServer_Service
             //This is a simple start stop service, no pause and resume.
             this.CanPauseAndContinue = false;
 
-            this.appPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            this.logPath = System.IO.Path.Combine(appPath, @"Logs\");//Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PlexService\\Logs\\");
+            this.appDataPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Plex Service\");
 
-            this.pms = new PmsMonitor(this.appPath);
+            this.pms = new PmsMonitor(this.appDataPath);
 
             this.pms.PlexStatusChange += new PmsMonitor.PlexStatusChangeHandler(pms_PlexStatusChange);
             this.pms.PlexStop += new PmsMonitor.PlexStopHandler(pms_PlexStop);
@@ -81,11 +80,11 @@ namespace PlexMediaServer_Service
         /// <param name="data"></param>
         public void WriteToLog(string data)
         {
-            if (!System.IO.Directory.Exists(logPath))
+            if (!System.IO.Directory.Exists(this.appDataPath))
             {
-                System.IO.Directory.CreateDirectory(logPath);
+                System.IO.Directory.CreateDirectory(this.appDataPath);
             }
-            string fileName = System.IO.Path.Combine(logPath, "plexServiceLog.txt");
+            string fileName = System.IO.Path.Combine(this.appDataPath, "plexServiceLog.txt");
             LogWriter.WriteLine(data, fileName);
             
         }
