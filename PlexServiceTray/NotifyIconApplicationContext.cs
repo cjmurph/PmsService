@@ -20,8 +20,6 @@ namespace PlexServiceTray
 
         private System.Windows.Forms.NotifyIcon notifyIcon;
 
-        private ServiceController pmsService;// = new ServiceController(serviceName);
-
         private readonly static string serviceName = "PmsService";
 
         private readonly static TimeSpan timeOut = TimeSpan.FromMilliseconds(30000);
@@ -38,7 +36,6 @@ namespace PlexServiceTray
             {
                 this.components.Dispose();
                 this.notifyIcon.Dispose();
-                this.pmsService.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -56,10 +53,9 @@ namespace PlexServiceTray
             this.logFile = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Plex Service\plexServiceLog.txt");
 
             this.components = new System.ComponentModel.Container();
-            this.pmsService = new ServiceController(serviceName);
             this.notifyIcon = new NotifyIcon(this.components);
             this.notifyIcon.ContextMenuStrip = new ContextMenuStrip();
-            this.notifyIcon.Icon = new Icon("PlexService.ico");
+            this.notifyIcon.Icon = new Icon(GetType().Module.Assembly.GetManifestResourceStream("PlexServiceTray.PlexService.ico"));
             this.notifyIcon.Text = "Manage Plex Media Server Service";
             this.notifyIcon.Visible = true;
             this.notifyIcon.Click += new EventHandler(notifyIcon_Click);
@@ -86,48 +82,33 @@ namespace PlexServiceTray
         {
             e.Cancel = false;
             this.notifyIcon.ContextMenuStrip.Items.Clear();
-            bool? isRunning = this.serviceIsRunning();
-            if (isRunning == false)
+
+            using (ServiceController pmsService = new ServiceController(serviceName))
             {
-                this.notifyIcon.ContextMenuStrip.Items.Add("Start Service", null, startService_Click);
-                this.notifyIcon.ContextMenuStrip.Items.Add("View Logs", null, viewLogs_Click);
-            }
-            else if (isRunning == true)
-            {
-                this.notifyIcon.ContextMenuStrip.Items.Add("Open Web Manager", null, openManager_Click);
-                this.notifyIcon.ContextMenuStrip.Items.Add("Stop Service", null, stopService_Click);
-                this.notifyIcon.ContextMenuStrip.Items.Add("View Logs", null, viewLogs_Click);
-            }
-            else
-            {
-                this.notifyIcon.ContextMenuStrip.Items.Add("Service does not appear to be installed");
+                try
+                {
+                    switch (pmsService.Status)
+                    {
+                        case ServiceControllerStatus.Stopped:
+                            this.notifyIcon.ContextMenuStrip.Items.Add("Start Service", null, startService_Click);
+                            break;
+                        case ServiceControllerStatus.Running:
+                            this.notifyIcon.ContextMenuStrip.Items.Add("Open Web Manager", null, openManager_Click);
+                            this.notifyIcon.ContextMenuStrip.Items.Add("Stop Service", null, stopService_Click);
+                            break;
+                        default:
+                            this.notifyIcon.ContextMenuStrip.Items.Add("Service: " + pmsService.Status.ToString());
+                            break;
+                    }
+                    this.notifyIcon.ContextMenuStrip.Items.Add("View Logs", null, viewLogs_Click);
+                }
+                catch
+                {
+                    this.notifyIcon.ContextMenuStrip.Items.Add("Service does not appear to be installed");
+                }
             }
             this.notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
             this.notifyIcon.ContextMenuStrip.Items.Add("Exit", null, exitCommand);
-        }
-
-        /// <summary>
-        /// See if the service is running
-        /// </summary>
-        /// <returns></returns>
-        private bool? serviceIsRunning()
-        {
-            bool? result = null;
-            try
-            {
-                if (this.pmsService.Status == ServiceControllerStatus.Running)
-                {
-                    result = true;
-                }
-                else
-                {
-                    result = false;
-                }
-            }
-            catch
-            {
-            }
-            return result;
         }
 
         private void exitCommand(object sender, EventArgs e)
@@ -138,28 +119,34 @@ namespace PlexServiceTray
         private void startService_Click(object sender, EventArgs e)
         {
             //start it
-            try
+            using (ServiceController pmsService = new ServiceController(serviceName))
             {
-                this.pmsService.Start();
-                this.pmsService.WaitForStatus(ServiceControllerStatus.Running, timeOut);
-            }
-            catch (System.ComponentModel.Win32Exception ex)
-            {
-                MessageBox.Show("Unable to start service" + Environment.NewLine + ex.Message);
+                try
+                {
+                    pmsService.Start();
+                    pmsService.WaitForStatus(ServiceControllerStatus.Running, timeOut);
+                }
+                catch (System.ComponentModel.Win32Exception ex)
+                {
+                    MessageBox.Show("Unable to start service" + Environment.NewLine + ex.Message);
+                }
             }
         }
 
         private void stopService_Click(object sender, EventArgs e)
         {
             //stop it
-            try
+            using (ServiceController pmsService = new ServiceController(serviceName))
             {
-                this.pmsService.Stop();
-                this.pmsService.WaitForStatus(ServiceControllerStatus.Stopped, timeOut);
-            }
-            catch (System.ComponentModel.Win32Exception ex)
-            {
-                MessageBox.Show("Unable to stop service" + Environment.NewLine + ex.Message);
+                try
+                {
+                    pmsService.Stop();
+                    pmsService.WaitForStatus(ServiceControllerStatus.Stopped, timeOut);
+                }
+                catch (System.ComponentModel.Win32Exception ex)
+                {
+                    MessageBox.Show("Unable to stop service" + Environment.NewLine + ex.Message);
+                }
             }
         }
 

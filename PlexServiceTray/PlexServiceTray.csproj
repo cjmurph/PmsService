@@ -70,9 +70,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="PlexService.ico">
+    <EmbeddedResource Include="PlexService.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

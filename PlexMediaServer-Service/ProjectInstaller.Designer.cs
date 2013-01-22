@@ -49,6 +49,7 @@
             this.plexServiceProcessInstaller,
             this.plexServiceInstaller});
 
+            this.plexServiceInstaller.AfterInstall += new System.Configuration.Install.InstallEventHandler(this.ProjectInstaller_AfterInstall);
         }
 
         #endregion
