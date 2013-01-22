@@ -15,7 +15,8 @@ namespace PlexMediaServer_Service
     public partial class PlexMediaServerService : ServiceBase
     {
         private PmsMonitor pms;
-        private string logPath = "";
+        private string logPath;
+        private string appPath;
 
         public PlexMediaServerService()
         {
@@ -23,9 +24,10 @@ namespace PlexMediaServer_Service
             //This is a simple start stop service, no pause and resume.
             this.CanPauseAndContinue = false;
 
-            logPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PlexService\\Logs\\");
+            this.appPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            this.logPath = System.IO.Path.Combine(appPath, @"Logs\");//Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PlexService\\Logs\\");
 
-            this.pms = new PmsMonitor(logPath);
+            this.pms = new PmsMonitor(this.appPath);
 
             this.pms.PlexStatusChange += new PmsMonitor.PlexStatusChangeHandler(pms_PlexStatusChange);
             this.pms.PlexStop += new PmsMonitor.PlexStopHandler(pms_PlexStop);
@@ -73,25 +75,18 @@ namespace PlexMediaServer_Service
             base.OnStop();
         }
 
+        /// <summary>
+        /// Write the passed string to the logfile
+        /// </summary>
+        /// <param name="data"></param>
         public void WriteToLog(string data)
         {
             if (!System.IO.Directory.Exists(logPath))
             {
                 System.IO.Directory.CreateDirectory(logPath);
             }
-            //build the filename to create a new file each day
-            string fileName = System.IO.Path.Combine(logPath, string.Format("{0:yyyyMMdd}plxLog.txt", DateTime.Now));
+            string fileName = System.IO.Path.Combine(logPath, "plexServiceLog.txt");
             LogWriter.WriteLine(data, fileName);
-
-            //keep three days of logs, that should be enough. May not actually write to the log very often if everything is running well so run this whenever we get the chance
-            List<string> files = System.IO.Directory.GetFiles(logPath, "*plxLog.txt", System.IO.SearchOption.TopDirectoryOnly).ToList();
-            //get them in order (there is no guarantee according to msdn).
-            files = files = files.OrderBy(f => f).ToList();
-            while (files.Count > 10)
-            {
-                System.IO.File.Delete(files[0]);
-                files.RemoveAt(0);
-            }
             
         }
     }

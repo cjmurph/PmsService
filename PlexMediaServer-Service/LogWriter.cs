@@ -19,13 +19,30 @@ namespace PlexMediaServer_Service
             }
             else
             {
+                if (getLineCount(fileName) > 200)
+                {
+                    //halve the log file
+                    removeFirstLines(fileName, 100);
+                }
                 log = File.AppendText(fileName);
             }
-            log.WriteLine();
-            log.WriteLine(detail);
+            log.WriteLine(DateTime.Now.ToString() + ": " + detail);
 
             // Close the stream:
             log.Close();
+            log.Dispose();
+        }
+
+        private static void removeFirstLines(string fileName, int lineCount = 1)
+        {
+            string[] lines = File.ReadAllLines(fileName);
+            using (StreamWriter log = new StreamWriter(fileName))
+            {
+                for (int count = lineCount; count < lines.Length; count++)
+                {
+                    log.WriteLine(lines[count]);
+                }
+            }
         }
 
         internal static void deleteLog(string fileName)
@@ -34,6 +51,16 @@ namespace PlexMediaServer_Service
             {
                 File.Delete(fileName);
             }
+        }
+
+        internal static int getLineCount(string fileName)
+        {
+            int count = -1;
+            if (File.Exists(fileName))
+            {
+                count = File.ReadLines(fileName).Count();
+            }
+            return count;
         }
     }
 }

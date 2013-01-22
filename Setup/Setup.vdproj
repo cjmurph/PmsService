@@ -15,7 +15,19 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_6DA8B121FAFC4AEEB6D3ECB8ED44357A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_9C58FF48FEC74C8690E179F79A996229"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F4039CD0ACAA4922B28BCDE389947917"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -23,6 +35,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_9C58FF48FEC74C8690E179F79A996229"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_F4039CD0ACAA4922B28BCDE389947917"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -186,6 +204,26 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6DA8B121FAFC4AEEB6D3ECB8ED44357A"
+            {
+            "SourcePath" = "8:..\\PlexServiceTray\\PlexService.ico"
+            "TargetName" = "8:PlexService.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_2AC60C9A8E744F58AF06C6030A7D3BC9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
         }
         "FileType"
         {
@@ -201,6 +239,28 @@
             "Property" = "8:ProgramMenuFolder"
                 "Folders"
                 {
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_1FD37B2FA93C47818A1B12CA924BBFC9"
+                    {
+                    "Name" = "8:Plex Service"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_9E4AC384B88444528D193B719FB19005"
+                        "Folders"
+                        {
+                        }
+                    }
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_3722CA4221274684BA4428A732332F15"
+                    {
+                    "Name" = "8:Startup"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_BB3A96F207A24050AC8CDE0437DDC09B"
+                        "Folders"
+                        {
+                        }
+                    }
                 }
             }
             "{1525181F-901A-416C-8A58-119130FE478E}:_272995212E704AAB87ACC358B21D3D27"
@@ -242,15 +302,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Plex Service"
-        "ProductCode" = "8:{8C9289AA-E49E-4100-BABA-8BE10842C281}"
-        "PackageCode" = "8:{B2D86A47-D1F6-4DD1-A72E-46D88DD3EC9E}"
+        "ProductCode" = "8:{2581F7D8-FC2E-4F16-9925-6CF4CBEEDB0C}"
+        "PackageCode" = "8:{32930ECA-51F1-458F-B63B-651223CC3F54}"
         "UpgradeCode" = "8:{3C09613F-4E46-4885-BCF6-F02E35906D4A}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.0.2"
+        "ProductVersion" = "8:1.0.3"
         "Manufacturer" = "8:Plex Media Server Service"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -363,6 +423,34 @@
         }
         "Shortcut"
         {
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_0F23E9AD6A2A4961A15D5E4599169DE2"
+            {
+            "Name" = "8:Plex Service Tray Icon"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_F4039CD0ACAA4922B28BCDE389947917"
+            "Folder" = "8:_3722CA4221274684BA4428A732332F15"
+            "WorkingFolder" = "8:_2AC60C9A8E744F58AF06C6030A7D3BC9"
+            "Icon" = "8:_6DA8B121FAFC4AEEB6D3ECB8ED44357A"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_5B580FE0556D4EFB92D2F54E79EBF03F"
+            {
+            "Name" = "8:Plex Service Tray Icon"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_F4039CD0ACAA4922B28BCDE389947917"
+            "Folder" = "8:_1FD37B2FA93C47818A1B12CA924BBFC9"
+            "WorkingFolder" = "8:_2AC60C9A8E744F58AF06C6030A7D3BC9"
+            "Icon" = "8:_6DA8B121FAFC4AEEB6D3ECB8ED44357A"
+            "Feature" = "8:"
+            }
         }
         "UserInterface"
         {
@@ -785,6 +873,34 @@
             "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:Built"
             "OutputProjectGuid" = "8:{502A2EAF-DABC-4D4B-B579-5953A3E03DD8}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_F4039CD0ACAA4922B28BCDE389947917"
+            {
+            "SourcePath" = "8:..\\PlexServiceTray\\obj\\x86\\Release\\PlexServiceTray.exe"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_2AC60C9A8E744F58AF06C6030A7D3BC9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{8729030F-D67D-40ED-8BB0-23CEEF6A3F82}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {

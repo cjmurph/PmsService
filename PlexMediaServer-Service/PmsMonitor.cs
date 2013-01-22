@@ -44,7 +44,7 @@ namespace PlexMediaServer_Service
         /// </summary>
         private bool stopping;
 
-        private string logPath;
+        private string appPath;
 
         #endregion
 
@@ -55,9 +55,9 @@ namespace PlexMediaServer_Service
         #region Constructor
         internal PmsMonitor() : this("") { }
 
-        internal PmsMonitor(string logPath)
+        internal PmsMonitor(string appPath)
         {
-            this.logPath = logPath;
+            this.appPath = appPath;
         }
         #endregion
 
@@ -324,9 +324,9 @@ namespace PlexMediaServer_Service
 
             //first we will do a dirty check for a text file with the executable path in our log folder.
             //this is here to help anyone having issues and let them specify it manually themseves.
-            if(!string.IsNullOrEmpty(this.logPath))
+            if(!string.IsNullOrEmpty(this.appPath))
             {
-                string location = Path.Combine(logPath, "location.txt");
+                string location = Path.Combine(this.appPath, "location.txt");
                 if (File.Exists(location))
                 {
                     string userSpecified = string.Empty;
