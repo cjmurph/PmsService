@@ -32,10 +32,6 @@ namespace PlexMediaServer_Service
         private string executableFileName = string.Empty;
 
         /// <summary>
-        /// Explorer process
-        /// </summary>
-        private Process explorer;
-        /// <summary>
         /// Plex process
         /// </summary>
         private Process plex;
@@ -79,7 +75,7 @@ namespace PlexMediaServer_Service
             else
             {
                 this.OnPlexStatusChange(this, new PlexRunningStatusChangeEventArgs("Plex executable found at " + this.executableFileName));
-                this.startPlexWithExplorer(10000);
+                this.startPlex();
             }
         }
 
@@ -94,7 +90,7 @@ namespace PlexMediaServer_Service
         {
             this.stopping = true;
             this.endPlex();
-            this.endExplorer();
+            //this.endExplorer();
         }
 
         #endregion
@@ -115,14 +111,13 @@ namespace PlexMediaServer_Service
             this.plex.Exited -= this.plex_Exited;
             //try to restart
             this.endPlex();
-            this.endExplorer();
             //restart as required
             if (!this.stopping)
             {
                 this.OnPlexStatusChange(this, new PlexRunningStatusChangeEventArgs("Re-starting Plex process."));
                 //wait some seconds first
-                System.Threading.Thread.Sleep(5000);
-                this.startPlexWithExplorer(5000);
+                System.Threading.Thread.Sleep(10000);
+                this.startPlex();
             }
             else
             {
@@ -130,58 +125,16 @@ namespace PlexMediaServer_Service
             }
         }
 
-        /// <summary>
-        /// This event fires when the explorer process we have a refrence to exits
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void explorer_Exited(object sender, EventArgs e)
-        {
-            this.explorer.Exited -= this.explorer_Exited;
-            //if plex is running it will likely fail not long after this...
-        }
-
         #endregion
 
         #region Start methods
-
-        /// <summary>
-        /// Starts an instance of Explorer, waits 10 seconds then starts Plex Media Server
-        /// </summary>
-        private void startPlexWithExplorer(int msDelay)
-        {
-            this.OnPlexStatusChange(this, new PlexRunningStatusChangeEventArgs("Attempting to start Explorer"));
-            this.startExplorer();
-            //wait delay to be sure that explorer has started
-            this.OnPlexStatusChange(this, new PlexRunningStatusChangeEventArgs(string.Format("Waiting {0} milliseconds", msDelay.ToString())));
-            System.Threading.Thread.Sleep(msDelay);
-            this.OnPlexStatusChange(this, new PlexRunningStatusChangeEventArgs("Attempting to start Plex"));
-            this.startPlex();
-        }
-
-        /// <summary>
-        /// Start a new/get a handle on existing Explorer process
-        /// </summary>
-        private void startExplorer()
-        {
-            if (this.explorer == null)
-            {
-                this.explorer = new Process();
-                ProcessStartInfo explorerStartInfo = new ProcessStartInfo(System.IO.Path.Combine(Environment.ExpandEnvironmentVariables("%windir%"), @"explorer.exe"));
-                explorerStartInfo.UseShellExecute = false;
-                this.explorer.StartInfo = explorerStartInfo;
-                this.explorer.EnableRaisingEvents = true;
-                this.explorer.Exited += new EventHandler(explorer_Exited);
-                this.explorer.Start();
-                this.OnPlexStatusChange(this, new PlexRunningStatusChangeEventArgs("Explorer Started."));
-            }
-        }
 
         /// <summary>
         /// Start a new/get a handle on existing Plex process
         /// </summary>
         private void startPlex()
         {
+            this.OnPlexStatusChange(this, new PlexRunningStatusChangeEventArgs("Attempting to start Plex"));
             if (this.plex == null)
             {
                 //see if its running already
@@ -213,27 +166,6 @@ namespace PlexMediaServer_Service
         #endregion
 
         #region End methods
-
-        /// <summary>
-        /// Kill the explorer process
-        /// </summary>
-        private void endExplorer()
-        {
-            this.OnPlexStatusChange(this, new PlexRunningStatusChangeEventArgs("Killing Explorer."));
-            if (this.explorer != null)
-            {
-                try
-                {
-                    this.explorer.Kill();
-                }
-                catch { }
-                finally
-                {
-                    this.explorer.Dispose();
-                    this.explorer = null;
-                }
-            }
-        }
 
         /// <summary>
         /// Kill the plex process
