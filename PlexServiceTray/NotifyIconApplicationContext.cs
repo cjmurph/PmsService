@@ -50,7 +50,7 @@ namespace PlexServiceTray
         /// </summary>
         private void initializeContext()
         {
-            this.logFile = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Plex Service\plexServiceLog.txt");
+            this.logFile = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Plex Service\plexServiceLog.txt");
 
             this.components = new System.ComponentModel.Container();
             this.notifyIcon = new NotifyIcon(this.components);

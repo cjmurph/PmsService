@@ -24,7 +24,7 @@ namespace PlexMediaServer_Service
             //This is a simple start stop service, no pause and resume.
             this.CanPauseAndContinue = false;
 
-            this.appDataPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Plex Service\");
+            this.appDataPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"Plex Service\");
 
             this.pms = new PmsMonitor(this.appDataPath);
 

@@ -18,9 +18,10 @@ namespace PlexMediaServer_Service
 
         //Process names
         private static string plexName = "Plex Media Server";
-        private static string dlnaServerName = "PlexDlnaServer";
+        private static string plexDlnaServerName = "PlexDlnaServer";
         private static string plexScriptHostName = "PlexScriptHost";
-        //private static string explorerName = "explorer";
+        private static string plexTranscoderName = "PlexTranscoder";
+        private static string plexNewTranscoderName = "PlexNewTranscoder";
 
         #endregion
 
@@ -188,55 +189,46 @@ namespace PlexMediaServer_Service
                 }
             }
             //kill the supporting processes.
-            killDlnaServer();
-            killPlexScriptHost();
+            killSupportingProcesses(new string[] { PmsMonitor.plexDlnaServerName, PmsMonitor.plexScriptHostName, PmsMonitor.plexTranscoderName, PmsMonitor.plexNewTranscoderName });
         }
 
-        private void killDlnaServer()
+        /// <summary>
+        /// Kill all processes with the specified names
+        /// </summary>
+        /// <param name="names">The names of the processes to kill</param>
+        private void killSupportingProcesses(string[] names)
         {
-            //see if its running
-            Process[] dlnaServers = Process.GetProcessesByName(PmsMonitor.dlnaServerName);
-            if (dlnaServers.Length > 0)
+            foreach (string name in names)
             {
-                foreach (Process dlnaServer in dlnaServers)
-                {
-                    try
-                    {
-                        dlnaServer.Kill();
-                    }
-                    catch
-                    {
-                    }
-                    finally
-                    {
-                        dlnaServer.Dispose();
-                    }
-                }
-                this.OnPlexStatusChange(this, new PlexRunningStatusChangeEventArgs("Plex Dlna Server Stopped."));
+                killSupportingProcess(name);
             }
         }
 
-        private void killPlexScriptHost()
+        /// <summary>
+        /// Kill all instances of the specified process.
+        /// </summary>
+        /// <param name="name">The name of the process to kill</param>
+        private void killSupportingProcess(string name)
         {
             //see if its running
-            Process[] scriptHosts = Process.GetProcessesByName(PmsMonitor.plexScriptHostName);
-            if (scriptHosts.Length > 0)
+            Process[] supportProcesses = Process.GetProcessesByName(name);
+            if (supportProcesses.Length > 0)
             {
-                foreach (Process scriptHost in scriptHosts)
+                foreach (Process supportProcess in supportProcesses)
                 {
                     try
                     {
-                        scriptHost.Kill();
+                        supportProcess.Kill();
                     }
                     catch
                     {
                     }
                     finally
                     {
-                        scriptHost.Dispose();
+                        supportProcess.Dispose();
                     }
                 }
-                this.OnPlexStatusChange(this, new PlexRunningStatusChangeEventArgs("Plex Script Host Stopped."));
+                this.OnPlexStatusChange(this, new PlexRunningStatusChangeEventArgs(string.Format("{0} Stopped.", name)));
             }
         }
 
@@ -277,7 +269,7 @@ namespace PlexMediaServer_Service
             if (string.IsNullOrEmpty(result))
             {
 
-                //plex doesnt put this nice stuff in the registry so we need to go hunting for it ourselves
+                //plex doesn't put this nice stuff in the registry so we need to go hunting for it ourselves
                 //this method is crap. I dont like having to iterate through directories looking to see if a file exists or not.
                 //start by looking in the program files directory, even if we are on 64bit windows, plex may be 64bit one day... maybe
 
