@@ -329,7 +329,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Plex Service"
         "ProductCode" = "8:{1B14A4C0-A9C2-4F4B-933D-20DC2FBC43D7}"
-        "PackageCode" = "8:{79413F78-D77E-4D3C-9537-5CE260417B58}"
+        "PackageCode" = "8:{9B1DA211-E5A7-4219-8B7F-9BBB637AD8CB}"
         "UpgradeCode" = "8:{3C09613F-4E46-4885-BCF6-F02E35906D4A}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -352,7 +352,7 @@
         "UseSystemSearchPath" = "11:TRUE"
         "TargetPlatform" = "3:0"
         "PreBuildEvent" = "8:"
-        "PostBuildEvent" = "8:cscript.exe \"$(ProjectDir)EnableLaunchApplication.js\" \"$(BuiltOuputPath)\""
+        "PostBuildEvent" = "8:cscript.exe \"$(ProjectDir)EnableLaunchApplication.js\" \"$(BuiltOuputPath)\"\r\ncscript.exe \"$(ProjectDir)MSI_SetProperty.js\" \"$(BuiltOuputPath)\" InstallExecuteSequence RemoveExistingProducts 1525\r\n"
         "RunPostBuildEvent" = "3:0"
         }
         "Registry"
