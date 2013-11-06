@@ -18,10 +18,8 @@ namespace PlexMediaServer_Service
 
         //Process names
         private static string plexName = "Plex Media Server";
-        private static string plexDlnaServerName = "PlexDlnaServer";
-        private static string plexScriptHostName = "PlexScriptHost";
-        private static string plexTranscoderName = "PlexTranscoder";
-        private static string plexNewTranscoderName = "PlexNewTranscoder";
+        //List of processes spawned by plex that we need to get rid of
+        private static string[] supportingProcesses = { "PlexDlnaServer", "PlexScriptHost", "PlexTranscoder", "PlexNewTranscoder", "Plex Media Scanner" };
 
         #endregion
 
@@ -189,7 +187,7 @@ namespace PlexMediaServer_Service
                 }
             }
             //kill the supporting processes.
-            killSupportingProcesses(new string[] { PmsMonitor.plexDlnaServerName, PmsMonitor.plexScriptHostName, PmsMonitor.plexTranscoderName, PmsMonitor.plexNewTranscoderName });
+            killSupportingProcesses(PmsMonitor.supportingProcesses);
         }
 
         /// <summary>
