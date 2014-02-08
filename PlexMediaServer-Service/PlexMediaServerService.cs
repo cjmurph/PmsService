@@ -16,7 +16,7 @@ namespace PlexMediaServer_Service
     {
         private PmsMonitor pms;
 
-        private string appDataPath;
+        internal static string APP_DATA_PATH = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Plex Service\");
 
         public PlexMediaServerService()
         {
@@ -24,9 +24,8 @@ namespace PlexMediaServer_Service
             //This is a simple start stop service, no pause and resume.
             this.CanPauseAndContinue = false;
 
-            this.appDataPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Plex Service\");
-
-            this.pms = new PmsMonitor(this.appDataPath);
+            //setup main plex media server monitor
+            this.pms = new PmsMonitor();
 
             this.pms.PlexStatusChange += new PmsMonitor.PlexStatusChangeHandler(pms_PlexStatusChange);
             this.pms.PlexStop += new PmsMonitor.PlexStopHandler(pms_PlexStop);
@@ -47,7 +46,7 @@ namespace PlexMediaServer_Service
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="data"></param>
-        void pms_PlexStatusChange(object sender, PlexRunningStatusChangeEventArgs data)
+        void pms_PlexStatusChange(object sender, StatusChangeEventArgs data)
         {
             WriteToLog(data.Description);
         }
@@ -61,6 +60,7 @@ namespace PlexMediaServer_Service
             //We have one minute now, but should be able to do it all pretty safely within that.
             WriteToLog("PlexMediaServerService Started");
             this.pms.Start();
+
             base.OnStart(args);
         }
 
@@ -80,11 +80,11 @@ namespace PlexMediaServer_Service
         /// <param name="data"></param>
         public void WriteToLog(string data)
         {
-            if (!System.IO.Directory.Exists(this.appDataPath))
+            if (!System.IO.Directory.Exists(APP_DATA_PATH))
             {
-                System.IO.Directory.CreateDirectory(this.appDataPath);
+                System.IO.Directory.CreateDirectory(APP_DATA_PATH);
             }
-            string fileName = System.IO.Path.Combine(this.appDataPath, "plexServiceLog.txt");
+            string fileName = System.IO.Path.Combine(APP_DATA_PATH, "plexServiceLog.txt");
             LogWriter.WriteLine(data, fileName);
             
         }

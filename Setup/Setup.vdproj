@@ -15,6 +15,30 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_0F7E93373E3FB5FBCC5218E7CC513988"
+        "OwnerKey" = "8:_9C58FF48FEC74C8690E179F79A996229"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_0F7E93373E3FB5FBCC5218E7CC513988"
+        "OwnerKey" = "8:_4590651952E94A8113C6BCAF095F0BA6"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_0F7E93373E3FB5FBCC5218E7CC513988"
+        "OwnerKey" = "8:_F4039CD0ACAA4922B28BCDE389947917"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_4590651952E94A8113C6BCAF095F0BA6"
+        "OwnerKey" = "8:_F4039CD0ACAA4922B28BCDE389947917"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_6DA8B121FAFC4AEEB6D3ECB8ED44357A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -47,6 +71,18 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_F4039CD0ACAA4922B28BCDE389947917"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_4590651952E94A8113C6BCAF095F0BA6"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_0F7E93373E3FB5FBCC5218E7CC513988"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -210,6 +246,68 @@
         }
         "File"
         {
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_0F7E93373E3FB5FBCC5218E7CC513988"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_0F7E93373E3FB5FBCC5218E7CC513988"
+                    {
+                    "Name" = "8:Newtonsoft.Json.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Newtonsoft.Json.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_2AC60C9A8E744F58AF06C6030A7D3BC9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_4590651952E94A8113C6BCAF095F0BA6"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:PlexMediaServer-Service, Version=1.0.1.0, Culture=neutral, processorArchitecture=x86"
+                "ScatterAssemblies"
+                {
+                    "_4590651952E94A8113C6BCAF095F0BA6"
+                    {
+                    "Name" = "8:PlexMediaServer-Service.exe"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:PlexMediaServer-Service.exe"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_2AC60C9A8E744F58AF06C6030A7D3BC9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6DA8B121FAFC4AEEB6D3ECB8ED44357A"
             {
             "SourcePath" = "8:..\\PlexServiceTray\\PlexService.ico"
@@ -328,15 +426,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Plex Service"
-        "ProductCode" = "8:{48588FD5-3B8B-426F-AD24-900F8DFACC20}"
-        "PackageCode" = "8:{2736050B-853E-4682-A0CD-735E01AD20D0}"
+        "ProductCode" = "8:{6ED93B21-0E45-422A-93D8-0EE2B5924491}"
+        "PackageCode" = "8:{715DC3B2-7F00-43C7-957A-9E1CA5B316C2}"
         "UpgradeCode" = "8:{3C09613F-4E46-4885-BCF6-F02E35906D4A}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.0.9"
+        "ProductVersion" = "8:1.0.1"
         "Manufacturer" = "8:Plex Media Server Service"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

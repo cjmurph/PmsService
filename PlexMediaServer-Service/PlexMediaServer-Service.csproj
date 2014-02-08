@@ -68,6 +68,9 @@
     <ApplicationIcon>PlexService.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
@@ -79,6 +82,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AuxiliaryApplication.cs" />
+    <Compile Include="AuxiliaryApplicationMonitor.cs" />
     <Compile Include="LogWriter.cs" />
     <Compile Include="PlexMediaServerService.cs">
       <SubType>Component</SubType>
@@ -86,7 +91,7 @@
     <Compile Include="PlexMediaServerService.Designer.cs">
       <DependentUpon>PlexMediaServerService.cs</DependentUpon>
     </Compile>
-    <Compile Include="PlexRunningStateChangeEventArgs.cs" />
+    <Compile Include="StatusChangeEventArgs.cs" />
     <Compile Include="PmsMonitor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProjectInstaller.cs">
@@ -96,6 +101,7 @@
       <DependentUpon>ProjectInstaller.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="PlexMediaServerService.resx">

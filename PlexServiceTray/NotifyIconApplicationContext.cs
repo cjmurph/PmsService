@@ -108,7 +108,35 @@ namespace PlexServiceTray
                 }
             }
             this.notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+            this.notifyIcon.ContextMenuStrip.Items.Add("Settings", null, settingsCommand);
+            this.notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
             this.notifyIcon.ContextMenuStrip.Items.Add("Exit", null, exitCommand);
+        }
+
+        private void settingsCommand(object sender, EventArgs e)
+        {
+            using (ServiceController pmsService = new ServiceController(serviceName))
+            {
+            SettingsWindow settings = new SettingsWindow();
+            if (settings.ShowDialog() == true && pmsService.Status == ServiceControllerStatus.Running)
+            {
+                if (MessageBox.Show("Settings changed, do you want to restart the service?", "Settings changed!", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                        try
+                        {
+                            pmsService.Stop();
+                            pmsService.WaitForStatus(ServiceControllerStatus.Stopped, timeOut);
+                            pmsService.Start();
+                            pmsService.WaitForStatus(ServiceControllerStatus.Running, timeOut);
+                        }
+                        catch (System.ComponentModel.Win32Exception ex)
+                        {
+                            MessageBox.Show("Unable to restart service" + Environment.NewLine + ex.Message);
+                        }
+                    
+                }
+            }
+            }
         }
 
         private void exitCommand(object sender, EventArgs e)
