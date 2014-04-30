@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PlexServiceTray"
-             MinHeight="490" Height="490" MinWidth="450" Width="450" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowStyle="None" local:DialogCloser.DialogResult="{Binding DialogResult}">
+             MinHeight="490" Height="490" MinWidth="450" Width="450" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowStyle="None" local:DialogCloser.DialogResult="{Binding DialogResult}" Icon="PlexService.ico">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -35,6 +35,7 @@
                                         <RowDefinition/>
                                         <RowDefinition/>
                                         <RowDefinition/>
+                                        <RowDefinition/>
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
@@ -48,6 +49,7 @@
                                     <Button Grid.Row="1" Grid.Column="2" Content="..." Width="30" Command="{Binding BrowseCommand}" Margin="0,5,5,5"/>
                                     <TextBlock Grid.Row="2" Text="Argument:" Margin="5" VerticalAlignment="Center" ToolTip="Enter any command line arguments you want added to the startup command for this application"/>
                                     <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Argument, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
+                                    <CheckBox Grid.Row="3" Grid.ColumnSpan="3" Content="Keep alive while plex is running" IsChecked="{Binding KeepAlive}" Margin="5" ToolTip="If selected, The service will attempt to keep this application running while plex is running. Otherwise when it stops it will not be restarted."/>
                                 </Grid>
                             </Expander>
                         </DataTemplate>

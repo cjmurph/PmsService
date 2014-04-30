@@ -59,6 +59,22 @@ namespace PlexServiceTray
             }
         }
 
+        public bool KeepAlive
+        {
+            get
+            {
+                return this.auxApplication.KeepAlive;
+            }
+            set
+            {
+                if (this.auxApplication.KeepAlive != value)
+                {
+                    this.auxApplication.KeepAlive = value;
+                    OnPropertyChanged("KeepAlive");
+                }
+            }
+        }
+
         private bool _isExpanded;
 
         public bool IsExpanded

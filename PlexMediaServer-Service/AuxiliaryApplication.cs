@@ -18,11 +18,15 @@ namespace PlexMediaServer_Service
         [JsonProperty]
         public string Argument { get; set; }
 
+        [JsonProperty]
+        public bool KeepAlive { get; set; }
+
         public AuxiliaryApplication()
         {
             Name = string.Empty;
             FilePath = string.Empty;
             Argument = string.Empty;
+            KeepAlive = true;
         }
     }
 }

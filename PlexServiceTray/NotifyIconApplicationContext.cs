@@ -26,6 +26,8 @@ namespace PlexServiceTray
 
         private string logFile;
 
+        private bool serviceDetected;
+
         /// <summary>
         /// Clean up any resources being used.
         /// </summary>
@@ -55,7 +57,7 @@ namespace PlexServiceTray
             this.components = new System.ComponentModel.Container();
             this.notifyIcon = new NotifyIcon(this.components);
             this.notifyIcon.ContextMenuStrip = new ContextMenuStrip();
-            this.notifyIcon.Icon = new Icon(GetType().Module.Assembly.GetManifestResourceStream("PlexServiceTray.PlexService.ico"));
+            this.notifyIcon.Icon = Properties.Resources.PlexService;// new Icon(GetType().Module.Assembly.GetManifestResourceStream("PlexServiceTray.PlexService.ico"));
             this.notifyIcon.Text = "Manage Plex Media Server Service";
             this.notifyIcon.Visible = true;
             this.notifyIcon.Click += new EventHandler(notifyIcon_Click);
@@ -100,10 +102,12 @@ namespace PlexServiceTray
                             this.notifyIcon.ContextMenuStrip.Items.Add("Service: " + pmsService.Status.ToString());
                             break;
                     }
+                    this.serviceDetected = true;
                     this.notifyIcon.ContextMenuStrip.Items.Add("View Logs", null, viewLogs_Click);
                 }
                 catch
                 {
+                    this.serviceDetected = false;
                     this.notifyIcon.ContextMenuStrip.Items.Add("Service does not appear to be installed");
                 }
             }
@@ -115,27 +119,31 @@ namespace PlexServiceTray
 
         private void settingsCommand(object sender, EventArgs e)
         {
-            using (ServiceController pmsService = new ServiceController(serviceName))
-            {
             SettingsWindow settings = new SettingsWindow();
-            if (settings.ShowDialog() == true && pmsService.Status == ServiceControllerStatus.Running)
+            if (settings.ShowDialog() == true && serviceDetected)
             {
-                if (MessageBox.Show("Settings changed, do you want to restart the service?", "Settings changed!", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                using (ServiceController pmsService = new ServiceController(serviceName))
                 {
-                        try
+                    if (pmsService.Status == ServiceControllerStatus.Running)
+                    {
+                        if (MessageBox.Show("Settings changed, do you want to restart the service?", "Settings changed!", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                         {
-                            pmsService.Stop();
-                            pmsService.WaitForStatus(ServiceControllerStatus.Stopped, timeOut);
-                            pmsService.Start();
-                            pmsService.WaitForStatus(ServiceControllerStatus.Running, timeOut);
+                            try
+                            {
+                                pmsService.Stop();
+                                pmsService.WaitForStatus(ServiceControllerStatus.Stopped, timeOut);
+                                pmsService.Start();
+                                pmsService.WaitForStatus(ServiceControllerStatus.Running, timeOut);
+                            }
+                            catch (System.ComponentModel.Win32Exception ex)
+                            {
+                                MessageBox.Show("Unable to restart service" + Environment.NewLine + ex.Message);
+                            }
+
                         }
-                        catch (System.ComponentModel.Win32Exception ex)
-                        {
-                            MessageBox.Show("Unable to restart service" + Environment.NewLine + ex.Message);
-                        }
-                    
+                    }
+
                 }
-            }
             }
         }
 

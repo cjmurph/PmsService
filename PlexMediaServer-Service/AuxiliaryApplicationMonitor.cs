@@ -69,22 +69,31 @@ namespace PlexMediaServer_Service
         /// <param name="e"></param>
         void auxProcess_Exited(object sender, EventArgs e)
         {
-            this.OnStatusChange(this, new StatusChangeEventArgs(aux.Name + " has stopped!"));
-            //unsubscribe
-            this.auxProcess.Exited -= this.auxProcess_Exited;
-            //try to restart
-            this.end();
-            //restart as required
-            if (!this.stopping)
+            if (this.aux.KeepAlive)
             {
-                this.OnStatusChange(this, new StatusChangeEventArgs("Re-starting " + aux.Name));
-                //wait some seconds first
-                System.Threading.Thread.Sleep(10000);
-                this.start();
+                this.OnStatusChange(this, new StatusChangeEventArgs(aux.Name + " has stopped!"));
+                //unsubscribe
+                this.auxProcess.Exited -= this.auxProcess_Exited;
+                this.end();
+                //restart as required
+                if (!this.stopping)
+                {
+                    this.OnStatusChange(this, new StatusChangeEventArgs("Re-starting " + aux.Name));
+                    //wait some seconds first
+                    System.Threading.Thread.Sleep(10000);
+                    this.start();
+                }
+                else
+                {
+                    this.OnStatusChange(this, new StatusChangeEventArgs(aux.Name + " stopped"));
+                }
             }
             else
             {
-                this.OnStatusChange(this, new StatusChangeEventArgs(aux.Name + " stopped"));
+                this.OnStatusChange(this, new StatusChangeEventArgs(aux.Name + " has completed"));
+                //unsubscribe
+                this.auxProcess.Exited -= this.auxProcess_Exited;
+                this.auxProcess.Dispose();
             }
         }
 
