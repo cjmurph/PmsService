@@ -17,9 +17,9 @@ namespace PlexMediaServer_Service
         #region static strings
 
         //Process names
-        private static string plexName = "Plex Media Server";
+        private static string _plexName = "Plex Media Server";
         //List of processes spawned by plex that we need to get rid of
-        private static string[] supportingProcesses = { "PlexDlnaServer", "PlexScriptHost", "PlexTranscoder", "PlexNewTranscoder", "Plex Media Scanner" };
+        private static string[] _supportingProcesses = { "PlexDlnaServer", "PlexScriptHost", "PlexTranscoder", "PlexNewTranscoder", "Plex Media Scanner" };
 
         #endregion
 
@@ -28,18 +28,18 @@ namespace PlexMediaServer_Service
         /// <summary>
         /// The name of the plex media server executable
         /// </summary>
-        private string executableFileName = string.Empty;
+        private string _executableFileName = string.Empty;
 
         /// <summary>
         /// Plex process
         /// </summary>
-        private Process plex;
+        private Process _plex;
         /// <summary>
         /// Flag for actual stop rather than crash we should attempt to restart from
         /// </summary>
-        private bool stopping;
+        private bool _stopping;
 
-        private List<AuxiliaryApplicationMonitor> auxAppMonitors;
+        private List<AuxiliaryApplicationMonitor> _auxAppMonitors;
 
         #endregion
 
@@ -51,7 +51,7 @@ namespace PlexMediaServer_Service
 
         internal PmsMonitor()
         {
-            auxAppMonitors = new List<AuxiliaryApplicationMonitor>();
+            _auxAppMonitors = new List<AuxiliaryApplicationMonitor>();
         }
         #endregion
 
@@ -73,11 +73,11 @@ namespace PlexMediaServer_Service
                         try
                         {
                             key.DeleteValue("Plex Media Server");
-                            this.OnPlexStatusChange(this, new StatusChangeEventArgs("Successfully removed auto start entry from registry"));
+                            OnPlexStatusChange(this, new StatusChangeEventArgs("Successfully removed auto start entry from registry"));
                         }
                         catch(Exception ex)
                         {
-                            this.OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("Unable to remove auto start registry value. Error: {0}", ex.Message)));
+                            OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("Unable to remove auto start registry value. Error: {0}", ex.Message)));
                         }
                     }
                 }
@@ -93,26 +93,26 @@ namespace PlexMediaServer_Service
         /// </summary>
         internal void Start()
         {
-            this.stopping = false;
+            _stopping = false;
 
             //Find the plex executable
-            this.executableFileName = getPlexExecutable();
-            if (string.IsNullOrEmpty(this.executableFileName))
+            _executableFileName = getPlexExecutable();
+            if (string.IsNullOrEmpty(_executableFileName))
             {
-                this.OnPlexStatusChange(this, new StatusChangeEventArgs("Plex Media Server does not appear to be installed!", EventLogEntryType.Error));
-                this.OnPlexStop(this, new EventArgs());
+                OnPlexStatusChange(this, new StatusChangeEventArgs("Plex Media Server does not appear to be installed!", EventLogEntryType.Error));
+                OnPlexStop(this, new EventArgs());
             }
             else
             {
-                this.OnPlexStatusChange(this, new StatusChangeEventArgs("Plex executable found at " + this.executableFileName));
-                this.startPlex();
+                OnPlexStatusChange(this, new StatusChangeEventArgs("Plex executable found at " + _executableFileName));
+                startPlex();
                 //load the settings and start a thread that will attempt to bring up all the auxiliary processes
                 Settings settings = Settings.Load();
-                auxAppMonitors.Clear();
-                settings.AuxiliaryApplications.ForEach(x => auxAppMonitors.Add(new AuxiliaryApplicationMonitor(x)));
+                _auxAppMonitors.Clear();
+                settings.AuxiliaryApplications.ForEach(x => _auxAppMonitors.Add(new AuxiliaryApplicationMonitor(x)));
                 //hook up the state change event for all the applications
-                auxAppMonitors.ForEach(x => x.StatusChange += new AuxiliaryApplicationMonitor.StatusChangeHandler(aux_StatusChange));
-                auxAppMonitors.AsParallel().ForAll(x => x.Start());
+                _auxAppMonitors.ForEach(x => x.StatusChange += new AuxiliaryApplicationMonitor.StatusChangeHandler(aux_StatusChange));
+                _auxAppMonitors.AsParallel().ForAll(x => x.Start());
             }
         }
 
@@ -131,10 +131,10 @@ namespace PlexMediaServer_Service
         /// </summary>
         internal void Stop()
         {
-            this.stopping = true;
-            this.endPlex();
+            _stopping = true;
+            endPlex();
             //kill each auxiliary process
-            auxAppMonitors.ForEach(x => 
+            _auxAppMonitors.ForEach(x => 
                 {
                     x.Stop();
                     //remove event hook
@@ -155,22 +155,22 @@ namespace PlexMediaServer_Service
         /// <param name="e"></param>
         void plex_Exited(object sender, EventArgs e)
         {
-            this.OnPlexStatusChange(this, new StatusChangeEventArgs("Plex Media Server has stopped!"));
+            OnPlexStatusChange(this, new StatusChangeEventArgs("Plex Media Server has stopped!"));
             //unsubscribe
-            this.plex.Exited -= this.plex_Exited;
+            _plex.Exited -= plex_Exited;
             //try to restart
-            this.endPlex();
+            endPlex();
             //restart as required
-            if (!this.stopping)
+            if (!_stopping)
             {
-                this.OnPlexStatusChange(this, new StatusChangeEventArgs("Re-starting Plex process."));
+                OnPlexStatusChange(this, new StatusChangeEventArgs("Re-starting Plex process."));
                 //wait some seconds first
                 System.Threading.Thread.Sleep(10000);
-                this.startPlex();
+                startPlex();
             }
             else
             {
-                this.OnPlexStatusChange(this, new StatusChangeEventArgs("Plex process stopped"));
+                OnPlexStatusChange(this, new StatusChangeEventArgs("Plex process stopped"));
             }
         }
 
@@ -184,60 +184,60 @@ namespace PlexMediaServer_Service
         private void startPlex()
         {
             //always try to get rid of the plex auto start registry entry
-            this.purgeAutoStartRegistryEntry();
+            purgeAutoStartRegistryEntry();
 
-            this.OnPlexStatusChange(this, new StatusChangeEventArgs("Attempting to start Plex"));
-            if (this.plex == null)
+            OnPlexStatusChange(this, new StatusChangeEventArgs("Attempting to start Plex"));
+            if (_plex == null)
             {
                 //see if its running already
-                this.plex = Process.GetProcessesByName(PmsMonitor.plexName).FirstOrDefault();
-                if (this.plex == null)
+                _plex = Process.GetProcessesByName(PmsMonitor._plexName).FirstOrDefault();
+                if (_plex == null)
                 {
                     //plex process
-                    this.plex = new Process();
-                    ProcessStartInfo plexStartInfo = new ProcessStartInfo(this.executableFileName);
-                    plexStartInfo.WorkingDirectory = Path.GetDirectoryName(this.executableFileName);
+                    _plex = new Process();
+                    ProcessStartInfo plexStartInfo = new ProcessStartInfo(_executableFileName);
+                    plexStartInfo.WorkingDirectory = Path.GetDirectoryName(_executableFileName);
                     plexStartInfo.UseShellExecute = false;
                     //check version to see if we can use the startup argument
-                    string plexVersion = FileVersionInfo.GetVersionInfo(this.executableFileName).FileVersion;
+                    string plexVersion = FileVersionInfo.GetVersionInfo(_executableFileName).FileVersion;
                     Version v = new Version(plexVersion);
                     Version minimumVersion = new Version("0.9.8.12");
                     if (v.CompareTo(minimumVersion) == -1)
                     {
-                        this.OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("Plex Media Server version is {0}. Cannot use startup argument.", plexVersion)));
+                        OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("Plex Media Server version is {0}. Cannot use startup argument.", plexVersion)));
                     }
                     else
                     {
-                        this.OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("Plex Media Server version is {0}. Can use startup argument.", plexVersion)));
+                        OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("Plex Media Server version is {0}. Can use startup argument.", plexVersion)));
                         plexStartInfo.Arguments = "-noninteractive";
                     }
-                    this.plex.StartInfo = plexStartInfo;
-                    this.plex.EnableRaisingEvents = true;
-                    this.plex.Exited += new EventHandler(plex_Exited);
+                    _plex.StartInfo = plexStartInfo;
+                    _plex.EnableRaisingEvents = true;
+                    _plex.Exited += new EventHandler(plex_Exited);
                     try
                     {
-                        this.plex.Start();
-                        this.OnPlexStatusChange(this, new StatusChangeEventArgs("Plex Media Server Started."));
+                        _plex.Start();
+                        OnPlexStatusChange(this, new StatusChangeEventArgs("Plex Media Server Started."));
                     }
                     catch(Exception ex)
                     {
-                        this.OnPlexStatusChange(this, new StatusChangeEventArgs("Plex Media Server failed to start. " + ex.Message));
+                        OnPlexStatusChange(this, new StatusChangeEventArgs("Plex Media Server failed to start. " + ex.Message));
                     }
                 }
                 else
                 {
                     //its running, most likely in the wrong session. monitor this instance and if it ends, start a new one
                     //register to the exited event so we know when to start a new one
-                    this.OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("Plex Media Server already running in session {0}.", plex.SessionId)));
+                    OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("Plex Media Server already running in session {0}.", _plex.SessionId)));
                     try
                     {
-                        this.plex.EnableRaisingEvents = true;
-                        this.plex.Exited += new EventHandler(plex_Exited);
+                        _plex.EnableRaisingEvents = true;
+                        _plex.Exited += new EventHandler(plex_Exited);
                     }
                     catch
                     {
-                        this.OnPlexStatusChange(this, new StatusChangeEventArgs("Unable to attach to already running Plex Media Server instance. The existing instance will continue unmanaged. Please close all instances of Plex Media Server on this computer prior to starting the service"));
-                        this.OnPlexStop(this, new EventArgs());
+                        OnPlexStatusChange(this, new StatusChangeEventArgs("Unable to attach to already running Plex Media Server instance. The existing instance will continue unmanaged. Please close all instances of Plex Media Server on this computer prior to starting the service"));
+                        OnPlexStop(this, new EventArgs());
                     }
                 }
             }
@@ -253,22 +253,22 @@ namespace PlexMediaServer_Service
         private void endPlex()
         {
             
-            if (this.plex != null)
+            if (_plex != null)
             {
-                this.OnPlexStatusChange(this, new StatusChangeEventArgs("Killing Plex."));
+                OnPlexStatusChange(this, new StatusChangeEventArgs("Killing Plex."));
                 try
                 {
-                    this.plex.Kill();
+                    _plex.Kill();
                 }
                 catch { }
                 finally
                 {
-                    this.plex.Dispose();
-                    this.plex = null;
+                    _plex.Dispose();
+                    _plex = null;
                 }
             }
             //kill the supporting processes.
-            killSupportingProcesses(PmsMonitor.supportingProcesses);
+            killSupportingProcesses(PmsMonitor._supportingProcesses);
         }
 
         /// <summary>
@@ -307,7 +307,7 @@ namespace PlexMediaServer_Service
                         supportProcess.Dispose();
                     }
                 }
-                this.OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("{0} Stopped.", name)));
+                OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("{0} Stopped.", name)));
             }
         }
 

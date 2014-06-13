@@ -41,7 +41,11 @@
             this.plexServiceInstaller.Description = "Plex Media Server Service";
             this.plexServiceInstaller.DisplayName = "PmsService";
             this.plexServiceInstaller.ServiceName = "PlexMediaServerService";
+            this.plexServiceInstaller.ServicesDependedOn = new string[] {
+        "LanmanServer"};
             this.plexServiceInstaller.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
+            this.plexServiceInstaller.Committed += new System.Configuration.Install.InstallEventHandler(this.plexServiceInstaller_Committed);
+            this.plexServiceInstaller.AfterInstall += new System.Configuration.Install.InstallEventHandler(this.plexServiceInstaller_AfterInstall);
             // 
             // ProjectInstaller
             // 
@@ -49,7 +53,6 @@
             this.plexServiceProcessInstaller,
             this.plexServiceInstaller});
 
-            this.plexServiceInstaller.AfterInstall += new System.Configuration.Install.InstallEventHandler(this.ProjectInstaller_AfterInstall);
         }
 
         #endregion

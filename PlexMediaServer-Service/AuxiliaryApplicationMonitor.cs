@@ -12,19 +12,19 @@ namespace PlexMediaServer_Service
         /// <summary>
         /// Auxiliary process
         /// </summary>
-        private Process auxProcess;
+        private Process _auxProcess;
         /// <summary>
         /// Flag for actual stop rather than crash we should attempt to restart from
         /// </summary>
-        private bool stopping;
+        private bool _stopping;
         /// <summary>
         /// Auxiliary Application to monitor
         /// </summary>
-        private AuxiliaryApplication aux;
+        private AuxiliaryApplication _aux;
 
         internal AuxiliaryApplicationMonitor(AuxiliaryApplication aux)
         {
-            this.aux = aux;
+            _aux = aux;
         }
 
         #region Start
@@ -34,12 +34,12 @@ namespace PlexMediaServer_Service
         /// </summary>
         internal void Start()
         {
-            this.stopping = false;
+            _stopping = false;
 
             //every time a start attempt is made, check for the existance of the auto start registry key and remove it.
-            if(!string.IsNullOrEmpty(this.aux.FilePath) && File.Exists(this.aux.FilePath))
+            if(!string.IsNullOrEmpty(_aux.FilePath) && File.Exists(_aux.FilePath))
             {
-                this.start();
+                start();
             }
         }
 
@@ -52,8 +52,8 @@ namespace PlexMediaServer_Service
         /// </summary>
         internal void Stop()
         {
-            this.stopping = true;
-            this.end();
+            _stopping = true;
+            end();
         }
 
         #endregion
@@ -69,31 +69,31 @@ namespace PlexMediaServer_Service
         /// <param name="e"></param>
         void auxProcess_Exited(object sender, EventArgs e)
         {
-            if (this.aux.KeepAlive)
+            if (_aux.KeepAlive)
             {
-                this.OnStatusChange(this, new StatusChangeEventArgs(aux.Name + " has stopped!"));
+                OnStatusChange(this, new StatusChangeEventArgs(_aux.Name + " has stopped!"));
                 //unsubscribe
-                this.auxProcess.Exited -= this.auxProcess_Exited;
-                this.end();
+                _auxProcess.Exited -= auxProcess_Exited;
+                end();
                 //restart as required
-                if (!this.stopping)
+                if (!_stopping)
                 {
-                    this.OnStatusChange(this, new StatusChangeEventArgs("Re-starting " + aux.Name));
+                    OnStatusChange(this, new StatusChangeEventArgs("Re-starting " + _aux.Name));
                     //wait some seconds first
                     System.Threading.Thread.Sleep(10000);
-                    this.start();
+                    start();
                 }
                 else
                 {
-                    this.OnStatusChange(this, new StatusChangeEventArgs(aux.Name + " stopped"));
+                    OnStatusChange(this, new StatusChangeEventArgs(_aux.Name + " stopped"));
                 }
             }
             else
             {
-                this.OnStatusChange(this, new StatusChangeEventArgs(aux.Name + " has completed"));
+                OnStatusChange(this, new StatusChangeEventArgs(_aux.Name + " has completed"));
                 //unsubscribe
-                this.auxProcess.Exited -= this.auxProcess_Exited;
-                this.auxProcess.Dispose();
+                _auxProcess.Exited -= this.auxProcess_Exited;
+                _auxProcess.Dispose();
             }
         }
 
@@ -106,26 +106,26 @@ namespace PlexMediaServer_Service
         /// </summary>
         private void start()
         {
-            this.OnStatusChange(this, new StatusChangeEventArgs("Attempting to start " + aux.Name));
-            if (this.auxProcess == null)
+            OnStatusChange(this, new StatusChangeEventArgs("Attempting to start " + _aux.Name));
+            if (_auxProcess == null)
             {
                 //we dont care if this is already running, depending on teh application, this could cause lots of issues but hey... 
                 
                 //Auxiliary process
-                this.auxProcess = new Process();
-                auxProcess.StartInfo.FileName = aux.FilePath;
-                auxProcess.StartInfo.UseShellExecute = false;
-                auxProcess.StartInfo.Arguments = aux.Argument;
-                this.auxProcess.EnableRaisingEvents = true;
-                this.auxProcess.Exited += new EventHandler(auxProcess_Exited);
+                _auxProcess = new Process();
+                _auxProcess.StartInfo.FileName = _aux.FilePath;
+                _auxProcess.StartInfo.UseShellExecute = false;
+                _auxProcess.StartInfo.Arguments = _aux.Argument;
+                _auxProcess.EnableRaisingEvents = true;
+                _auxProcess.Exited += new EventHandler(auxProcess_Exited);
                 try
                 {
-                    this.auxProcess.Start();
-                    this.OnStatusChange(this, new StatusChangeEventArgs(aux.Name + " Started."));
+                    _auxProcess.Start();
+                    OnStatusChange(this, new StatusChangeEventArgs(_aux.Name + " Started."));
                 }
                 catch (Exception ex)
                 {
-                    this.OnStatusChange(this, new StatusChangeEventArgs(aux.Name + " failed to start. " + ex.Message));
+                    OnStatusChange(this, new StatusChangeEventArgs(_aux.Name + " failed to start. " + ex.Message));
                 }
             }
         }
@@ -140,18 +140,18 @@ namespace PlexMediaServer_Service
         private void end()
         {
 
-            if (this.auxProcess != null)
+            if (_auxProcess != null)
             {
-                this.OnStatusChange(this, new StatusChangeEventArgs("Killing " + aux.Name));
+                OnStatusChange(this, new StatusChangeEventArgs("Killing " + _aux.Name));
                 try
                 {
-                    this.auxProcess.Kill();
+                    _auxProcess.Kill();
                 }
                 catch { }
                 finally
                 {
-                    this.auxProcess.Dispose();
-                    this.auxProcess = null;
+                    _auxProcess.Dispose();
+                    _auxProcess = null;
                 }
             }
         }

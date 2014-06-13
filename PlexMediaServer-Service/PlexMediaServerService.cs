@@ -14,21 +14,21 @@ namespace PlexMediaServer_Service
     /// </summary>
     public partial class PlexMediaServerService : ServiceBase
     {
-        private PmsMonitor pms;
+        private PmsMonitor _pms;
 
-        internal static string APP_DATA_PATH = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Plex Service\");
+        public static string APP_DATA_PATH = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Plex Service\");
 
         public PlexMediaServerService()
         {
             InitializeComponent();
             //This is a simple start stop service, no pause and resume.
-            this.CanPauseAndContinue = false;
+            CanPauseAndContinue = false;
 
             //setup main plex media server monitor
-            this.pms = new PmsMonitor();
+            _pms = new PmsMonitor();
 
-            this.pms.PlexStatusChange += new PmsMonitor.PlexStatusChangeHandler(pms_PlexStatusChange);
-            this.pms.PlexStop += new PmsMonitor.PlexStopHandler(pms_PlexStop);
+            _pms.PlexStatusChange += new PmsMonitor.PlexStatusChangeHandler(pms_PlexStatusChange);
+            _pms.PlexStop += new PmsMonitor.PlexStopHandler(pms_PlexStop);
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace PlexMediaServer_Service
         /// <param name="data"></param>
         void pms_PlexStop(object sender, EventArgs data)
         {
-            this.Stop();
+            Stop();
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace PlexMediaServer_Service
         {
             //We have one minute now, but should be able to do it all pretty safely within that.
             WriteToLog("PlexMediaServerService Started");
-            this.pms.Start();
+            this._pms.Start();
 
             base.OnStart(args);
         }
@@ -69,7 +69,7 @@ namespace PlexMediaServer_Service
         /// </summary>
         protected override void OnStop()
         {
-            this.pms.Stop();
+            _pms.Stop();
             WriteToLog("PlexMediaServerService Stopped");
             base.OnStop();
         }
@@ -78,15 +78,14 @@ namespace PlexMediaServer_Service
         /// Write the passed string to the logfile
         /// </summary>
         /// <param name="data"></param>
-        public void WriteToLog(string data)
+        public static void WriteToLog(string data)
         {
             if (!System.IO.Directory.Exists(APP_DATA_PATH))
             {
                 System.IO.Directory.CreateDirectory(APP_DATA_PATH);
             }
-            string fileName = System.IO.Path.Combine(APP_DATA_PATH, "plexServiceLog.txt");
-            LogWriter.WriteLine(data, fileName);
-            
+            string logFile = System.IO.Path.Combine(APP_DATA_PATH, "plexServiceLog.txt");
+            LogWriter.WriteLine(data, logFile);
         }
     }
 }

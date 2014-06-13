@@ -11,17 +11,19 @@ namespace PlexServiceTray
 {
     public class AuxiliaryApplicationViewModel:INotifyPropertyChanged
     {
+        #region Properties
+
         public string Name
         {
             get
             {
-                return this.auxApplication.Name;
+                return _auxApplication.Name;
             }
             set
             {
-                if (this.auxApplication.Name != value)
+                if (_auxApplication.Name != value)
                 {
-                    this.auxApplication.Name = value;
+                    _auxApplication.Name = value;
                     OnPropertyChanged("Name");
                 }
             }
@@ -31,13 +33,13 @@ namespace PlexServiceTray
         {
             get
             {
-                return this.auxApplication.FilePath;
+                return _auxApplication.FilePath;
             }
             set
             {
-                if (this.auxApplication.FilePath != value)
+                if (_auxApplication.FilePath != value)
                 {
-                    this.auxApplication.FilePath = value;
+                    _auxApplication.FilePath = value;
                     OnPropertyChanged("FilePath");
                 }
             }
@@ -47,13 +49,13 @@ namespace PlexServiceTray
         {
             get
             {
-                return this.auxApplication.Argument;
+                return _auxApplication.Argument;
             }
             set
             {
-                if (this.auxApplication.Argument != value)
+                if (_auxApplication.Argument != value)
                 {
-                    this.auxApplication.Argument = value;
+                    _auxApplication.Argument = value;
                     OnPropertyChanged("Argument");
                 }
             }
@@ -63,13 +65,13 @@ namespace PlexServiceTray
         {
             get
             {
-                return this.auxApplication.KeepAlive;
+                return _auxApplication.KeepAlive;
             }
             set
             {
-                if (this.auxApplication.KeepAlive != value)
+                if (_auxApplication.KeepAlive != value)
                 {
-                    this.auxApplication.KeepAlive = value;
+                    _auxApplication.KeepAlive = value;
                     OnPropertyChanged("KeepAlive");
                 }
             }
@@ -93,18 +95,19 @@ namespace PlexServiceTray
             }
         }
 
+        #endregion Properties
 
-        private AuxiliaryApplication auxApplication;
+        private AuxiliaryApplication _auxApplication;
 
         public AuxiliaryApplicationViewModel(AuxiliaryApplication auxApplication)
         {
-            this.auxApplication = auxApplication;
+            _auxApplication = auxApplication;
             IsExpanded = false;
         }
 
         public AuxiliaryApplication GetAuxiliaryApplication()
         {
-            return this.auxApplication;
+            return _auxApplication;
         }
 
         #region BrowseCommand
@@ -138,7 +141,6 @@ namespace PlexServiceTray
         }
 
         #endregion BrowseCommand
-
 
         #region PropertyChanged
 

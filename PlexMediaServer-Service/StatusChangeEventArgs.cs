@@ -13,8 +13,8 @@ namespace PlexMediaServer_Service
 
         internal StatusChangeEventArgs(string description, EventLogEntryType eventType = EventLogEntryType.Information)
         {
-            this.EventType = eventType;
-            this.Description = description;
+            EventType = eventType;
+            Description = description;
         }
     }
 }

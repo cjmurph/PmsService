@@ -16,17 +16,17 @@ namespace PlexServiceTray
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private System.ComponentModel.IContainer _components = null;
 
-        private System.Windows.Forms.NotifyIcon notifyIcon;
+        private System.Windows.Forms.NotifyIcon _notifyIcon;
 
-        private readonly static string serviceName = "PmsService";
+        private readonly static string _serviceName = "PmsService";
 
-        private readonly static TimeSpan timeOut = TimeSpan.FromMilliseconds(30000);
+        private readonly static TimeSpan _timeOut = TimeSpan.FromMilliseconds(30000);
 
-        private string logFile;
+        private string _logFile;
 
-        private bool serviceDetected;
+        private bool _serviceDetected;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -34,10 +34,10 @@ namespace PlexServiceTray
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing && (_components != null))
             {
-                this.components.Dispose();
-                this.notifyIcon.Dispose();
+                _components.Dispose();
+                _notifyIcon.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -52,16 +52,16 @@ namespace PlexServiceTray
         /// </summary>
         private void initializeContext()
         {
-            this.logFile = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Plex Service\plexServiceLog.txt");
+            _logFile = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Plex Service\plexServiceLog.txt");
 
-            this.components = new System.ComponentModel.Container();
-            this.notifyIcon = new NotifyIcon(this.components);
-            this.notifyIcon.ContextMenuStrip = new ContextMenuStrip();
-            this.notifyIcon.Icon = Properties.Resources.PlexService;// new Icon(GetType().Module.Assembly.GetManifestResourceStream("PlexServiceTray.PlexService.ico"));
-            this.notifyIcon.Text = "Manage Plex Media Server Service";
-            this.notifyIcon.Visible = true;
-            this.notifyIcon.Click += new EventHandler(notifyIcon_Click);
-            this.notifyIcon.ContextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(ContextMenuStrip_Opening);
+            _components = new System.ComponentModel.Container();
+            _notifyIcon = new NotifyIcon(_components);
+            _notifyIcon.ContextMenuStrip = new ContextMenuStrip();
+            _notifyIcon.Icon = Properties.Resources.PlexService;// new Icon(GetType().Module.Assembly.GetManifestResourceStream("PlexServiceTray.PlexService.ico"));
+            _notifyIcon.Text = "Manage Plex Media Server Service";
+            _notifyIcon.Visible = true;
+            _notifyIcon.Click += new EventHandler(notifyIcon_Click);
+            _notifyIcon.ContextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(ContextMenuStrip_Opening);
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace PlexServiceTray
         void notifyIcon_Click(object sender, EventArgs e)
         {
             MethodInfo mi = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
-            mi.Invoke(this.notifyIcon, null);
+            mi.Invoke(_notifyIcon, null);
         }
 
         /// <summary>
@@ -83,46 +83,46 @@ namespace PlexServiceTray
         void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = false;
-            this.notifyIcon.ContextMenuStrip.Items.Clear();
+            _notifyIcon.ContextMenuStrip.Items.Clear();
 
-            using (ServiceController pmsService = new ServiceController(serviceName))
+            using (ServiceController pmsService = new ServiceController(_serviceName))
             {
                 try
                 {
                     switch (pmsService.Status)
                     {
                         case ServiceControllerStatus.Stopped:
-                            this.notifyIcon.ContextMenuStrip.Items.Add("Start Service", null, startService_Click);
+                            _notifyIcon.ContextMenuStrip.Items.Add("Start Service", null, startService_Click);
                             break;
                         case ServiceControllerStatus.Running:
-                            this.notifyIcon.ContextMenuStrip.Items.Add("Open Web Manager", null, openManager_Click);
-                            this.notifyIcon.ContextMenuStrip.Items.Add("Stop Service", null, stopService_Click);
+                            _notifyIcon.ContextMenuStrip.Items.Add("Open Web Manager", null, openManager_Click);
+                            _notifyIcon.ContextMenuStrip.Items.Add("Stop Service", null, stopService_Click);
                             break;
                         default:
-                            this.notifyIcon.ContextMenuStrip.Items.Add("Service: " + pmsService.Status.ToString());
+                            _notifyIcon.ContextMenuStrip.Items.Add("Service: " + pmsService.Status.ToString());
                             break;
                     }
-                    this.serviceDetected = true;
-                    this.notifyIcon.ContextMenuStrip.Items.Add("View Logs", null, viewLogs_Click);
+                    _serviceDetected = true;
+                    _notifyIcon.ContextMenuStrip.Items.Add("View Logs", null, viewLogs_Click);
                 }
                 catch
                 {
-                    this.serviceDetected = false;
-                    this.notifyIcon.ContextMenuStrip.Items.Add("Service does not appear to be installed");
+                    _serviceDetected = false;
+                    _notifyIcon.ContextMenuStrip.Items.Add("Service does not appear to be installed");
                 }
             }
-            this.notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-            this.notifyIcon.ContextMenuStrip.Items.Add("Settings", null, settingsCommand);
-            this.notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-            this.notifyIcon.ContextMenuStrip.Items.Add("Exit", null, exitCommand);
+            _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+            _notifyIcon.ContextMenuStrip.Items.Add("Settings", null, settingsCommand);
+            _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+            _notifyIcon.ContextMenuStrip.Items.Add("Exit", null, exitCommand);
         }
 
         private void settingsCommand(object sender, EventArgs e)
         {
             SettingsWindow settings = new SettingsWindow();
-            if (settings.ShowDialog() == true && serviceDetected)
+            if (settings.ShowDialog() == true && _serviceDetected)
             {
-                using (ServiceController pmsService = new ServiceController(serviceName))
+                using (ServiceController pmsService = new ServiceController(_serviceName))
                 {
                     if (pmsService.Status == ServiceControllerStatus.Running)
                     {
@@ -131,9 +131,9 @@ namespace PlexServiceTray
                             try
                             {
                                 pmsService.Stop();
-                                pmsService.WaitForStatus(ServiceControllerStatus.Stopped, timeOut);
+                                pmsService.WaitForStatus(ServiceControllerStatus.Stopped, _timeOut);
                                 pmsService.Start();
-                                pmsService.WaitForStatus(ServiceControllerStatus.Running, timeOut);
+                                pmsService.WaitForStatus(ServiceControllerStatus.Running, _timeOut);
                             }
                             catch (System.ComponentModel.Win32Exception ex)
                             {
@@ -155,12 +155,12 @@ namespace PlexServiceTray
         private void startService_Click(object sender, EventArgs e)
         {
             //start it
-            using (ServiceController pmsService = new ServiceController(serviceName))
+            using (ServiceController pmsService = new ServiceController(_serviceName))
             {
                 try
                 {
                     pmsService.Start();
-                    pmsService.WaitForStatus(ServiceControllerStatus.Running, timeOut);
+                    pmsService.WaitForStatus(ServiceControllerStatus.Running, _timeOut);
                 }
                 catch (System.ComponentModel.Win32Exception ex)
                 {
@@ -172,12 +172,12 @@ namespace PlexServiceTray
         private void stopService_Click(object sender, EventArgs e)
         {
             //stop it
-            using (ServiceController pmsService = new ServiceController(serviceName))
+            using (ServiceController pmsService = new ServiceController(_serviceName))
             {
                 try
                 {
                     pmsService.Stop();
-                    pmsService.WaitForStatus(ServiceControllerStatus.Stopped, timeOut);
+                    pmsService.WaitForStatus(ServiceControllerStatus.Stopped, _timeOut);
                 }
                 catch (System.ComponentModel.Win32Exception ex)
                 {
@@ -193,9 +193,9 @@ namespace PlexServiceTray
 
         private void viewLogs_Click(object sender, EventArgs e)
         {
-            if (File.Exists(this.logFile))
+            if (File.Exists(_logFile))
             {
-                Process.Start(this.logFile);
+                Process.Start(_logFile);
             }
             else
             {
