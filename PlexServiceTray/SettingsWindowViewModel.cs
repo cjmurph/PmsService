@@ -11,6 +11,25 @@ namespace PlexServiceTray
 {
     public class SettingsWindowViewModel:INotifyPropertyChanged
     {
+        /// <summary>
+        /// The server endpoint port
+        /// </summary>
+        public int ServerPort
+        {
+            get
+            {
+                return WorkingSettings.ServerPort;
+            }
+            set
+            {
+                if (WorkingSettings.ServerPort != value)
+                {
+                    WorkingSettings.ServerPort = value;
+                    OnPropertyChanged("ServerPort");
+                }
+            }
+        }        
+
         private ObservableCollection<AuxiliaryApplicationViewModel> _auxilaryApplications;
         /// <summary>
         /// Collection of Auxiliary applications to run alongside plex
@@ -89,7 +108,6 @@ namespace PlexServiceTray
 
         public SettingsWindowViewModel(Settings settings)
         {
-            //_settings = Settings.Load();
             WorkingSettings = settings;
             AuxiliaryApplications = new ObservableCollection<AuxiliaryApplicationViewModel>();
             WorkingSettings.AuxiliaryApplications.ForEach(x => AuxiliaryApplications.Add(new AuxiliaryApplicationViewModel(x)));
@@ -183,7 +201,7 @@ namespace PlexServiceTray
 
         private bool CanSave(object parameter)
         {
-            return true;
+            return ServerPort > 0;
         }
 
         private void OnSave(object parameter)
@@ -244,6 +262,5 @@ namespace PlexServiceTray
         }
 
         #endregion
-
     }
 }

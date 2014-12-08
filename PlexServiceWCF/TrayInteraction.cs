@@ -11,6 +11,9 @@ using PlexServiceCommon.Interface;
 
 namespace PlexServiceWCF
 {
+    /// <summary>
+    /// WCF service implementation
+    /// </summary>
     [ServiceBehavior(ConfigurationName = "PlexServiceWCF:PlexServiceWCF.TrayInteraction", InstanceContextMode = InstanceContextMode.Single)]
     public class TrayInteraction : ITrayInteraction
     {
@@ -25,17 +28,26 @@ namespace PlexServiceWCF
             Start();
         }
 
+        /// <summary>
+        /// Start Plex
+        /// </summary>
         public void Start()
         {
             _pms.Start();
         }
 
+        /// <summary>
+        /// Stop Plex
+        /// </summary>
         public void Stop()
         {
             _pms.Stop();
             WriteToLog("Plex Service Stopped");
         }
 
+        /// <summary>
+        /// Restart Plex
+        /// </summary>
         public void Restart()
         {
             //stop and restart plex and the auxilliary apps
@@ -43,21 +55,37 @@ namespace PlexServiceWCF
             _pms.Start();
         }
 
+        /// <summary>
+        /// Write the settings to the server
+        /// </summary>
+        /// <param name="settings">Json serialised Settings instance</param>
         public void SetSettings(string settings)
         {
             SettingsHandler.Save(Settings.Deserialize(settings));
         }
 
+        /// <summary>
+        /// Returns the settings file from the server as a json string
+        /// </summary>
+        /// <returns></returns>
         public string GetSettings()
         {
             return SettingsHandler.Load().Serialize();
         }
 
+        /// <summary>
+        /// Returns the log file as a string
+        /// </summary>
+        /// <returns></returns>
         public string GetLog()
         {
             return LogWriter.Read();
         }
 
+        /// <summary>
+        /// Returns Running or Stopped
+        /// </summary>
+        /// <returns></returns>
         public string GetStatus()
         {
             if(_pms != null && _pms.Running)

@@ -7,6 +7,9 @@ using System.Text;
 
 namespace PlexServiceTray
 {
+    /// <summary>
+    /// Allow display of text in notepad to the user without storing as a file
+    /// </summary>
     public static class NotepadHelper
     {
         [DllImport("user32.dll", EntryPoint = "SetWindowText")]

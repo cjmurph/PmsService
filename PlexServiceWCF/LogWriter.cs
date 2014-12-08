@@ -7,6 +7,9 @@ using PlexServiceCommon;
 
 namespace PlexServiceWCF
 {
+    /// <summary>
+    /// Static class for writing to the log file
+    /// </summary>
     static class LogWriter
     {
         private static string _logFile = Path.Combine(TrayInteraction.APP_DATA_PATH, "plexServiceLog.txt");

@@ -7,6 +7,9 @@ using System.Runtime.Serialization;
 
 namespace PlexServiceCommon
 {
+    /// <summary>
+    /// Event arguments for a plex status change
+    /// </summary>
     [Serializable]
     [DataContract]
     public class StatusChangeEventArgs: EventArgs

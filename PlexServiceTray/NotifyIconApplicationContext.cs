@@ -13,6 +13,9 @@ using System.ServiceModel;
 
 namespace PlexServiceTray
 {
+    /// <summary>
+    /// Tray icon context
+    /// </summary>
     class NotifyIconApplicationContext : ApplicationContext
     {
         /// <summary>
@@ -34,6 +37,7 @@ namespace PlexServiceTray
         {
             if (disposing && (_components != null))
             {
+                disconnect();
                 _components.Dispose();
                 _notifyIcon.Dispose();
             }
@@ -61,6 +65,9 @@ namespace PlexServiceTray
             _notifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
         }
 
+        /// <summary>
+        /// Connect to WCF service
+        /// </summary>
         private void connect()
         {
             var localSettings = ConnectionSettings.Load();
@@ -84,6 +91,9 @@ namespace PlexServiceTray
             }
         }
 
+        /// <summary>
+        /// Disconnect from WCF service
+        /// </summary>
         private void disconnect()
         {
             if (_plexService != null && connected())
@@ -97,6 +107,10 @@ namespace PlexServiceTray
             _plexService = null;
         }
 
+        /// <summary>
+        /// Check connection to WCF service
+        /// </summary>
+        /// <returns></returns>
         private bool connected()
         {
             if (_plexService != null)
@@ -179,6 +193,11 @@ namespace PlexServiceTray
             _notifyIcon.ContextMenuStrip.Items.Add("Exit", null, exitCommand);
         }
 
+        /// <summary>
+        /// Show the settings dialogue
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void settingsCommand(object sender, EventArgs e)
         {
             if (connected())
@@ -224,6 +243,11 @@ namespace PlexServiceTray
             }
         }
 
+        /// <summary>
+        /// Show the connection settings dialogue
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void connectionSettingsCommand(object sender, EventArgs e)
         {
             ConnectionSettingsWindow connectionSettingsWindow = new ConnectionSettingsWindow();
@@ -238,12 +262,22 @@ namespace PlexServiceTray
             }
         }
 
+        /// <summary>
+        /// Close the notify icon
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void exitCommand(object sender, EventArgs e)
         {
             disconnect();
             ExitThread();
         }
 
+        /// <summary>
+        /// Start Plex
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void startService_Click(object sender, EventArgs e)
         {
             //start it
@@ -260,6 +294,11 @@ namespace PlexServiceTray
             }
         }
 
+        /// <summary>
+        /// Stop Plex
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void stopService_Click(object sender, EventArgs e)
         {
             //stop it
@@ -276,11 +315,21 @@ namespace PlexServiceTray
             }
         }
 
+        /// <summary>
+        /// Try to open the web manager
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void openManager_Click(object sender, EventArgs e)
         {
             Process.Start("http://" + ConnectionSettings.Load().ServerAddress + ":32400/web");
         }
 
+        /// <summary>
+        /// View the server log file
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void viewLogs_Click(object sender, EventArgs e)
         {
             try

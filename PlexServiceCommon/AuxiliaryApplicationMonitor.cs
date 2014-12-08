@@ -7,16 +7,21 @@ using System.IO;
 
 namespace PlexServiceCommon
 {
+    /// <summary>
+    /// Class that runs up and monitors the life of auxilliary applications
+    /// </summary>
     public class AuxiliaryApplicationMonitor
     {
         /// <summary>
         /// Auxiliary process
         /// </summary>
         private Process _auxProcess;
+        
         /// <summary>
         /// Flag for actual stop rather than crash we should attempt to restart from
         /// </summary>
         private bool _stopping;
+
         /// <summary>
         /// Auxiliary Application to monitor
         /// </summary>

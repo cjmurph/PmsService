@@ -18,7 +18,12 @@ namespace PlexService
     /// </summary>
     public partial class PlexMediaServerService : ServiceBase
     {
-        private const string _address = "http://localhost:8787/PlexService";
+        private const string _baseAddress = "http://localhost:{0}/PlexService";
+
+        /// <summary>
+        /// Default the address with port 8787
+        /// </summary>
+        private string _address = string.Format(_baseAddress, 8787);
 
         private readonly static TimeSpan _timeOut = TimeSpan.FromMilliseconds(2000);
 
@@ -43,6 +48,13 @@ namespace PlexService
             {
                 if (_host != null) _host.Close();
 
+                int port = SettingsHandler.Load().ServerPort;
+                //sanity check the port setting
+                if (port == 0)
+                    port = 8787;
+
+                _address = string.Format(_baseAddress, port);
+
                 Uri[] adrbase = { new Uri(_address) };
                 _host = new ServiceHost(typeof(TrayInteraction), adrbase);
 
@@ -63,7 +75,7 @@ namespace PlexService
                 TrayInteraction.WriteToLog(ex.Message);
             }
             TrayInteraction.WriteToLog("Plex Service Started");
-            //_trayInteraction.Start(_serviceGuid);
+
             base.OnStart(args);
         }
 
@@ -72,6 +84,7 @@ namespace PlexService
         /// </summary>
         protected override void OnStop()
         {
+            //Try and connect to the WCF service and call its stop method
             try
             {
                 if (!connected())
@@ -81,6 +94,7 @@ namespace PlexService
                 {
 
                     _plexService.Stop();
+                    disconnect();
                 }
             }
             catch { }
@@ -93,6 +107,9 @@ namespace PlexService
             base.OnStop();
         }
 
+        /// <summary>
+        /// Connect to the WCF service
+        /// </summary>
         private void connect()
         {
             var plexServiceBinding = new WSHttpBinding();
@@ -115,6 +132,9 @@ namespace PlexService
             }
         }
 
+        /// <summary>
+        /// Disconnect from the WCF instance
+        /// </summary>
         private void disconnect()
         {
             if (_plexService != null && connected())
@@ -128,6 +148,10 @@ namespace PlexService
             _plexService = null;
         }
 
+        /// <summary>
+        /// Check connection to the WCF service
+        /// </summary>
+        /// <returns></returns>
         private bool connected()
         {
             if (_plexService != null)

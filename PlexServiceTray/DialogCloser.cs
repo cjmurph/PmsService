@@ -6,6 +6,9 @@ using System.Windows;
 
 namespace PlexServiceTray
 {
+    /// <summary>
+    /// Behaviour for a window to listen for a view models dialogresult changing
+    /// </summary>
     public static class DialogCloser
     {
         public static readonly DependencyProperty DialogResultProperty =

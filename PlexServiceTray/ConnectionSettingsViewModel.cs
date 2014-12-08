@@ -7,6 +7,9 @@ using System.Windows.Input;
 
 namespace PlexServiceTray
 {
+    /// <summary>
+    /// View model class for connection settings window
+    /// </summary>
     public class ConnectionSettingsViewModel:INotifyPropertyChanged
     {
         public string ServerAddress

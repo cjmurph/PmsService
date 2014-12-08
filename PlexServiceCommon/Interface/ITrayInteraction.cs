@@ -7,6 +7,9 @@ using System.Text;
 
 namespace PlexServiceCommon.Interface
 {
+    /// <summary>
+    /// WCF service contract
+    /// </summary>
     [ServiceContract(SessionMode = SessionMode.Required)]
     public interface ITrayInteraction
     {

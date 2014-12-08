@@ -7,14 +7,23 @@ using Newtonsoft.Json;
 
 namespace PlexServiceTray
 {
+    /// <summary>
+    /// Local settings for the tray application to connect to the WCF service
+    /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
     internal class ConnectionSettings
     {
         #region Properties
 
+        /// <summary>
+        /// Address of the server running the wcf service
+        /// </summary>
         [JsonProperty]
         public string ServerAddress { get; set; }
 
+        /// <summary>
+        /// port of the WCF service endpoint
+        /// </summary>
         [JsonProperty]
         public int ServerPort { get; set; }
 
@@ -30,6 +39,10 @@ namespace PlexServiceTray
 
         #endregion
 
+        /// <summary>
+        /// Turn the properties into a useful endpoint uri
+        /// </summary>
+        /// <returns></returns>
         public string getServiceAddress()
         {
             return string.Format("http://{0}:{1}/PlexService/", ServerAddress, ServerPort);
@@ -37,11 +50,19 @@ namespace PlexServiceTray
 
         #region Load/Save
 
+        /// <summary>
+        /// get the settings file location
+        /// </summary>
+        /// <returns></returns>
         internal static string GetSettingsFile()
         {
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Plex Service\LocalSettings.json");
         }
 
+        /// <summary>
+        /// Get the common serialiser settings (shared with server settings)
+        /// </summary>
+        /// <returns></returns>
         private static JsonSerializerSettings getSerializerSettings()
         {
             return PlexServiceCommon.Settings.GetSettingsSerializerSettings();
@@ -72,9 +93,6 @@ namespace PlexServiceTray
         /// <returns></returns>
         internal static ConnectionSettings Load()
         {
-            //serializer
-            //JsonSerializer serializer = new JsonSerializer();
-
             string filePath = GetSettingsFile();
             ConnectionSettings settings = null;
             if (File.Exists(filePath))

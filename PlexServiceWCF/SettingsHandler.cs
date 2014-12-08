@@ -8,7 +8,12 @@ using PlexServiceCommon;
 
 namespace PlexServiceWCF
 {
-    internal static class SettingsHandler
+    /// <summary>
+    /// Class for loading and saving settings on the server
+    /// Code is here rather than in the settings class as it should only ever be save on the server.
+    /// settings are retrieved remotely by calling the wcf service getsettings and setsettings methods
+    /// </summary>
+    public static class SettingsHandler
     {
         #region Load/Save
 
@@ -22,19 +27,6 @@ namespace PlexServiceWCF
         /// </summary>
         internal static void Save(Settings settings)
         {
-            ////serializer
-            //JsonSerializer serializer = new JsonSerializer();
-            ////Allow nulls references to be saved
-            //serializer.NullValueHandling = NullValueHandling.Ignore;
-            ////This allows all the DataTags and Enity references to remain their references after deserialization
-            //serializer.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
-            ////This allow us to serialize and deserialize and array of abstract objects back into their original base types
-            //serializer.TypeNameHandling = TypeNameHandling.Auto;
-            ////This makes it look nice
-            //serializer.Formatting = Formatting.Indented;
-            ////Circular reference handling
-            //serializer.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
-
             string filePath = GetSettingsFile();
 
             if (!Directory.Exists(Path.GetDirectoryName(filePath)))
@@ -45,10 +37,6 @@ namespace PlexServiceWCF
             {
                 string rawSettings = settings.Serialize();
                 sw.Write(rawSettings);
-                //using (JsonWriter writer = new JsonTextWriter(sw))
-                //{
-                //    serializer.Serialize(writer, settings);
-                //}
             }
         }
 
@@ -57,11 +45,8 @@ namespace PlexServiceWCF
         /// Load the settings from disk
         /// </summary>
         /// <returns></returns>
-        internal static Settings Load()
+        public static Settings Load()
         {
-            //serializer
-            //JsonSerializer serializer = new JsonSerializer();
-
             string filePath = GetSettingsFile();
             Settings settings = null;
             if (File.Exists(filePath))
@@ -70,10 +55,6 @@ namespace PlexServiceWCF
                 {
                     string rawSettings = sr.ReadToEnd();
                     settings = Settings.Deserialize(rawSettings);
-                    //using (JsonReader reader = new JsonTextReader(sr))
-                    //{
-                    //    settings = serializer.Deserialize(reader, typeof(Settings)) as Settings;
-                    //}
                 }
             }
             else
