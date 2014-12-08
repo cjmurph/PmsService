@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
-using PlexMediaServer_Service;
+using PlexServiceCommon;
 using System.Windows.Input;
 using Microsoft.Win32;
 

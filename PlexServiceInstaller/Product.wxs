@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension" xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
+	<Product Id="12BED064-5E61-474F-86C5-B5A763191219" Name="Plex Service" Language="1033" Version="1.0.4.0" Manufacturer="cjmurph" UpgradeCode="daa483bb-c7e1-4c79-a4d6-3c2c4c3d9daf">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" SummaryCodepage="1252" />
+    <Binary Id="success_bmp" SourceFile="$(sys.SOURCEFILEDIR)success.bmp" />
+    <Binary Id="error_bmp" SourceFile="$(sys.SOURCEFILEDIR)error.bmp" />
+    <Binary Id="ActiveDirectory" SourceFile="$(sys.SOURCEFILEDIR)\ActiveDirectory.dll" />
+    <CustomAction Id="DirectoryObjectPicker" BinaryKey="ActiveDirectory" DllEntry="DirectoryObjectPicker" Execute="immediate" Return="check" />
+    <Binary Id="UserPrivileges" SourceFile="$(sys.SOURCEFILEDIR)\UserPrivileges.dll" />
+    <CustomAction Id="CheckCredentials" BinaryKey="UserPrivileges" DllEntry="CheckCredentials" Execute="immediate" Return="check" />
+    <CustomAction Id="CheckPrivilege" BinaryKey="UserPrivileges" DllEntry="CheckPrivilege" Execute="immediate" Return="check" />
+    <CustomAction Id="GetUserInfo" BinaryKey="UserPrivileges" DllEntry="GetUserInfo" Execute="immediate" Return="check" />
+    <CustomAction Id="GetUserNameFormatted" BinaryKey="UserPrivileges" DllEntry="GetUserNameFormat" Execute="immediate" Return="ignore" />
+    <Property Id="ARPPRODUCTICON" Value="PlexServiceTray.exe"/>
+    <Property Id="ASSISTANCE_START_VIA_REGISTRY">1</Property>
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <Media Id="1" Cabinet="PlexService.cab" EmbedCab="yes"/>
+    <PropertyRef Id="NETFRAMEWORK40CLIENT"/>
+    <Condition Message="This application requires .NET Framework 4.0 Client Profile. Please install the .NET Framework then run this installer again.">
+      <![CDATA[Installed OR NETFRAMEWORK40CLIENT]]>
+    </Condition>
+    <Feature Id="PlexServiceFeature" Title="Plex Service" Description="Plex Service 1.0.4" Level="1" ConfigurableDirectory='INSTALLDIR'>
+      <ComponentRef Id="PlexServiceComponent" />
+      <ComponentRef Id="PlexServiceWCFComponent" />
+      <ComponentRef Id="PlexServiceCommonComponent" />
+      <ComponentRef Id="PlexServiceTrayComponent" />
+      <ComponentRef Id="NewtonsoftJsonComponent" />
+      <ComponentRef Id="PlexServiceTrayAutostart"/>
+      <ComponentRef Id="PlexServiceTrayStartMenu"/>
+      <ComponentRef Id="PlexServiceHKLM"/>
+      <ComponentRef Id="PlexServiceProgramMenuFolder"/>
+    </Feature>
+
+    <UIRef Id="CaTestUI" />
+    <UI Id="CaTestUI">
+      <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
+      <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="12" />
+      <TextStyle Id="WixUI_Font_Title" FaceName="Tahoma" Size="9" Bold="yes" />
+      <Property Id="DefaultUIFont" Value="WixUI_Font_Normal" />
+      <Property Id="WixUI_Mode" Value="InstallDir" />
+      <Property Id="ARPNOMODIFY" Value="1" />
+      <DialogRef Id="ErrorDlg" />
+      <DialogRef Id="FatalError" />
+      <DialogRef Id="FilesInUse" />
+      <DialogRef Id="MsiRMFilesInUse" />
+      <DialogRef Id="PrepareDlg" />
+      <DialogRef Id="ProgressDlg" />
+      <DialogRef Id="ResumeDlg" />
+      <DialogRef Id="UserExit" />
+      <DialogRef Id="ServiceCredentialsDlg" />
+      <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999">1</Publish>
+      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication" Order="999">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="ServiceCredentialsDlg">1</Publish>
+      <Publish Dialog="ServiceCredentialsDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="1">Installed</Publish>
+      <Publish Dialog="ServiceCredentialsDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="2">NOT Installed</Publish>
+      <Publish Dialog="ServiceCredentialsDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg" Order="2">1</Publish>
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="ServiceCredentialsDlg" Order="1">NOT Installed OR WixUI_InstallMode="Change"</Publish>
+      <Publish Dialog="MaintenanceTypeDlg" Control="Back" Event="NewDialog" Value="MaintenanceWelcomeDlg">1</Publish>
+    </UI>
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Tray Application" />
+    <UIRef Id="WixUI_Common" />
+    <Property Id="WixShellExecTarget" Value="[#PlexServiceTrayExe]" />
+    <CustomAction Id="LaunchApplication"
+        BinaryKey="WixCA"
+        DllEntry="WixShellExec"
+        Impersonate="yes" />
+    <!--<CustomAction Id='LaunchFile' FileKey='PlexServiceTrayExe' ExeCommand='' Return="asyncNoWait" />-->
+  </Product>
+  
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLDIR" Name="Plex Service">
+          <Component Id="PlexServiceComponent" Guid="7B14F3DC-090C-4FDC-B224-DE3E8F3D37D0">
+            <File Id="PlexServiceExe" Source="$(var.PlexService.TargetPath)" />
+            <ServiceInstall Id="ServiceInstaller"
+                                          Type="ownProcess"
+                                          Vital="yes"
+                                          Name="PlexService"
+                                          DisplayName="PlexService"
+                                          Description="Plex Media Server as a Service"
+                                          Start="auto"
+                                          Account="[SERVICE_USERNAME]"
+                                          Password="[SERVICE_PASSWORD]"
+                                          ErrorControl="normal" >
+              <ServiceDependency Id="LanmanServer"/>
+            </ServiceInstall>
+            <ServiceControl Id="StartService"
+                            Start="install"
+                            Stop="install"
+                            Remove="uninstall"
+                            Name="PlexService"
+                            Wait="no" />
+            <util:ServiceConfig ServiceName="PlexService"
+                                FirstFailureActionType="restart"
+                                SecondFailureActionType="restart"
+                                ThirdFailureActionType="restart"
+                                ResetPeriodInDays="1"
+                                RestartServiceDelayInSeconds="20"/>
+          </Component>
+          <Component Id="PlexServiceWCFComponent" Guid="F9A9A371-5CED-48A9-A836-1650DE5C3796">
+            <File Id="PlexServiceWCFDll" Source="$(var.PlexServiceWCF.TargetPath)"/>
+          </Component>
+          <Component Id="PlexServiceCommonComponent" Guid="90FAC091-B5DF-4BBF-8DDC-0EFCD2F03FBE">
+            <File Id="PlexServiceCommonDll" Source="$(var.PlexServiceCommon.TargetPath)"/>
+          </Component>
+          <Component Id="PlexServiceTrayComponent" Guid="3527DBA3-BF93-419F-BFA0-B1BF70847318">
+            <File Id="PlexServiceTrayExe" Source="$(var.PlexServiceTray.TargetPath)"/>
+          </Component>
+          <Component Id="PlexServiceTrayAutostart" Guid="C19F06AC-AECA-4206-BAA4-D764F1D8DF07">
+            <RegistryValue Id="PlexServiceTrayAs.rst" Root="HKLM" Action="write"
+                           Key="Software\Microsoft\Windows\CurrentVersion\Run"
+                           Name="PlexServiceTray"
+                           Value="[INSTALLDIR]PlexServiceTray.exe"
+                           Type="string" />
+            <Condition>ASSISTANCE_START_VIA_REGISTRY</Condition>
+          </Component>
+          <Component Id="NewtonsoftJsonComponent" Guid="0825FBFD-E192-461F-96F5-C8D923ACC25D">
+            <File Id="NewtonsoftJsonDll" Source="$(var.PlexService.TargetDir)Newtonsoft.Json.dll"/>
+          </Component>
+          <Component Id="PlexServiceTrayStartMenu" Guid="DF5478D9-8150-4F68-B677-612768826C23">
+            <RegistryKey Id='StartMenuPlexServiceTrayHKCU' Root='HKCU' Key='Software\[ProductName]' ForceCreateOnInstall='yes' ForceDeleteOnUninstall='yes'>
+              <RegistryValue Type='integer' Value='1' Name='StartMenuSC' KeyPath='yes'/>
+            </RegistryKey>
+            <Shortcut Id="PlexServiceTrayStartMenu" Directory="PlexServiceProgramMenuFolder" Name="Plex Service Tray" Target="[INSTALLDIR]PlexServiceTray.exe"
+              WorkingDirectory='INSTALLDIR' Icon="PlexServiceTray.exe" IconIndex="0" Advertise="no" />
+          </Component>
+          <Component Id="PlexServiceHKLM" Guid="AF3565BE-4D86-4B57-A02F-20D952D6DD52">
+            <RegistryKey Id="PlexServiceHKLM" Root="HKLM" Key="Software\[ProductName]" ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes">
+              <RegistryValue Type="string" Name="InstallDir" Value="[INSTALLDIR]" KeyPath="yes"/>
+            </RegistryKey>
+          </Component>
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder" Name="Programs">
+        <Directory Id="PlexServiceProgramMenuFolder" Name="Plex Service">
+          <Component Id="PlexServiceProgramMenuFolder" Guid="DDAB42D5-C843-44F0-8228-D024DA44FCA4">
+            <RemoveFolder Id='PlexServiceProgramMenuFolder' On='uninstall' />
+            <RegistryValue Root='HKCU' Key='Software\[ProductName]' Type='string' Value='' KeyPath='yes' />
+          </Component>
+        </Directory>
+      </Directory>
+      <Directory Id="DesktopFolder" Name="Desktop" />
+    </Directory>
+  </Fragment>
+
+  <Fragment>
+    <WixVariable Id="WixUIBannerBmp" Value="$(sys.SOURCEFILEDIR)\PlexService.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="$(sys.SOURCEFILEDIR)\PlexServiceBack.bmp" />
+    <Icon SourceFile="$(var.PlexServiceTray.TargetPath)" Id="PlexServiceTray.exe"/>
+  </Fragment>
+  
+  <?include ServiceCredentialsUI.wxi ?>
+</Wix>

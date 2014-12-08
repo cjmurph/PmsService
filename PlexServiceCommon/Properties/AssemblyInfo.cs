@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("PlexServiceTray")]
+[assembly: AssemblyTitle("PlexServiceCommon")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("cjmurph")]
-[assembly: AssemblyProduct("PlexServiceTray")]
-[assembly: AssemblyCopyright("Copyright © 2014")]
+[assembly: AssemblyProduct("PlexServiceCommon")]
+[assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("36ad1780-13a9-4959-bb88-189f7a775cb0")]
+[assembly: Guid("d687e402-765b-43e8-898f-89a79f76f7ab")]
 
 // Version information for an assembly consists of the following four values:
 //

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
-using PlexMediaServer_Service;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using PlexServiceCommon;
 
 namespace PlexServiceTray
 {
@@ -85,13 +85,14 @@ namespace PlexServiceTray
         /// <summary>
         /// Use one settings instance for the life of the window.
         /// </summary>
-        Settings settings;
+        public Settings WorkingSettings { get; set; }
 
-        public SettingsWindowViewModel()
+        public SettingsWindowViewModel(Settings settings)
         {
-            this.settings = Settings.Load();
+            //_settings = Settings.Load();
+            WorkingSettings = settings;
             AuxiliaryApplications = new ObservableCollection<AuxiliaryApplicationViewModel>();
-            settings.AuxiliaryApplications.ForEach(x => AuxiliaryApplications.Add(new AuxiliaryApplicationViewModel(x)));
+            WorkingSettings.AuxiliaryApplications.ForEach(x => AuxiliaryApplications.Add(new AuxiliaryApplicationViewModel(x)));
             if (AuxiliaryApplications.Count > 0)
             {
                 AuxiliaryApplications[0].IsExpanded = true;
@@ -187,12 +188,11 @@ namespace PlexServiceTray
 
         private void OnSave(object parameter)
         {
-            this.settings.AuxiliaryApplications.Clear();
+            WorkingSettings.AuxiliaryApplications.Clear();
             foreach (AuxiliaryApplicationViewModel aux in this.AuxiliaryApplications)
             {
-                this.settings.AuxiliaryApplications.Add(aux.GetAuxiliaryApplication());
+                WorkingSettings.AuxiliaryApplications.Add(aux.GetAuxiliaryApplication());
             }
-            this.settings.Save();
             DialogResult = true;
         }
 
@@ -227,7 +227,6 @@ namespace PlexServiceTray
         }
 
         #endregion CancelCommand
-
         
         #region PropertyChanged
 

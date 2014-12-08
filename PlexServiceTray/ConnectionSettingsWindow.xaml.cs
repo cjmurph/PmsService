@@ -11,19 +11,18 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using PlexServiceCommon;
 
 namespace PlexServiceTray
 {
     /// <summary>
-    /// Interaction logic for SettingsWindow.xaml
+    /// Interaction logic for ConnectionSettingsWindow.xaml
     /// </summary>
-    public partial class SettingsWindow : Window
+    public partial class ConnectionSettingsWindow : Window
     {
-        public SettingsWindow(SettingsWindowViewModel settingsViewModel)
+        public ConnectionSettingsWindow()
         {
             InitializeComponent();
-            DataContext = settingsViewModel;
+            DataContext = new ConnectionSettingsViewModel();
         }
     }
 }
