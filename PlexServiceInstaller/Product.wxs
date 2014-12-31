@@ -25,6 +25,7 @@
       <ComponentRef Id="PlexServiceCommonComponent" />
       <ComponentRef Id="PlexServiceTrayComponent" />
       <ComponentRef Id="NewtonsoftJsonComponent" />
+      <ComponentRef Id="LicensesComponent"/>
       <ComponentRef Id="PlexServiceTrayAutostart"/>
       <ComponentRef Id="PlexServiceTrayStartMenu"/>
       <ComponentRef Id="PlexServiceHKLM"/>
@@ -117,6 +118,11 @@
           </Component>
           <Component Id="NewtonsoftJsonComponent" Guid="*">
             <File Id="NewtonsoftJsonDll" Source="$(var.PlexService.TargetDir)Newtonsoft.Json.dll"/>
+          </Component>
+          <Component Id="LicensesComponent" Guid="9C268F52-1375-490C-8126-BB0B39DADBD5">
+            <File Id="NewtonsoftJsonLic" Source="$(var.SolutionDir)\ThirdPartyLibraries\Newtonsoft.Json-license.txt"/>
+            <File Id="MsiExtLic" Source="$(var.SolutionDir)\ThirdPartyLibraries\msiext-license.txt"/>
+            <File Id="PlexServiceLic" Source="$(var.SolutionDir)\LICENSE.md"/>
           </Component>
           <Component Id="PlexServiceTrayStartMenu" Guid="*">
             <RegistryKey Id='StartMenuPlexServiceTrayHKCU' Root='HKCU' Key='Software\[ProductName]' ForceCreateOnInstall='yes' ForceDeleteOnUninstall='yes'>
