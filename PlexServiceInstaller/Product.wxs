@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension" xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
-	<Product Id="12BED064-5E61-474F-86C5-B5A763191219" Name="Plex Service" Language="1033" Version="1.0.5.0" Manufacturer="cjmurph" UpgradeCode="daa483bb-c7e1-4c79-a4d6-3c2c4c3d9daf">
+	<Product Id="*" Name="Plex Service" Language="1033" Version="1.0.6.0" Manufacturer="cjmurph" UpgradeCode="daa483bb-c7e1-4c79-a4d6-3c2c4c3d9daf">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" SummaryCodepage="1252" />
     <Binary Id="success_bmp" SourceFile="$(sys.SOURCEFILEDIR)success.bmp" />
     <Binary Id="error_bmp" SourceFile="$(sys.SOURCEFILEDIR)error.bmp" />
@@ -19,7 +19,7 @@
     <Condition Message="This application requires .NET Framework 4.0 Client Profile. Please install the .NET Framework then run this installer again.">
       <![CDATA[Installed OR NETFRAMEWORK40CLIENT]]>
     </Condition>
-    <Feature Id="PlexServiceFeature" Title="Plex Service" Description="Plex Service 1.0.5" Level="1" ConfigurableDirectory='INSTALLDIR'>
+    <Feature Id="PlexServiceFeature" Title="Plex Service" Description="Plex Service 1.0.6" Level="1" ConfigurableDirectory='INSTALLDIR'>
       <ComponentRef Id="PlexServiceComponent" />
       <ComponentRef Id="PlexServiceWCFComponent" />
       <ComponentRef Id="PlexServiceCommonComponent" />
@@ -70,7 +70,7 @@
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
         <Directory Id="INSTALLDIR" Name="Plex Service">
-          <Component Id="PlexServiceComponent" Guid="7B14F3DC-090C-4FDC-B224-DE3E8F3D37D0">
+          <Component Id="PlexServiceComponent" Guid="*">
             <File Id="PlexServiceExe" Source="$(var.PlexService.TargetPath)" />
             <ServiceInstall Id="ServiceInstaller"
                                           Type="ownProcess"
@@ -82,7 +82,7 @@
                                           Account="[SERVICE_USERNAME]"
                                           Password="[SERVICE_PASSWORD]"
                                           ErrorControl="normal" >
-              <ServiceDependency Id="LanmanServer"/>
+            <ServiceDependency Id="LanmanServer"/>
             </ServiceInstall>
             <ServiceControl Id="StartService"
                             Start="install"
@@ -96,17 +96,18 @@
                                 ThirdFailureActionType="restart"
                                 ResetPeriodInDays="1"
                                 RestartServiceDelayInSeconds="20"/>
+            <util:User Id="user" CreateUser="no" Name="[SERVICE_USERNAME]" Password="[SERVICE_PASSWORD]" LogonAsService="yes" UpdateIfExists="yes"/>
           </Component>
-          <Component Id="PlexServiceWCFComponent" Guid="F9A9A371-5CED-48A9-A836-1650DE5C3796">
+          <Component Id="PlexServiceWCFComponent" Guid="*">
             <File Id="PlexServiceWCFDll" Source="$(var.PlexServiceWCF.TargetPath)"/>
           </Component>
-          <Component Id="PlexServiceCommonComponent" Guid="90FAC091-B5DF-4BBF-8DDC-0EFCD2F03FBE">
+          <Component Id="PlexServiceCommonComponent" Guid="*">
             <File Id="PlexServiceCommonDll" Source="$(var.PlexServiceCommon.TargetPath)"/>
           </Component>
-          <Component Id="PlexServiceTrayComponent" Guid="3527DBA3-BF93-419F-BFA0-B1BF70847318">
+          <Component Id="PlexServiceTrayComponent" Guid="*">
             <File Id="PlexServiceTrayExe" Source="$(var.PlexServiceTray.TargetPath)"/>
           </Component>
-          <Component Id="PlexServiceTrayAutostart" Guid="C19F06AC-AECA-4206-BAA4-D764F1D8DF07">
+          <Component Id="PlexServiceTrayAutostart" Guid="*">
             <RegistryValue Id="PlexServiceTrayAs.rst" Root="HKLM" Action="write"
                            Key="Software\Microsoft\Windows\CurrentVersion\Run"
                            Name="PlexServiceTray"
@@ -114,17 +115,17 @@
                            Type="string" />
             <Condition>ASSISTANCE_START_VIA_REGISTRY</Condition>
           </Component>
-          <Component Id="NewtonsoftJsonComponent" Guid="0825FBFD-E192-461F-96F5-C8D923ACC25D">
+          <Component Id="NewtonsoftJsonComponent" Guid="*">
             <File Id="NewtonsoftJsonDll" Source="$(var.PlexService.TargetDir)Newtonsoft.Json.dll"/>
           </Component>
-          <Component Id="PlexServiceTrayStartMenu" Guid="DF5478D9-8150-4F68-B677-612768826C23">
+          <Component Id="PlexServiceTrayStartMenu" Guid="*">
             <RegistryKey Id='StartMenuPlexServiceTrayHKCU' Root='HKCU' Key='Software\[ProductName]' ForceCreateOnInstall='yes' ForceDeleteOnUninstall='yes'>
               <RegistryValue Type='integer' Value='1' Name='StartMenuSC' KeyPath='yes'/>
             </RegistryKey>
             <Shortcut Id="PlexServiceTrayStartMenu" Directory="PlexServiceProgramMenuFolder" Name="Plex Service Tray" Target="[INSTALLDIR]PlexServiceTray.exe"
               WorkingDirectory='INSTALLDIR' Icon="PlexServiceTray.exe" IconIndex="0" Advertise="no" />
           </Component>
-          <Component Id="PlexServiceHKLM" Guid="AF3565BE-4D86-4B57-A02F-20D952D6DD52">
+          <Component Id="PlexServiceHKLM" Guid="*">
             <RegistryKey Id="PlexServiceHKLM" Root="HKLM" Key="Software\[ProductName]" ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes">
               <RegistryValue Type="string" Name="InstallDir" Value="[INSTALLDIR]" KeyPath="yes"/>
             </RegistryKey>
@@ -133,7 +134,7 @@
       </Directory>
       <Directory Id="ProgramMenuFolder" Name="Programs">
         <Directory Id="PlexServiceProgramMenuFolder" Name="Plex Service">
-          <Component Id="PlexServiceProgramMenuFolder" Guid="DDAB42D5-C843-44F0-8228-D024DA44FCA4">
+          <Component Id="PlexServiceProgramMenuFolder" Guid="*">
             <RemoveFolder Id='PlexServiceProgramMenuFolder' On='uninstall' />
             <RegistryValue Root='HKCU' Key='Software\[ProductName]' Type='string' Value='' KeyPath='yes' />
           </Component>
