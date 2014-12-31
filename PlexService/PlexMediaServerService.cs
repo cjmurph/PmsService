@@ -18,7 +18,7 @@ namespace PlexService
     /// </summary>
     public partial class PlexMediaServerService : ServiceBase
     {
-        private const string _baseAddress = "http://localhost:{0}/PlexService";
+        private const string _baseAddress = "net.tcp://localhost:{0}/PlexService";
 
         /// <summary>
         /// Default the address with port 8787
@@ -58,13 +58,13 @@ namespace PlexService
                 Uri[] adrbase = { new Uri(_address) };
                 _host = new ServiceHost(typeof(TrayInteraction), adrbase);
 
-                ServiceMetadataBehavior mBehave = new ServiceMetadataBehavior();
-                _host.Description.Behaviors.Add(mBehave);
+                ServiceMetadataBehavior behave = new ServiceMetadataBehavior();
+                _host.Description.Behaviors.Add(behave);
 
-                WSHttpBinding httpb = new WSHttpBinding();
-                _host.AddServiceEndpoint(typeof(PlexServiceCommon.Interface.ITrayInteraction), httpb, _address);
+                NetTcpBinding netTcpB = new NetTcpBinding();
+                _host.AddServiceEndpoint(typeof(PlexServiceCommon.Interface.ITrayInteraction), netTcpB, _address);
                 _host.AddServiceEndpoint(typeof(IMetadataExchange),
-                MetadataExchangeBindings.CreateMexHttpBinding(), "mex");
+                MetadataExchangeBindings.CreateMexTcpBinding(), "mex");
 
                 // Open the ServiceHostBase to create listeners and start 
                 // listening for messages.

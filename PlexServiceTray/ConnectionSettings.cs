@@ -45,7 +45,7 @@ namespace PlexServiceTray
         /// <returns></returns>
         public string getServiceAddress()
         {
-            return string.Format("http://{0}:{1}/PlexService/", ServerAddress, ServerPort);
+            return string.Format("net.tcp://{0}:{1}/PlexService/", ServerAddress, ServerPort);
         }
 
         #region Load/Save

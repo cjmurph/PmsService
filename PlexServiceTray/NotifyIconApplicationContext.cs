@@ -71,7 +71,7 @@ namespace PlexServiceTray
         private void connect()
         {
             var localSettings = ConnectionSettings.Load();
-            var plexServiceBinding = new WSHttpBinding();
+            var plexServiceBinding = new NetTcpBinding();
             var plexServiceEndpoint = new EndpointAddress(localSettings.getServiceAddress());
             var plexServiceChannelFactory = new ChannelFactory<PlexServiceCommon.Interface.ITrayInteraction>(plexServiceBinding, plexServiceEndpoint);
 
