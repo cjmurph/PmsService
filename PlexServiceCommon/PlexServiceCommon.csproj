@@ -49,6 +49,7 @@
     <Compile Include="AuxiliaryApplication.cs" />
     <Compile Include="AuxiliaryApplicationMonitor.cs" />
     <Compile Include="Interface\ITrayInteraction.cs" />
+    <Compile Include="PlexState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="StatusChangeEventArgs.cs" />

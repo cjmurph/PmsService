@@ -35,10 +35,6 @@ namespace PlexServiceWCF
         /// Plex process
         /// </summary>
         private Process _plex;
-        /// <summary>
-        /// Flag for actual stop rather than crash we should attempt to restart from
-        /// </summary>
-        private bool _stopping;
 
         private List<AuxiliaryApplicationMonitor> _auxAppMonitors;
 
@@ -46,7 +42,7 @@ namespace PlexServiceWCF
 
         #region Properties
 
-        public bool Running { get; set; }
+        public PlexState State { get; set; }
 
         #endregion
 
@@ -54,6 +50,7 @@ namespace PlexServiceWCF
 
         internal PmsMonitor()
         {
+            State = PlexState.Stopped;
             _auxAppMonitors = new List<AuxiliaryApplicationMonitor>();
         }
         #endregion
@@ -96,15 +93,13 @@ namespace PlexServiceWCF
         /// </summary>
         internal void Start()
         {
-            _stopping = false;
-
             //Find the plex executable
             _executableFileName = getPlexExecutable();
             if (string.IsNullOrEmpty(_executableFileName))
             {
                 OnPlexStatusChange(this, new StatusChangeEventArgs("Plex Media Server does not appear to be installed!", EventLogEntryType.Error));
                 OnPlexStop(this, new EventArgs());
-                Running = false;
+                State = PlexState.Stopped;
             }
             else
             {
@@ -115,15 +110,9 @@ namespace PlexServiceWCF
                 _auxAppMonitors.Clear();
                 settings.AuxiliaryApplications.ForEach(x => _auxAppMonitors.Add(new AuxiliaryApplicationMonitor(x)));
                 //hook up the state change event for all the applications
-                _auxAppMonitors.ForEach(x => x.StatusChange += new AuxiliaryApplicationMonitor.StatusChangeHandler(aux_StatusChange));
+                _auxAppMonitors.ForEach(x => x.StatusChange += new AuxiliaryApplicationMonitor.StatusChangeHandler(OnPlexStatusChange));
                 _auxAppMonitors.AsParallel().ForAll(x => x.Start());
             }
-        }
-
-        void aux_StatusChange(object sender, StatusChangeEventArgs data)
-        {
-            //bubble up the state change
-            OnPlexStatusChange(sender, data);
         }
 
         #endregion
@@ -135,15 +124,26 @@ namespace PlexServiceWCF
         /// </summary>
         internal void Stop()
         {
-            _stopping = true;
+            State = PlexState.Stopping;
             endPlex();
-            //kill each auxiliary process
-            _auxAppMonitors.ForEach(appMonitor => 
-                {
-                    appMonitor.Stop();
-                    //remove event hook
-                    appMonitor.StatusChange -= aux_StatusChange;
-                });
+        }
+
+        #endregion
+
+        #region Restart
+
+        /// <summary>
+        /// Restart plex, wait for the specified delay between stop and start
+        /// </summary>
+        /// <param name="msDelay">The amount of time in ms to wait before starting after stop</param>
+        internal void Restart(int delay)
+        {
+            Stop();
+            State = PlexState.Pending;
+            System.Threading.AutoResetEvent autoEvent = new System.Threading.AutoResetEvent(false);
+            System.Threading.Timer t = new System.Threading.Timer((x) => { Start(); autoEvent.Set(); }, null, delay, System.Threading.Timeout.Infinite);
+            autoEvent.WaitOne();
+            t.Dispose();
         }
 
         #endregion
@@ -162,21 +162,30 @@ namespace PlexServiceWCF
             OnPlexStatusChange(this, new StatusChangeEventArgs("Plex Media Server has stopped!"));
             //unsubscribe
             _plex.Exited -= plex_Exited;
-            //try to restart
-            endPlex();
-            //set the status
-            Running = false;
-            //restart as required
-            if (!_stopping)
+
+            //kill the supporting processes.
+            killSupportingProcesses();
+
+            if (_plex != null)
             {
-                OnPlexStatusChange(this, new StatusChangeEventArgs("Re-starting Plex process."));
-                //wait 5 minutes first
-                System.Threading.Thread.Sleep(300000);
-                startPlex();
+                _plex.Dispose();
+                _plex = null;
+            }
+
+            //restart as required
+            if (State != PlexState.Stopping)
+            {
+                OnPlexStatusChange(this, new StatusChangeEventArgs("Waiting 5 minutes before re-starting the Plex process (to try and protect against web based update)."));
+                State = PlexState.Pending;
+                System.Threading.AutoResetEvent autoEvent = new System.Threading.AutoResetEvent(false);
+                System.Threading.Timer t = new System.Threading.Timer((x) => { Start(); autoEvent.Set(); }, null, 300000, System.Threading.Timeout.Infinite);
+                autoEvent.WaitOne();
+                t.Dispose();
             }
             else
             {
-                OnPlexStatusChange(this, new StatusChangeEventArgs("Plex process stopped"));
+                //set the status
+                State = PlexState.Stopped;
             }
         }
 
@@ -189,16 +198,16 @@ namespace PlexServiceWCF
         /// </summary>
         private void startPlex()
         {
+            State = PlexState.Pending;
             //always try to get rid of the plex auto start registry entry
             purgeAutoStartRegistryEntry();
-
-            OnPlexStatusChange(this, new StatusChangeEventArgs("Attempting to start Plex"));
             if (_plex == null)
             {
                 //see if its running already
                 _plex = Process.GetProcessesByName(PmsMonitor._plexName).FirstOrDefault();
                 if (_plex == null)
                 {
+                    OnPlexStatusChange(this, new StatusChangeEventArgs("Attempting to start Plex"));
                     //plex process
                     _plex = new Process();
                     ProcessStartInfo plexStartInfo = new ProcessStartInfo(_executableFileName);
@@ -223,7 +232,7 @@ namespace PlexServiceWCF
                     try
                     {
                         _plex.Start();
-                        Running = true;
+                        State = PlexState.Running;
                         OnPlexStatusChange(this, new StatusChangeEventArgs("Plex Media Server Started."));
                     }
                     catch(Exception ex)
@@ -240,6 +249,7 @@ namespace PlexServiceWCF
                     {
                         _plex.EnableRaisingEvents = true;
                         _plex.Exited += new EventHandler(plex_Exited);
+                        State = PlexState.Running;
                     }
                     catch
                     {
@@ -248,6 +258,9 @@ namespace PlexServiceWCF
                     }
                 }
             }
+            //set the state back to stopped if we didn't achieve a running state
+            if (State != PlexState.Running)
+                State = PlexState.Stopped;
         }
 
         #endregion
@@ -259,7 +272,6 @@ namespace PlexServiceWCF
         /// </summary>
         private void endPlex()
         {
-            
             if (_plex != null)
             {
                 OnPlexStatusChange(this, new StatusChangeEventArgs("Killing Plex."));
@@ -268,24 +280,23 @@ namespace PlexServiceWCF
                     _plex.Kill();
                 }
                 catch { }
-                finally
-                {
-                    _plex.Dispose();
-                    _plex = null;
-                }
             }
-            Running = false;
-            //kill the supporting processes.
-            killSupportingProcesses(PmsMonitor._supportingProcesses);
+            //kill each auxiliary process
+            _auxAppMonitors.ForEach(appMonitor =>
+            {
+                appMonitor.Stop();
+                //remove event hook
+                appMonitor.StatusChange -= OnPlexStatusChange;
+            });
         }
 
         /// <summary>
         /// Kill all processes with the specified names
         /// </summary>
         /// <param name="names">The names of the processes to kill</param>
-        private void killSupportingProcesses(string[] names)
+        private void killSupportingProcesses()
         {
-            foreach (string name in names)
+            foreach (string name in _supportingProcesses)
             {
                 killSupportingProcess(name);
             }
@@ -444,17 +455,11 @@ namespace PlexServiceWCF
         #endregion
 
         #region Events
-        //stop everything
-        /// <summary>
-        /// Stop Delegate
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="data"></param>
-        internal delegate void PlexStopHandler(object sender, EventArgs data);
+
         /// <summary>
         /// Stop Event
         /// </summary>
-        internal event PlexStopHandler PlexStop;
+        internal event EventHandler PlexStop;
         /// <summary>
         /// Method to stop the monitor
         /// </summary>
@@ -462,26 +467,19 @@ namespace PlexServiceWCF
         /// <param name="data"></param>
         protected void OnPlexStop(object sender, EventArgs data)
         {
+            var handler = PlexStop;
             //Check if event has been subscribed to
-            if (PlexStop != null)
+            if (handler != null)
             {
                 //call the event
-                PlexStop(this, data);
+                handler(this, data);
             }
         }
-
-        //status change
-        /// <summary>
-        /// Status change delegate
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="data"></param>
-        internal delegate void PlexStatusChangeHandler(object sender, StatusChangeEventArgs data);
 
         /// <summary>
         /// Status change event
         /// </summary>
-        internal event PlexStatusChangeHandler PlexStatusChange;
+        internal event EventHandler<StatusChangeEventArgs> PlexStatusChange;
 
         /// <summary>
         /// Method to fire the status change event
@@ -490,11 +488,12 @@ namespace PlexServiceWCF
         /// <param name="data"></param>
         protected void OnPlexStatusChange(object sender, StatusChangeEventArgs data)
         {
+            var handler = PlexStatusChange;
             //Check if event has been subscribed to
-            if (PlexStatusChange != null)
+            if (handler != null)
             {
                 //call the event
-                PlexStatusChange(this, data);
+                handler(this, data);
             }
         }
         #endregion

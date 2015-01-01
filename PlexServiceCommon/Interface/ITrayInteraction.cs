@@ -32,6 +32,6 @@ namespace PlexServiceCommon.Interface
         string GetLog();
 
         [OperationContract]
-        string GetStatus();
+        PlexState GetStatus();
     }
 }

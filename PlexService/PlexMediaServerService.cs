@@ -25,7 +25,7 @@ namespace PlexService
         /// </summary>
         private string _address = string.Format(_baseAddress, 8787);
 
-        private readonly static TimeSpan _timeOut = TimeSpan.FromMilliseconds(2000);
+        private readonly static TimeSpan _timeOut = TimeSpan.FromSeconds(2);
 
         private ServiceHost _host;
 
@@ -61,11 +61,20 @@ namespace PlexService
                 ServiceMetadataBehavior behave = new ServiceMetadataBehavior();
                 _host.Description.Behaviors.Add(behave);
 
+                //Setup a TCP binding with appropriate timeouts.
+                //use a reliable connection so the clients can be notified when the recieve timeout has elapsed and the connection is torn down.
                 NetTcpBinding netTcpB = new NetTcpBinding();
+                netTcpB.OpenTimeout = _timeOut;
+                netTcpB.CloseTimeout = _timeOut;
+                netTcpB.ReceiveTimeout = TimeSpan.FromMinutes(10);
+                netTcpB.ReliableSession.Enabled = true;
+                netTcpB.ReliableSession.InactivityTimeout = TimeSpan.FromMinutes(5);
                 _host.AddServiceEndpoint(typeof(PlexServiceCommon.Interface.ITrayInteraction), netTcpB, _address);
                 _host.AddServiceEndpoint(typeof(IMetadataExchange),
                 MetadataExchangeBindings.CreateMexTcpBinding(), "mex");
-
+                
+                //once the host is opened, start plex
+                _host.Opened += (s, e) => System.Threading.Tasks.Task.Factory.StartNew(() => startPlex());
                 // Open the ServiceHostBase to create listeners and start 
                 // listening for messages.
                 _host.Open();
@@ -79,41 +88,72 @@ namespace PlexService
             base.OnStart(args);
         }
 
+        private void startPlex()
+        {
+            //Try and connect to the WCF service and call its start method
+            try
+            {
+                if (_plexService == null)
+                    connect();
+
+                if (_plexService != null)
+                {
+                    _plexService.Start();
+                    disconnect();
+                }
+            }
+            catch { }
+        }
+
         /// <summary>
         /// Fires when the service is stopped
         /// </summary>
         protected override void OnStop()
         {
-            //Try and connect to the WCF service and call its stop method
-            try
-            {
-                if (!connected())
-                    connect();
-
-                if (connected())
-                {
-
-                    _plexService.Stop();
-                    disconnect();
-                }
-            }
-            catch { }
-            TrayInteraction.WriteToLog("Plex Service Stopped");
             if (_host != null)
             {
-                _host.Close();
-                _host = null;
+                //Try and connect to the WCF service and call its stop method
+                try
+                {
+                    if (_plexService == null)
+                        connect();
+
+                    if (_plexService != null)
+                    {
+                        _plexService.Stop();
+                        disconnect();
+                    }
+                }
+                catch { }
+                try
+                {
+                    _host.Close();
+                }
+                finally
+                {
+                    _host = null;
+                }
             }
+            TrayInteraction.WriteToLog("Plex Service Stopped");
             base.OnStop();
         }
 
         /// <summary>
-        /// Connect to the WCF service
+        /// Connect to WCF service
         /// </summary>
         private void connect()
         {
-            var plexServiceBinding = new WSHttpBinding();
+            //Create a NetTcp binding to the service and set some appropriate timeouts.
+            //Use reliable connection so we know when we have been disconnected
+            var plexServiceBinding = new NetTcpBinding();
+            plexServiceBinding.OpenTimeout = _timeOut;
+            plexServiceBinding.CloseTimeout = _timeOut;
+            plexServiceBinding.SendTimeout = _timeOut;
+            plexServiceBinding.ReliableSession.Enabled = true;
+            plexServiceBinding.ReliableSession.InactivityTimeout = TimeSpan.FromMinutes(1);
+            //Generate the endpoint from the local settings
             var plexServiceEndpoint = new EndpointAddress(_address);
+            //Make a channel factory so we can create the link to the service
             var plexServiceChannelFactory = new ChannelFactory<PlexServiceCommon.Interface.ITrayInteraction>(plexServiceBinding, plexServiceEndpoint);
 
             _plexService = null;
@@ -121,23 +161,25 @@ namespace PlexService
             try
             {
                 _plexService = plexServiceChannelFactory.CreateChannel();
-                ((ICommunicationObject)_plexService).Open(_timeOut);
+                //If we lose connection to the service, set the object to null so we will know to reconnect the next time the tray icon is clicked
+                ((ICommunicationObject)_plexService).Faulted += (s, e) => _plexService = null;
             }
             catch
             {
                 if (_plexService != null)
                 {
-                    ((ICommunicationObject)_plexService).Abort();
+                    _plexService = null;
                 }
             }
         }
 
         /// <summary>
-        /// Disconnect from the WCF instance
+        /// Disconnect from WCF service
         /// </summary>
         private void disconnect()
         {
-            if (_plexService != null && connected())
+            //try and be nice...
+            if (_plexService != null)
             {
                 try
                 {
@@ -146,26 +188,6 @@ namespace PlexService
                 catch { }
             }
             _plexService = null;
-        }
-
-        /// <summary>
-        /// Check connection to the WCF service
-        /// </summary>
-        /// <returns></returns>
-        private bool connected()
-        {
-            if (_plexService != null)
-            {
-                try
-                {
-                    if (((ICommunicationObject)_plexService).State == CommunicationState.Opened)
-                    {
-                        return true;
-                    }
-                }
-                catch { }
-            }
-            return false;
         }
     }
 }

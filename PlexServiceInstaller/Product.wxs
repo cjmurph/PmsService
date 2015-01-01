@@ -12,6 +12,8 @@
     <CustomAction Id="GetUserInfo" BinaryKey="UserPrivileges" DllEntry="GetUserInfo" Execute="immediate" Return="check" />
     <CustomAction Id="GetUserNameFormatted" BinaryKey="UserPrivileges" DllEntry="GetUserNameFormat" Execute="immediate" Return="ignore" />
     <Property Id="ARPPRODUCTICON" Value="PlexServiceTray.exe"/>
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/cjmurph/PmsService"/>
+    <Property Id="ARPHELPLINK" Value="https://forums.plex.tv/index.php/topic/93994-pms-as-a-service/"/>
     <Property Id="ASSISTANCE_START_VIA_REGISTRY">1</Property>
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
     <Media Id="1" Cabinet="PlexService.cab" EmbedCab="yes"/>

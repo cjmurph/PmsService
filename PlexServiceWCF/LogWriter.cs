@@ -14,25 +14,30 @@ namespace PlexServiceWCF
     {
         private static string _logFile = Path.Combine(TrayInteraction.APP_DATA_PATH, "plexServiceLog.txt");
 
+        private static readonly object _syncObject = new object();
+
         internal static void WriteLine(string detail)
         {
-            if (!System.IO.Directory.Exists(Path.GetDirectoryName(_logFile)))
+            lock (_syncObject)
             {
-                System.IO.Directory.CreateDirectory(Path.GetDirectoryName(_logFile));
-            }
+                if (!System.IO.Directory.Exists(Path.GetDirectoryName(_logFile)))
+                {
+                    System.IO.Directory.CreateDirectory(Path.GetDirectoryName(_logFile));
+                }
 
-            //reduce its size if its getting big
-            if (GetLineCount() > 200)
+                //reduce its size if its getting big
+                if (getLineCount() > 200)
                 {
                     //halve the log file
-                    removeFirstLines(100);   
-            }
+                    removeFirstLines(100);
+                }
 
-            // Create a writer and open the file:
-            using (StreamWriter log = new StreamWriter(_logFile, true))
-            {
-                log.WriteLine(DateTime.Now.ToString() + ": " + detail);
-            }           
+                // Create a writer and open the file:
+                using (StreamWriter log = new StreamWriter(_logFile, true))
+                {
+                    log.WriteLine(DateTime.Now.ToString() + ": " + detail);
+                }
+            }
         }
 
         private static void removeFirstLines(int lineCount = 1)
@@ -50,7 +55,7 @@ namespace PlexServiceWCF
             }
         }
 
-        internal static void deleteLog()
+        internal static void DeleteLog()
         {
             if(File.Exists(_logFile))
             {
@@ -58,7 +63,7 @@ namespace PlexServiceWCF
             }
         }
 
-        internal static int GetLineCount()
+        private static int getLineCount()
         {
             int count = -1;
             if (File.Exists(_logFile))
@@ -75,7 +80,10 @@ namespace PlexServiceWCF
             {
                 try
                 {
-                    log = File.ReadAllText(_logFile);
+                    lock (_syncObject)
+                    {
+                        log = File.ReadAllText(_logFile);
+                    }
                 }
                 catch { }
             }

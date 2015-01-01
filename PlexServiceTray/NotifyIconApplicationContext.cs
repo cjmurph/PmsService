@@ -25,7 +25,7 @@ namespace PlexServiceTray
 
         private System.Windows.Forms.NotifyIcon _notifyIcon;
 
-        private readonly static TimeSpan _timeOut = TimeSpan.FromMilliseconds(2000);
+        private readonly static TimeSpan _timeOut = TimeSpan.FromSeconds(2);
 
         private PlexServiceCommon.Interface.ITrayInteraction _plexService;
 
@@ -71,8 +71,17 @@ namespace PlexServiceTray
         private void connect()
         {
             var localSettings = ConnectionSettings.Load();
+            //Create a NetTcp binding to the service and set some appropriate timeouts.
+            //Use reliable connection so we know when we have been disconnected
             var plexServiceBinding = new NetTcpBinding();
+            plexServiceBinding.OpenTimeout = _timeOut;
+            plexServiceBinding.CloseTimeout = _timeOut;
+            plexServiceBinding.SendTimeout = _timeOut;
+            plexServiceBinding.ReliableSession.Enabled = true;
+            plexServiceBinding.ReliableSession.InactivityTimeout = TimeSpan.FromMinutes(1);
+            //Generate the endpoint from the local settings
             var plexServiceEndpoint = new EndpointAddress(localSettings.getServiceAddress());
+            //Make a channel factory so we can create the link to the service
             var plexServiceChannelFactory = new ChannelFactory<PlexServiceCommon.Interface.ITrayInteraction>(plexServiceBinding, plexServiceEndpoint);
 
             _plexService = null;
@@ -80,13 +89,14 @@ namespace PlexServiceTray
             try
             {
                 _plexService = plexServiceChannelFactory.CreateChannel();
-                ((ICommunicationObject)_plexService).Open(_timeOut);
+                //If we lose connection to the service, set the object to null so we will know to reconnect the next time the tray icon is clicked
+                ((ICommunicationObject)_plexService).Faulted += (s, e) => _plexService = null;
             }
             catch
             {
                 if (_plexService != null)
                 {
-                    ((ICommunicationObject)_plexService).Abort();
+                    _plexService = null;
                 }
             }
         }
@@ -96,7 +106,8 @@ namespace PlexServiceTray
         /// </summary>
         private void disconnect()
         {
-            if (_plexService != null && connected())
+            //try and be nice...
+            if (_plexService != null)
             {
                 try
                 {
@@ -105,26 +116,6 @@ namespace PlexServiceTray
                 catch { }
             }
             _plexService = null;
-        }
-
-        /// <summary>
-        /// Check connection to WCF service
-        /// </summary>
-        /// <returns></returns>
-        private bool connected()
-        {
-            if (_plexService != null)
-            {
-                try
-                {
-                    if (((ICommunicationObject)_plexService).State == CommunicationState.Opened)
-                    {
-                        return true;
-                    }
-                }
-                catch { }
-            }
-            return false;
         }
 
         /// <summary>
@@ -148,29 +139,34 @@ namespace PlexServiceTray
             e.Cancel = false;
             _notifyIcon.ContextMenuStrip.Items.Clear();
 
-            //take a hit if we're not connected just in case we had a temporary loss of comms
-            if (!connected())
+            //see if we are still connected.
+            if (_plexService == null)
             {
-                //try again just in case
                 connect();
             }
 
-            if (connected())
+            if (_plexService != null)
             {
                 try
                 {
-                    string state = _plexService.GetStatus();
+                    var state = _plexService.GetStatus();
                     switch (state)
                     {
-                        case "Stopped":
-                            _notifyIcon.ContextMenuStrip.Items.Add("Start Service", null, startService_Click);
-                            break;
-                        case "Running":
+                        case PlexState.Running:
                             _notifyIcon.ContextMenuStrip.Items.Add("Open Web Manager", null, openManager_Click);
-                            _notifyIcon.ContextMenuStrip.Items.Add("Stop Service", null, stopService_Click);
+                            _notifyIcon.ContextMenuStrip.Items.Add("Stop Plex", null, stopPlex_Click);
+                            break;
+                        case PlexState.Stopped:
+                            _notifyIcon.ContextMenuStrip.Items.Add("Start Plex", null, startPlex_Click);
+                            break;
+                        case PlexState.Pending:
+                            _notifyIcon.ContextMenuStrip.Items.Add("Restart Pending");
+                            break;
+                        case PlexState.Stopping:
+                            _notifyIcon.ContextMenuStrip.Items.Add("Stopping");
                             break;
                         default:
-                            _notifyIcon.ContextMenuStrip.Items.Add("Plex state unknown", null, openManager_Click);
+                            _notifyIcon.ContextMenuStrip.Items.Add("Plex state unknown");
                             break;
                     }
                     _notifyIcon.ContextMenuStrip.Items.Add("View Logs", null, viewLogs_Click);
@@ -179,11 +175,13 @@ namespace PlexServiceTray
                 }
                 catch
                 {
+                    disconnect();
                     _notifyIcon.ContextMenuStrip.Items.Add("Unable to connect to service. Check settings");
                 }
             }
             else
             {
+                disconnect();
                 _notifyIcon.ContextMenuStrip.Items.Add("Unable to connect to service. Check settings");
 
             }
@@ -200,45 +198,51 @@ namespace PlexServiceTray
         /// <param name="e"></param>
         private void settingsCommand(object sender, EventArgs e)
         {
-            if (connected())
+            if (_plexService != null)
             {
+                Settings settings = null;
                 try
                 {
-                    Settings settings = Settings.Deserialize(_plexService.GetSettings());
+                    settings = Settings.Deserialize(_plexService.GetSettings());
+                }
+                catch 
+                {
+                    disconnect();
+                }
+
+                if (settings != null)
+                {
                     SettingsWindowViewModel settingsViewModel = new SettingsWindowViewModel(settings);
                     SettingsWindow settingsWindow = new SettingsWindow(settingsViewModel);
-                    if (settingsWindow.ShowDialog() == true && connected())
+                    if (settingsWindow.ShowDialog() == true)
                     {
-                        _plexService.SetSettings(settingsViewModel.WorkingSettings.Serialize());
-                        if (_plexService.GetStatus() == "Running")
+                        PlexState status = PlexState.Pending;
+                        try
                         {
-                            if (MessageBox.Show("Settings changed, do you want to restart the service?", "Settings changed!", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                            _plexService.SetSettings(settingsViewModel.WorkingSettings.Serialize());
+                            status = _plexService.GetStatus();
+                        }
+                        catch(Exception ex)
+                        {
+                            disconnect();
+                            MessageBox.Show("Unable to save settings" + Environment.NewLine + ex.Message);
+                        }                            
+                        if (status == PlexState.Running)
+                        {
+                            if (MessageBox.Show("Settings changed, do you want to restart Plex?", "Settings changed!", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             {
                                 try
                                 {
                                     _plexService.Restart();
                                 }
-                                catch (System.ComponentModel.Win32Exception ex)
+                                catch (Exception ex)
                                 {
-                                    MessageBox.Show("Unable to restart service" + Environment.NewLine + ex.Message);
+                                    disconnect();
+                                    MessageBox.Show("Unable to restart Plex" + Environment.NewLine + ex.Message);
                                 }
                             }
                         }
                     }
-                }
-                catch { }
-            }
-            else
-            {
-                ConnectionSettingsWindow connectionSettingsWindow = new ConnectionSettingsWindow();
-                if (connectionSettingsWindow.ShowDialog() == true)
-                {
-                    try
-                    {
-                        disconnect();
-                        connect();
-                    }
-                    catch { }
                 }
             }
         }
@@ -253,6 +257,7 @@ namespace PlexServiceTray
             ConnectionSettingsWindow connectionSettingsWindow = new ConnectionSettingsWindow();
             if (connectionSettingsWindow.ShowDialog() == true)
             {
+                //if the user saved the settings, then reconnect using the new values
                 try
                 {
                     disconnect();
@@ -278,10 +283,10 @@ namespace PlexServiceTray
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void startService_Click(object sender, EventArgs e)
+        private void startPlex_Click(object sender, EventArgs e)
         {
             //start it
-            if (connected())
+            if (_plexService != null)
             {
                 try
                 {
@@ -299,10 +304,10 @@ namespace PlexServiceTray
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void stopService_Click(object sender, EventArgs e)
+        private void stopPlex_Click(object sender, EventArgs e)
         {
             //stop it
-            if (connected())
+            if (_plexService != null)
             {
                 try
                 {
@@ -322,6 +327,7 @@ namespace PlexServiceTray
         /// <param name="e"></param>
         private void openManager_Click(object sender, EventArgs e)
         {
+            //The web manager should be located at the server address in the connection settings
             Process.Start("http://" + ConnectionSettings.Load().ServerAddress + ":32400/web");
         }
 
@@ -332,6 +338,7 @@ namespace PlexServiceTray
         /// <param name="e"></param>
         private void viewLogs_Click(object sender, EventArgs e)
         {
+            //Show the data from the server in notepad, but don't save it to disk locally.
             try
             {
                 NotepadHelper.ShowMessage(_plexService.GetLog(), "Plex Service Log");

@@ -85,8 +85,10 @@ namespace PlexServiceCommon
                 {
                     OnStatusChange(this, new StatusChangeEventArgs("Re-starting " + _aux.Name));
                     //wait some seconds first
-                    System.Threading.Thread.Sleep(10000);
-                    start();
+                    System.Threading.AutoResetEvent autoEvent = new System.Threading.AutoResetEvent(false);
+                    System.Threading.Timer t = new System.Threading.Timer((x) => { start(); autoEvent.Set(); }, null, 5000, System.Threading.Timeout.Infinite);
+                    autoEvent.WaitOne();
+                    t.Dispose();
                 }
                 else
                 {

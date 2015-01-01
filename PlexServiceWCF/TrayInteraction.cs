@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using PlexServiceCommon;
 using PlexServiceCommon.Interface;
 
@@ -25,7 +26,6 @@ namespace PlexServiceWCF
         {
             _pms = new PmsMonitor();
             _pms.PlexStatusChange += OnPlexEvent;
-            Start();
         }
 
         /// <summary>
@@ -33,7 +33,8 @@ namespace PlexServiceWCF
         /// </summary>
         public void Start()
         {
-            _pms.Start();
+            //do this in another thread to return immediately so we don't hold up the service starting
+            Task.Factory.StartNew(() => _pms.Start());
         }
 
         /// <summary>
@@ -41,8 +42,8 @@ namespace PlexServiceWCF
         /// </summary>
         public void Stop()
         {
+            //do this in the calling thread so it only returns upon completion of stop
             _pms.Stop();
-            WriteToLog("Plex Service Stopped");
         }
 
         /// <summary>
@@ -51,8 +52,10 @@ namespace PlexServiceWCF
         public void Restart()
         {
             //stop and restart plex and the auxilliary apps
-            _pms.Stop();
-            _pms.Start();
+            Task.Factory.StartNew(() =>
+                {
+                    _pms.Restart(5000);
+                });
         }
 
         /// <summary>
@@ -86,11 +89,11 @@ namespace PlexServiceWCF
         /// Returns Running or Stopped
         /// </summary>
         /// <returns></returns>
-        public string GetStatus()
+        public PlexState GetStatus()
         {
-            if(_pms != null && _pms.Running)
-                return "Running";
-            return "Stopped";
+            if (_pms != null)
+                return _pms.State;
+            return PlexState.Stopped;
         }
 
         /// <summary>
