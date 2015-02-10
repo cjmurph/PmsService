@@ -26,6 +26,8 @@ namespace PlexServiceWCF
         {
             _pms = new PmsMonitor();
             _pms.PlexStatusChange += OnPlexEvent;
+            ///Start plex
+            Start();
         }
 
         /// <summary>

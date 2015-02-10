@@ -25,10 +25,17 @@ namespace PlexServiceCommon
         [JsonProperty]
         public int ServerPort { get; set; }
 
+        /// <summary>
+        /// The plex restart delay
+        /// </summary>
+        [JsonProperty]
+        public int RestartDelay { get; set; }
+
         public Settings()
         {
             AuxiliaryApplications = new List<AuxiliaryApplication>();
             ServerPort = 8787;
+            RestartDelay = 300;
         }
 
         /// <summary>

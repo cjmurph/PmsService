@@ -28,7 +28,27 @@ namespace PlexServiceTray
                     OnPropertyChanged("ServerPort");
                 }
             }
-        }        
+        }
+
+        /// <summary>
+        /// Plex restart delay
+        /// </summary>
+        public int RestartDelay
+        {
+            get
+            {
+                return WorkingSettings.RestartDelay;
+            }
+            set
+            {
+                if (WorkingSettings.RestartDelay != value)
+                {
+                    WorkingSettings.RestartDelay = value;
+                    OnPropertyChanged("RestartDelay");
+                }
+            }
+        }
+        
 
         private ObservableCollection<AuxiliaryApplicationViewModel> _auxilaryApplications;
         /// <summary>

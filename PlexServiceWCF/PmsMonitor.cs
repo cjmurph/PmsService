@@ -175,10 +175,11 @@ namespace PlexServiceWCF
             //restart as required
             if (State != PlexState.Stopping)
             {
-                OnPlexStatusChange(this, new StatusChangeEventArgs("Waiting 5 minutes before re-starting the Plex process (to try and protect against web based update)."));
+                Settings settings = SettingsHandler.Load();
+                OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("Waiting {0} seconds before re-starting the Plex process.", settings.RestartDelay)));
                 State = PlexState.Pending;
                 System.Threading.AutoResetEvent autoEvent = new System.Threading.AutoResetEvent(false);
-                System.Threading.Timer t = new System.Threading.Timer((x) => { Start(); autoEvent.Set(); }, null, 300000, System.Threading.Timeout.Infinite);
+                System.Threading.Timer t = new System.Threading.Timer((x) => { Start(); autoEvent.Set(); }, null, settings.RestartDelay * 1000, System.Threading.Timeout.Infinite);
                 autoEvent.WaitOne();
                 t.Dispose();
             }

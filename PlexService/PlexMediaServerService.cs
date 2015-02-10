@@ -74,7 +74,7 @@ namespace PlexService
                 MetadataExchangeBindings.CreateMexTcpBinding(), "mex");
                 
                 //once the host is opened, start plex
-                _host.Opened += (s, e) => System.Threading.Tasks.Task.Factory.StartNew(() => startPlex());
+                //_host.Opened += (s, e) => System.Threading.Tasks.Task.Factory.StartNew(() => startPlex());
                 // Open the ServiceHostBase to create listeners and start 
                 // listening for messages.
                 _host.Open();
