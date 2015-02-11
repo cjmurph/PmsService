@@ -16,12 +16,24 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <TextBlock FontSize="20" HorizontalAlignment="Stretch" TextAlignment="Center" VerticalAlignment="Center" Background="{DynamicResource Brush04}" Foreground="{DynamicResource Brush02}" Text="Plex Media Server Service Settings" Padding="5" Margin="5,10,5,0"/>
-            <GroupBox Grid.Row="1" Header="Auxiliary Applications" Margin="5">
+            <Grid Grid.Row="1" Margin="5,5,5,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Service Port:" Margin="5" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1" Text="{Binding ServerPort, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
+                <TextBlock Grid.Column="2" Text="Plex Restart Delay (s):" Margin="5" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="3" Text="{Binding RestartDelay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
+            </Grid>
+            <GroupBox Grid.Row="2" Header="Auxiliary Applications" Margin="5,0,5,5">
                 <ListBox ItemsSource="{Binding AuxiliaryApplications}" SelectedItem="{Binding SelectedAuxApplication}" HorizontalContentAlignment="Stretch">
                     <ListBox.Resources>
                         <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent" />
@@ -57,14 +69,6 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
             </GroupBox>
-            <Grid Grid.Row="2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="Plex restart delay:" Margin="5" VerticalAlignment="Center"/>
-                <TextBox Grid.Column="1" Text="{Binding RestartDelay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
-            </Grid>
             <Grid Grid.Row="3">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -76,8 +80,6 @@
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0" Content="+" Command="{Binding AddCommand}" Width="30" Margin="5" ToolTip="Add new Application"/>
                 <Button Grid.Column="1" Content="-" Command="{Binding RemoveCommand}" Width="30" Margin="5" ToolTip="{Binding RemoveToolTip}"/>
-                <TextBlock Grid.Column="2" Text="Plex restart delay:" Margin="5" VerticalAlignment="Center"/>
-                <TextBox Grid.Column="3" Text="{Binding RestartDelay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
                 <Button Grid.Column="4" Content="Save" Command="{Binding SaveCommand}" Width="70" Margin="5"/>
                 <Button Grid.Column="5" Content="Cancel" Command="{Binding CancelCommand}" Width="70" Margin="5"/>            
             </Grid>

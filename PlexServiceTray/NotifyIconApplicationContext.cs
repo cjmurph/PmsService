@@ -212,6 +212,8 @@ namespace PlexServiceTray
 
                 if (settings != null)
                 {
+                    //Save the current server port setting for reference
+                    int oldPort = settings.ServerPort;
                     SettingsWindowViewModel settingsViewModel = new SettingsWindowViewModel(settings);
                     SettingsWindow settingsWindow = new SettingsWindow(settingsViewModel);
                     if (settingsWindow.ShowDialog() == true)
@@ -226,21 +228,12 @@ namespace PlexServiceTray
                         {
                             disconnect();
                             MessageBox.Show("Unable to save settings" + Environment.NewLine + ex.Message);
-                        }                            
-                        if (status == PlexState.Running)
+                        }     
+                        //The only setting that would require a restart of the service is the listening port.
+                        //If that gets changed notify the user to restart the service from the service snap in
+                        if (settingsViewModel.WorkingSettings.ServerPort != oldPort)
                         {
-                            if (MessageBox.Show("Settings changed, do you want to restart Plex?", "Settings changed!", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                            {
-                                try
-                                {
-                                    _plexService.Restart();
-                                }
-                                catch (Exception ex)
-                                {
-                                    disconnect();
-                                    MessageBox.Show("Unable to restart Plex" + Environment.NewLine + ex.Message);
-                                }
-                            }
+                            MessageBox.Show("Server port changed! You will need to restart the service from the services snap in for the change to be applied", "Settings changed!", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                     }
                 }
