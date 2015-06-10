@@ -48,7 +48,22 @@ namespace PlexServiceTray
                 }
             }
         }
-        
+
+        public bool AutoRestart
+        {
+            get
+            {
+                return WorkingSettings.AutoRestart;
+            }
+            set
+            {
+                if (WorkingSettings.AutoRestart != value)
+                {
+                    WorkingSettings.AutoRestart = value;
+                    OnPropertyChanged("AutoRestart");
+                }
+            }
+        }
 
         private ObservableCollection<AuxiliaryApplicationViewModel> _auxilaryApplications;
         /// <summary>

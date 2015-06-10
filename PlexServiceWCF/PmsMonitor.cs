@@ -173,9 +173,9 @@ namespace PlexServiceWCF
             }
 
             //restart as required
-            if (State != PlexState.Stopping)
+            Settings settings = SettingsHandler.Load();
+            if (State != PlexState.Stopping && settings.AutoRestart)
             {
-                Settings settings = SettingsHandler.Load();
                 OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("Waiting {0} seconds before re-starting the Plex process.", settings.RestartDelay)));
                 State = PlexState.Pending;
                 System.Threading.AutoResetEvent autoEvent = new System.Threading.AutoResetEvent(false);

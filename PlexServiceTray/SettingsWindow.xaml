@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PlexServiceTray"
-             MinHeight="490" Height="490" MinWidth="450" Width="450" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowStyle="None" local:DialogCloser.DialogResult="{Binding DialogResult}" Icon="PlexService.ico">
+             MinHeight="500" Height="500" MinWidth="450" Width="450" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowStyle="None" local:DialogCloser.DialogResult="{Binding DialogResult}" Icon="PlexService.ico">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -22,16 +22,28 @@
             </Grid.RowDefinitions>
             <TextBlock FontSize="20" HorizontalAlignment="Stretch" TextAlignment="Center" VerticalAlignment="Center" Background="{DynamicResource Brush04}" Foreground="{DynamicResource Brush02}" Text="Plex Media Server Service Settings" Padding="5" Margin="5,10,5,0"/>
             <Grid Grid.Row="1" Margin="5,5,5,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto" MinWidth="100"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Service Port:" Margin="5" VerticalAlignment="Center"/>
-                <TextBox Grid.Column="1" Text="{Binding ServerPort, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
-                <TextBlock Grid.Column="2" Text="Plex Restart Delay (s):" Margin="5" VerticalAlignment="Center"/>
-                <TextBox Grid.Column="3" Text="{Binding RestartDelay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
+                <TextBlock Grid.Column="0" Text="Service Port:" Margin="5,5,0,5" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1" Text="{Binding ServerPort, UpdateSourceTrigger=PropertyChanged}" Margin="5" ToolTip="The port the service listens on for communication with the tray application"/>
+                <Grid Grid.Row="1" Grid.ColumnSpan="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox Grid.Column="0" Content=":Automatically Restart Plex if it Stops" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Center" IsChecked="{Binding AutoRestart, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Grid.Column="1" Text="Delay (s):" Margin="5,5,0,5" VerticalAlignment="Center" IsEnabled="{Binding AutoRestart}"/>
+                    <TextBox Grid.Column="2" Text="{Binding RestartDelay, UpdateSourceTrigger=PropertyChanged}" Margin="5" IsEnabled="{Binding AutoRestart}" ToolTip="If plex stops this is how long the service waits before restarting it"/>
+                    
+                </Grid>
             </Grid>
             <GroupBox Grid.Row="2" Header="Auxiliary Applications" Margin="5,0,5,5">
                 <ListBox ItemsSource="{Binding AuxiliaryApplications}" SelectedItem="{Binding SelectedAuxApplication}" HorizontalContentAlignment="Stretch">
@@ -55,14 +67,14 @@
                                         <ColumnDefinition MaxWidth="280"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Row="0" Text="Name:" Margin="5" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Row="0" HorizontalAlignment="Right" Text="Name:" Margin="5" VerticalAlignment="Center"/>
                                     <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Margin="5" ToolTip="Enter a user friendly name for this application"/>
-                                    <TextBlock Grid.Row="1" Text="File:" Margin="5" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Row="1" HorizontalAlignment="Right" Text="File:" Margin="5" VerticalAlignment="Center"/>
                                     <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding FilePath, UpdateSourceTrigger=PropertyChanged}" Margin="5,5,0,5" ToolTip="This is the file you want to execute when plex is running."/>
                                     <Button Grid.Row="1" Grid.Column="2" Content="..." Width="30" Command="{Binding BrowseCommand}" Margin="0,5,5,5"/>
-                                    <TextBlock Grid.Row="2" Text="Argument:" Margin="5" VerticalAlignment="Center" ToolTip="Enter any command line arguments you want added to the startup command for this application"/>
+                                    <TextBlock Grid.Row="2" HorizontalAlignment="Right" Text="Argument:" Margin="5" VerticalAlignment="Center" ToolTip="Enter any command line arguments you want added to the startup command for this application"/>
                                     <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Argument, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
-                                    <CheckBox Grid.Row="3" Grid.ColumnSpan="3" Content="Keep alive while plex is running" IsChecked="{Binding KeepAlive}" Margin="5" ToolTip="If selected, The service will attempt to keep this application running while plex is running. Otherwise when it stops it will not be restarted."/>
+                                    <CheckBox Grid.Row="3" Grid.ColumnSpan="3" HorizontalAlignment="Left" FlowDirection="RightToLeft" Content=":Keep alive while plex is running" IsChecked="{Binding KeepAlive}" Margin="5" ToolTip="If selected, The service will attempt to keep this application running while plex is running. Otherwise when it stops it will not be restarted."/>
                                 </Grid>
                             </Expander>
                         </DataTemplate>

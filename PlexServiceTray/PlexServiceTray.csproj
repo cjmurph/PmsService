@@ -98,6 +98,7 @@
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="SettingsWindowViewModel.cs" />
+    <Compile Include="Themes\Metro\Light\CheckBoxTransformConverter.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

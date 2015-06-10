@@ -31,6 +31,12 @@ namespace PlexServiceCommon
         [JsonProperty]
         public int RestartDelay { get; set; }
 
+        /// <summary>
+        /// Choose whether plex restarts if it stops
+        /// </summary>
+        [JsonProperty]
+        public bool AutoRestart { get; set; }
+
         public Settings()
         {
             AuxiliaryApplications = new List<AuxiliaryApplication>();
