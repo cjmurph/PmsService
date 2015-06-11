@@ -27,6 +27,7 @@
       <ComponentRef Id="PlexServiceCommonComponent" />
       <ComponentRef Id="PlexServiceTrayComponent" />
       <ComponentRef Id="NewtonsoftJsonComponent" />
+      <ComponentRef Id="OokiiComponent"/>
       <ComponentRef Id="LicensesComponent"/>
       <ComponentRef Id="PlexServiceTrayAutostart"/>
       <ComponentRef Id="PlexServiceTrayStartMenu"/>
@@ -121,9 +122,13 @@
           <Component Id="NewtonsoftJsonComponent" Guid="*">
             <File Id="NewtonsoftJsonDll" Source="$(var.PlexService.TargetDir)Newtonsoft.Json.dll"/>
           </Component>
+          <Component Id="OokiiComponent" Guid="*">
+            <File Id="OokiiDll" Source="$(var.PlexServiceTray.TargetDir)Ookii.Dialogs.Wpf.dll"/>
+          </Component>
           <Component Id="LicensesComponent" Guid="9C268F52-1375-490C-8126-BB0B39DADBD5">
             <File Id="NewtonsoftJsonLic" Source="$(var.SolutionDir)\ThirdPartyLibraries\Newtonsoft.Json-license.txt"/>
             <File Id="MsiExtLic" Source="$(var.SolutionDir)\ThirdPartyLibraries\msiext-license.txt"/>
+            <File Id="OokiiLic" Source="$(var.SolutionDir)\ThirdPartyLibraries\ookiidialogs-license.txt"/>
             <File Id="PlexServiceLic" Source="$(var.SolutionDir)\LICENSE.md"/>
           </Component>
           <Component Id="PlexServiceTrayStartMenu" Guid="*">
