@@ -121,6 +121,7 @@ namespace PlexServiceCommon
                 //Auxiliary process
                 _auxProcess = new Process();
                 _auxProcess.StartInfo.FileName = _aux.FilePath;
+                _auxProcess.StartInfo.WorkingDirectory = _aux.WorkingFolder;
                 _auxProcess.StartInfo.UseShellExecute = false;
                 _auxProcess.StartInfo.Arguments = _aux.Argument;
                 _auxProcess.EnableRaisingEvents = true;

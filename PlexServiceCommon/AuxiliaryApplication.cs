@@ -25,6 +25,10 @@ namespace PlexServiceCommon
         [JsonProperty]
         public string FilePath { get; set; }
 
+        //The working folder to set
+        [JsonProperty]
+        public string WorkingFolder { get; set; }
+
         /// <summary>
         /// any arguments to pass to the executable
         /// </summary>
@@ -41,6 +45,7 @@ namespace PlexServiceCommon
         {
             Name = string.Empty;
             FilePath = string.Empty;
+            WorkingFolder = string.Empty;
             Argument = string.Empty;
             KeepAlive = true;
         }

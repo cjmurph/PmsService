@@ -6,6 +6,7 @@ using System.ComponentModel;
 using PlexServiceCommon;
 using System.Windows.Input;
 using Microsoft.Win32;
+using Ookii.Dialogs.Wpf;
 
 namespace PlexServiceTray
 {
@@ -41,6 +42,22 @@ namespace PlexServiceTray
                 {
                     _auxApplication.FilePath = value;
                     OnPropertyChanged("FilePath");
+                }
+            }
+        }
+
+        public string WorkingFolder
+        {
+            get
+            {
+                return _auxApplication.WorkingFolder;
+            }
+            set
+            {
+                if (_auxApplication.WorkingFolder != value)
+                {
+                    _auxApplication.WorkingFolder = value;
+                    OnPropertyChanged("WorkingFolder");
                 }
             }
         }
@@ -137,10 +154,52 @@ namespace PlexServiceTray
             if (ofd.ShowDialog() == true)
             {
                 FilePath = ofd.FileName;
+                if(string.IsNullOrEmpty(WorkingFolder))
+                {
+                    WorkingFolder = System.IO.Path.GetDirectoryName(FilePath);
+                }
             }
         }
 
         #endregion BrowseCommand
+
+        #region BrowseFolderCommand
+        RelayCommand _browseFolderCommand = null;
+        public ICommand BrowseFolderCommand
+        {
+            get
+            {
+                if (_browseFolderCommand == null)
+                {
+                    _browseFolderCommand = new RelayCommand((p) => OnBrowseFolder(p), (p) => CanBrowseFolder(p));
+                }
+
+                return _browseFolderCommand;
+            }
+        }
+
+        private bool CanBrowseFolder(object parameter)
+        {
+            return true;
+        }
+
+        private void OnBrowseFolder(object parameter)
+        {
+            VistaFolderBrowserDialog fbd = new VistaFolderBrowserDialog();
+            fbd.Description = "Please select working directory";
+            fbd.UseDescriptionForTitle = true;
+            if (!string.IsNullOrEmpty(WorkingFolder))
+            {
+                fbd.SelectedPath = WorkingFolder;
+            }
+            if (fbd.ShowDialog() == true)
+            {
+                WorkingFolder = fbd.SelectedPath;
+            }
+        }
+
+        #endregion BrowseFolderCommand
+
 
         #region PropertyChanged
 
