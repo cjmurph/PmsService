@@ -62,6 +62,7 @@ namespace PlexServiceTray
             _notifyIcon.Text = "Manage Plex Media Server Service";
             _notifyIcon.Visible = true;
             _notifyIcon.Click += new EventHandler(notifyIcon_Click);
+            _notifyIcon.DoubleClick += new EventHandler(openManager_Click);
             _notifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
         }
 
