@@ -86,6 +86,39 @@ namespace PlexServiceWCF
 
         #endregion
 
+        #region DisableFirstRun
+
+        /// <summary>
+        /// This method will set the "FirstRun" registry key to 0 to prevent PMS from spawning the default browser.
+        /// </summary>
+        /// <returns></returns>
+        private void disableFirstRun()
+        {
+            string keyName = @"Software\Plex, Inc.\Plex Media Server";
+            // CreateSubKey just in case it isn't already there for some reason.
+            // The installer adds values under here during install, but this can't hurt.
+            using (RegistryKey key = Registry.CurrentUser.CreateSubKey(keyName, RegistryKeyPermissionCheck.ReadWriteSubTree))
+            {
+                if (key != null)
+                {
+                    if (!Object.Equals(key.GetValue("FirstRun") as string, "0"))
+                    {
+                        try
+                        {
+                            key.SetValue("FirstRun", 0, RegistryValueKind.DWord);
+                            OnPlexStatusChange(this, new StatusChangeEventArgs("Successfully set the 'FirstRun' registry key to 0"));
+                        }
+                        catch(Exception ex)
+                        {
+                            OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("Unable to set the 'FirstRun' registry key to 0. Error: {0}", ex.Message)));
+                        }
+                    }
+                }
+            }
+        }
+
+        #endregion
+
         #region Start
 
         /// <summary>
@@ -202,6 +235,8 @@ namespace PlexServiceWCF
             State = PlexState.Pending;
             //always try to get rid of the plex auto start registry entry
             purgeAutoStartRegistryEntry();
+            // make sure we don't spawn a browser
+            disableFirstRun(); 
             if (_plex == null)
             {
                 //see if its running already
