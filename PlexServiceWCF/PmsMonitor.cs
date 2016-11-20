@@ -20,7 +20,7 @@ namespace PlexServiceWCF
         //Process names
         private static string _plexName = "Plex Media Server";
         //List of processes spawned by plex that we need to get rid of
-        private static string[] _supportingProcesses = { "PlexDlnaServer", "PlexScriptHost", "PlexTranscoder", "PlexNewTranscoder", "Plex Media Scanner" };
+        private static string[] _supportingProcesses = { "Plex DLNA Server", "PlexScriptHost", "PlexTranscoder", "PlexNewTranscoder", "Plex Media Scanner", "Plex Update Service", "PlexRelay" };
 
         #endregion
 
