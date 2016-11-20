@@ -123,5 +123,25 @@ namespace PlexServiceWCF
         {
             WriteToLog(e.Description);
         }
+
+        /// <summary>
+        /// A request from the client for the running status of a specific auxilliary application
+        /// </summary>
+        /// <param name="name">the name of the auxilliary application to check</param>
+        /// <returns></returns>
+        public bool IsAuxAppRunning(string name)
+        {
+            return _pms.IsAuxAppRunning(name);
+        }
+
+        public void StartAuxApp(string name)
+        {
+            _pms.StartAuxApp(name);
+        }
+
+        public void StopAuxApp(string name)
+        {
+            _pms.StopAuxApp(name);
+        }
     }
 }

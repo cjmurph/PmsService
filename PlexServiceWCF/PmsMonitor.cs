@@ -52,6 +52,11 @@ namespace PlexServiceWCF
         {
             State = PlexState.Stopped;
             _auxAppMonitors = new List<AuxiliaryApplicationMonitor>();
+            Settings settings = SettingsHandler.Load();
+            settings.AuxiliaryApplications.ForEach(x => _auxAppMonitors.Add(new AuxiliaryApplicationMonitor(x)));
+            //hook up the state change event for all the applications
+            _auxAppMonitors.ForEach(x => x.StatusChange += new AuxiliaryApplicationMonitor.StatusChangeHandler(OnPlexStatusChange));
+
         }
         #endregion
 
@@ -140,6 +145,8 @@ namespace PlexServiceWCF
                 startPlex();
                 //load the settings and start a thread that will attempt to bring up all the auxiliary processes
                 Settings settings = SettingsHandler.Load();
+                //stop any running aux apps
+                _auxAppMonitors.ForEach(a => a.Stop());
                 _auxAppMonitors.Clear();
                 settings.AuxiliaryApplications.ForEach(x => _auxAppMonitors.Add(new AuxiliaryApplicationMonitor(x)));
                 //hook up the state change event for all the applications
@@ -366,7 +373,41 @@ namespace PlexServiceWCF
             }
         }
 
-        #endregion        
+        #endregion
+
+        #endregion
+
+        #region Aux app interaction methods
+
+        public bool IsAuxAppRunning(string name)
+        {
+            var auxApp = _auxAppMonitors.FirstOrDefault(a => a.Name == name);
+            if (auxApp != null)
+            {
+                return auxApp.Running;
+            }
+            return false;
+        }
+
+        public void StartAuxApp(string name)
+        {
+            var auxApp = _auxAppMonitors.FirstOrDefault(a => a.Name == name);
+            if (auxApp != null)
+            {
+                if (!auxApp.Running)
+                    auxApp.Start();
+            }
+        }
+
+        public void StopAuxApp(string name)
+        {
+            var auxApp = _auxAppMonitors.FirstOrDefault(a => a.Name == name);
+            if (auxApp != null)
+            {
+                if (auxApp.Running)
+                    auxApp.Stop();
+            }
+        }
 
         #endregion
 

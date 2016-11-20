@@ -33,5 +33,14 @@ namespace PlexServiceCommon.Interface
 
         [OperationContract]
         PlexState GetStatus();
+
+        [OperationContract]
+        bool IsAuxAppRunning(string name);
+
+        [OperationContract]
+        void StartAuxApp(string name);
+
+        [OperationContract]
+        void StopAuxApp(string name);
     }
 }

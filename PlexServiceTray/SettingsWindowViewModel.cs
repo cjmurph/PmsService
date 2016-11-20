@@ -9,7 +9,7 @@ using PlexServiceCommon;
 
 namespace PlexServiceTray
 {
-    public class SettingsWindowViewModel:INotifyPropertyChanged
+    public class SettingsWindowViewModel:ObservableObject
     {
         /// <summary>
         /// The server endpoint port
@@ -134,8 +134,6 @@ namespace PlexServiceTray
             }
         }
 
-
-
         /// <summary>
         /// Use one settings instance for the life of the window.
         /// </summary>
@@ -145,7 +143,14 @@ namespace PlexServiceTray
         {
             WorkingSettings = settings;
             AuxiliaryApplications = new ObservableCollection<AuxiliaryApplicationViewModel>();
-            WorkingSettings.AuxiliaryApplications.ForEach(x => AuxiliaryApplications.Add(new AuxiliaryApplicationViewModel(x)));
+            WorkingSettings.AuxiliaryApplications.ForEach(x =>
+            {
+                var auxApp = new AuxiliaryApplicationViewModel(x, this);
+                auxApp.StartRequest += OnAuxAppStartRequest;
+                auxApp.StopRequest += OnAuxAppStopRequest;
+                auxApp.CheckRunningRequest += OnAuxAppCheckRunRequest;
+                AuxiliaryApplications.Add(auxApp);
+            });
             if (AuxiliaryApplications.Count > 0)
             {
                 AuxiliaryApplications[0].IsExpanded = true;
@@ -179,7 +184,10 @@ namespace PlexServiceTray
         {
             AuxiliaryApplication newAuxApp = new AuxiliaryApplication();
             newAuxApp.Name = "New Auxiliary Application";
-            AuxiliaryApplicationViewModel newAuxAppViewModel = new AuxiliaryApplicationViewModel(newAuxApp);
+            AuxiliaryApplicationViewModel newAuxAppViewModel = new AuxiliaryApplicationViewModel(newAuxApp, this);
+            newAuxAppViewModel.StartRequest += OnAuxAppStartRequest;
+            newAuxAppViewModel.StopRequest += OnAuxAppStopRequest;
+            newAuxAppViewModel.CheckRunningRequest += OnAuxAppCheckRunRequest;
             newAuxAppViewModel.IsExpanded = true;
             AuxiliaryApplications.Add(newAuxAppViewModel);
         }
@@ -211,6 +219,8 @@ namespace PlexServiceTray
 
         private void OnRemove(object parameter)
         {
+            SelectedAuxApplication.StartRequest -= OnAuxAppStartRequest;
+            SelectedAuxApplication.StopRequest -= OnAuxAppStopRequest;
             AuxiliaryApplications.Remove(SelectedAuxApplication);
         }
 
@@ -236,13 +246,13 @@ namespace PlexServiceTray
 
         private bool CanSave(object parameter)
         {
-            return ServerPort > 0;
+            return ServerPort > 0 && string.IsNullOrEmpty(Error) && !AuxiliaryApplications.Any(a => !string.IsNullOrEmpty(a.Error) || string.IsNullOrEmpty(a.Name));
         }
 
         private void OnSave(object parameter)
         {
             WorkingSettings.AuxiliaryApplications.Clear();
-            foreach (AuxiliaryApplicationViewModel aux in this.AuxiliaryApplications)
+            foreach (AuxiliaryApplicationViewModel aux in AuxiliaryApplications)
             {
                 WorkingSettings.AuxiliaryApplications.Add(aux.GetAuxiliaryApplication());
             }
@@ -280,21 +290,29 @@ namespace PlexServiceTray
         }
 
         #endregion CancelCommand
-        
-        #region PropertyChanged
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        /// <summary>
-        /// This is required to create on property changed events
-        /// </summary>
-        /// <param name="name">What property of this object has changed</param>
-        protected void OnPropertyChanged(string name)
+        #region Aux app start/stop request handling
+
+        private void OnAuxAppStopRequest(object sender, EventArgs e)
         {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(name));
-            }
+            AuxAppStopRequest?.Invoke(sender, e);
         }
+
+        public event EventHandler AuxAppStopRequest;
+
+        private void OnAuxAppStartRequest(object sender, EventArgs e)
+        {
+            AuxAppStartRequest?.Invoke(sender, e);
+        }
+
+        public event EventHandler AuxAppStartRequest;
+
+        private void OnAuxAppCheckRunRequest(object sender, EventArgs e)
+        {
+            AuxAppCheckRunRequest?.Invoke(sender, e);
+        }
+
+        public event EventHandler AuxAppCheckRunRequest;
 
         #endregion
     }

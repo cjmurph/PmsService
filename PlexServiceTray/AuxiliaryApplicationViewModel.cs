@@ -7,13 +7,16 @@ using PlexServiceCommon;
 using System.Windows.Input;
 using Microsoft.Win32;
 using Ookii.Dialogs.Wpf;
+using PlexServiceTray.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace PlexServiceTray
 {
-    public class AuxiliaryApplicationViewModel:INotifyPropertyChanged
+    public class AuxiliaryApplicationViewModel:ObservableObject
     {
         #region Properties
 
+        [UniqueAuxAppName]
         public string Name
         {
             get
@@ -30,6 +33,7 @@ namespace PlexServiceTray
             }
         }
 
+        [Required(ErrorMessage ="A path to execute must be specified")]
         public string FilePath
         {
             get
@@ -94,20 +98,20 @@ namespace PlexServiceTray
             }
         }
 
-        private bool _isExpanded;
+        private bool _running;
 
-        public bool IsExpanded
+        public bool Running
         {
             get
             {
-                return _isExpanded;
+                return _running;
             }
             set
             {
-                if (_isExpanded != value)
+                if (_running != value)
                 {
-                    _isExpanded = value;
-                    OnPropertyChanged("IsExpanded");
+                    _running = value;
+                    OnPropertyChanged("Running");
                 }
             }
         }
@@ -115,9 +119,12 @@ namespace PlexServiceTray
         #endregion Properties
 
         private AuxiliaryApplication _auxApplication;
+        private SettingsWindowViewModel _context;
 
-        public AuxiliaryApplicationViewModel(AuxiliaryApplication auxApplication)
+        public AuxiliaryApplicationViewModel(AuxiliaryApplication auxApplication, SettingsWindowViewModel context)
         {
+            _context = context;
+            ValidationContext = context;
             _auxApplication = auxApplication;
             IsExpanded = false;
         }
@@ -200,23 +207,92 @@ namespace PlexServiceTray
 
         #endregion BrowseFolderCommand
 
-
-        #region PropertyChanged
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        /// <summary>
-        /// This is required to create on property changed events
-        /// </summary>
-        /// <param name="name">What property of this object has changed</param>
-        protected void OnPropertyChanged(string name)
+        #region StartCommand
+        RelayCommand _startCommand = null;
+        public ICommand StartCommand
         {
-            if (PropertyChanged != null)
+            get
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(name));
+                if (_startCommand == null)
+                {
+                    _startCommand = new RelayCommand((p) => OnStart(p), (p) => CanStart(p));
+                }
+
+                return _startCommand;
             }
+        }
+
+        private bool CanStart(object parameter)
+        {
+            return !Running;
+        }
+
+        private void OnStart(object parameter)
+        {
+            StartRequest?.Invoke(this, new EventArgs());
+        }
+
+        public event EventHandler StartRequest;
+
+        #endregion StartCommand
+
+        #region StopCommand
+        RelayCommand _stopCommand = null;
+        public ICommand StopCommand
+        {
+            get
+            {
+                if (_stopCommand == null)
+                {
+                    _stopCommand = new RelayCommand((p) => OnStop(p), (p) => CanStop(p));
+                }
+
+                return _stopCommand;
+            }
+        }
+
+        private bool CanStop(object parameter)
+        {
+            return Running;
+        }
+
+        private void OnStop(object parameter)
+        {
+            StopRequest?.Invoke(this, new EventArgs());
+        }
+
+        public event EventHandler StopRequest;
+
+        #endregion StopCommand
+
+        #region CheckRunningRequest
+
+        public event EventHandler CheckRunningRequest;
+
+        protected void OnCheckRunningRequest()
+        {
+            CheckRunningRequest?.Invoke(this, new EventArgs());
         }
 
         #endregion
 
+        public override bool IsSelected
+        {
+            get
+            {
+                return _isSelected;
+            }
+            set
+            {
+                if (_isSelected != value)
+                {
+                    _isSelected = value;
+                    OnPropertyChanged("IsSelected");
+                    if (value)
+                        OnCheckRunningRequest();
+                }
+            }
+        }
+        
     }
 }

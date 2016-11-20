@@ -12,6 +12,16 @@ namespace PlexServiceCommon
     /// </summary>
     public class AuxiliaryApplicationMonitor
     {
+        public string Name
+        {
+            get
+            {
+                return _aux.Name;
+            }
+        }
+
+        public bool Running { get; private set; }
+
         /// <summary>
         /// Auxiliary process
         /// </summary>
@@ -93,6 +103,7 @@ namespace PlexServiceCommon
                 else
                 {
                     OnStatusChange(this, new StatusChangeEventArgs(_aux.Name + " stopped"));
+                    Running = false;
                 }
             }
             else
@@ -101,6 +112,7 @@ namespace PlexServiceCommon
                 //unsubscribe
                 _auxProcess.Exited -= this.auxProcess_Exited;
                 _auxProcess.Dispose();
+                Running = false;
             }
         }
 
@@ -130,6 +142,7 @@ namespace PlexServiceCommon
                 {
                     _auxProcess.Start();
                     OnStatusChange(this, new StatusChangeEventArgs(_aux.Name + " Started."));
+                    Running = true;
                 }
                 catch (Exception ex)
                 {
@@ -160,6 +173,7 @@ namespace PlexServiceCommon
                 {
                     _auxProcess.Dispose();
                     _auxProcess = null;
+                    Running = false;
                 }
             }
         }
