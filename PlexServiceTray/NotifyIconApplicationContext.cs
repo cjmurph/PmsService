@@ -25,7 +25,7 @@ namespace PlexServiceTray
 
         private System.Windows.Forms.NotifyIcon _notifyIcon;
 
-        private readonly static TimeSpan _timeOut = TimeSpan.FromSeconds(2);
+        //private readonly static TimeSpan _timeOut = TimeSpan.FromSeconds(2);
 
         private PlexServiceCommon.Interface.ITrayInteraction _plexService;
 
@@ -61,8 +61,8 @@ namespace PlexServiceTray
             _notifyIcon.Icon = Properties.Resources.PlexService;
             _notifyIcon.Text = "Manage Plex Media Server Service";
             _notifyIcon.Visible = true;
-            _notifyIcon.Click += new EventHandler(NotifyIcon_Click);
-            _notifyIcon.DoubleClick += new EventHandler(OpenManager_Click);
+            _notifyIcon.MouseClick += NotifyIcon_Click;
+            _notifyIcon.MouseDoubleClick += NotifyIcon_DoubleClick;
             _notifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
         }
 
@@ -75,9 +75,9 @@ namespace PlexServiceTray
             //Create a NetTcp binding to the service and set some appropriate timeouts.
             //Use reliable connection so we know when we have been disconnected
             var plexServiceBinding = new NetTcpBinding();
-            plexServiceBinding.OpenTimeout = _timeOut;
-            plexServiceBinding.CloseTimeout = _timeOut;
-            plexServiceBinding.SendTimeout = _timeOut;
+            plexServiceBinding.OpenTimeout = TimeSpan.FromSeconds(2); 
+            plexServiceBinding.CloseTimeout = TimeSpan.FromSeconds(2);
+            plexServiceBinding.SendTimeout = TimeSpan.FromSeconds(2);
             plexServiceBinding.ReliableSession.Enabled = true;
             plexServiceBinding.ReliableSession.InactivityTimeout = TimeSpan.FromMinutes(1);
             //Generate the endpoint from the local settings
@@ -92,6 +92,7 @@ namespace PlexServiceTray
                 _plexService = plexServiceChannelFactory.CreateChannel();
                 //If we lose connection to the service, set the object to null so we will know to reconnect the next time the tray icon is clicked
                 ((ICommunicationObject)_plexService).Faulted += (s, e) => _plexService = null;
+                ((ICommunicationObject)_plexService).Closed += (s, e) => _plexService = null;
             }
             catch
             {
@@ -120,14 +121,29 @@ namespace PlexServiceTray
         }
 
         /// <summary>
-        /// Open the context menu if we left click too
+        /// Open the context menu on right click
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void NotifyIcon_Click(object sender, EventArgs e)
+        void NotifyIcon_Click(object sender, MouseEventArgs e)
         {
-            MethodInfo mi = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
-            mi.Invoke(_notifyIcon, null);
+            if (e.Button == MouseButtons.Right)
+            {
+                _notifyIcon.ContextMenuStrip.Show();
+            }
+        }
+
+        /// <summary>
+        /// Opens the web manager on a double left click
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void NotifyIcon_DoubleClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                OpenManager_Click(sender, e);
+            }
         }
 
         /// <summary>
@@ -146,7 +162,7 @@ namespace PlexServiceTray
                 Connect();
             }
 
-            if (_plexService != null)
+            if (_plexService != null)// && ((ICommunicationObject)_plexService).State == CommunicationState.Opened)
             {
                 try
                 {
