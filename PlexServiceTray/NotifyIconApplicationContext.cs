@@ -10,6 +10,7 @@ using System.Reflection;
 using System.IO;
 using PlexServiceCommon;
 using System.ServiceModel;
+using System.Windows;
 
 namespace PlexServiceTray
 {
@@ -58,7 +59,7 @@ namespace PlexServiceTray
             _components = new System.ComponentModel.Container();
             _notifyIcon = new NotifyIcon(_components);
             _notifyIcon.ContextMenuStrip = new ContextMenuStrip();
-            _notifyIcon.Icon = Properties.Resources.PlexService;
+            _notifyIcon.Icon = new Icon( Properties.Resources.PlexService, SystemInformation.SmallIconSize);
             _notifyIcon.Text = "Manage Plex Media Server Service";
             _notifyIcon.Visible = true;
             _notifyIcon.MouseClick += NotifyIcon_Click;
@@ -82,17 +83,25 @@ namespace PlexServiceTray
             plexServiceBinding.ReliableSession.InactivityTimeout = TimeSpan.FromMinutes(1);
             //Generate the endpoint from the local settings
             var plexServiceEndpoint = new EndpointAddress(localSettings.getServiceAddress());
+
+            TrayCallback callback = new TrayCallback();
+            callback.StateChange += Callback_StateChange;
+            var client = new TrayInteractionClient(callback, plexServiceBinding, plexServiceEndpoint);
+
             //Make a channel factory so we can create the link to the service
-            var plexServiceChannelFactory = new ChannelFactory<PlexServiceCommon.Interface.ITrayInteraction>(plexServiceBinding, plexServiceEndpoint);
+            //var plexServiceChannelFactory = new ChannelFactory<PlexServiceCommon.Interface.ITrayInteraction>(plexServiceBinding, plexServiceEndpoint);
 
             _plexService = null;
 
             try
             {
-                _plexService = plexServiceChannelFactory.CreateChannel();
+                _plexService = client.ChannelFactory.CreateChannel(); //plexServiceChannelFactory.CreateChannel();
+                _plexService.Subscribe();
                 //If we lose connection to the service, set the object to null so we will know to reconnect the next time the tray icon is clicked
                 ((ICommunicationObject)_plexService).Faulted += (s, e) => _plexService = null;
                 ((ICommunicationObject)_plexService).Closed += (s, e) => _plexService = null;
+
+
             }
             catch
             {
@@ -101,6 +110,11 @@ namespace PlexServiceTray
                     _plexService = null;
                 }
             }
+        }
+
+        private void Callback_StateChange(object sender, StatusChangeEventArgs e)
+        {
+            _notifyIcon.ShowBalloonTip(2000, "Plex Service", e.Description, ToolTipIcon.Info);
         }
 
         /// <summary>
@@ -113,6 +127,7 @@ namespace PlexServiceTray
             {
                 try
                 {
+                    _plexService.UnSubscribe();
                     ((ICommunicationObject)_plexService).Close();
                 }
                 catch { }
@@ -271,13 +286,13 @@ namespace PlexServiceTray
                         catch(Exception ex)
                         {
                             Disconnect();
-                            MessageBox.Show("Unable to save settings" + Environment.NewLine + ex.Message);
+                            System.Windows.MessageBox.Show("Unable to save settings" + Environment.NewLine + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                         }     
                         //The only setting that would require a restart of the service is the listening port.
                         //If that gets changed notify the user to restart the service from the service snap in
                         if (settingsViewModel.WorkingSettings.ServerPort != oldPort)
                         {
-                            MessageBox.Show("Server port changed! You will need to restart the service from the services snap in for the change to be applied", "Settings changed!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            System.Windows.MessageBox.Show("Server port changed! You will need to restart the service from the services snap in for the change to be applied", "Settings changed!", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
                     }
                 }

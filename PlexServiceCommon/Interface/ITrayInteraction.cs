@@ -10,7 +10,7 @@ namespace PlexServiceCommon.Interface
     /// <summary>
     /// WCF service contract
     /// </summary>
-    [ServiceContract(SessionMode = SessionMode.Required)]
+    [ServiceContract(SessionMode = SessionMode.Required, CallbackContract = typeof(ITrayCallback))]
     public interface ITrayInteraction
     {
         [OperationContract]
@@ -42,5 +42,11 @@ namespace PlexServiceCommon.Interface
 
         [OperationContract]
         void StopAuxApp(string name);
+
+        [OperationContract]
+        void Subscribe();
+
+        [OperationContract]
+        void UnSubscribe();
     }
 }

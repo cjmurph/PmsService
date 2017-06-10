@@ -20,7 +20,18 @@ namespace PlexServiceWCF
         //Process names
         private static string _plexName = "Plex Media Server";
         //List of processes spawned by plex that we need to get rid of
-        private static string[] _supportingProcesses = { "Plex DLNA Server", "PlexScriptHost", "PlexTranscoder", "PlexNewTranscoder", "Plex Media Scanner", "Plex Update Service", "PlexRelay" };
+        private static string[] _supportingProcesses =
+        {
+            "Plex DLNA Server",
+            "PlexScriptHost",
+            "PlexTranscoder",
+            "PlexNewTranscoder",
+            "Plex Media Scanner",
+            "Plex Update Service",
+            "PlexRelay",
+            "EasyAudioEncoder",
+            "Plex Tuner Service"
+        };
 
         #endregion
 
@@ -42,7 +53,23 @@ namespace PlexServiceWCF
 
         #region Properties
 
-        public PlexState State { get; set; }
+        private PlexState _state;
+
+        public PlexState State
+        {
+            get
+            {
+                return _state;
+            }
+            set
+            {
+                if (_state != value)
+                {
+                    _state = value;
+                    OnStateChange();
+                }
+            }
+        }
 
         #endregion
 
@@ -66,7 +93,7 @@ namespace PlexServiceWCF
         /// This method will look for and remove the "run at startup" registry key for plex media server.
         /// </summary>
         /// <returns></returns>
-        private void purgeAutoStartRegistryEntry()
+        private void PurgeAutoStartRegistryEntry()
         {
             string keyName = @"Software\Microsoft\Windows\CurrentVersion\Run";
             using (RegistryKey key = Registry.CurrentUser.OpenSubKey(keyName, true))
@@ -97,7 +124,7 @@ namespace PlexServiceWCF
         /// This method will set the "FirstRun" registry key to 0 to prevent PMS from spawning the default browser.
         /// </summary>
         /// <returns></returns>
-        private void disableFirstRun()
+        private void DisableFirstRun()
         {
             string keyName = @"Software\Plex, Inc.\Plex Media Server";
             // CreateSubKey just in case it isn't already there for some reason.
@@ -132,7 +159,7 @@ namespace PlexServiceWCF
         internal void Start()
         {
             //Find the plex executable
-            _executableFileName = getPlexExecutable();
+            _executableFileName = GetPlexExecutable();
             if (string.IsNullOrEmpty(_executableFileName))
             {
                 OnPlexStatusChange(this, new StatusChangeEventArgs("Plex Media Server does not appear to be installed!", EventLogEntryType.Error));
@@ -142,7 +169,7 @@ namespace PlexServiceWCF
             else
             {
                 OnPlexStatusChange(this, new StatusChangeEventArgs("Plex executable found at " + _executableFileName));
-                startPlex();
+                StartPlex();
                 //load the settings and start a thread that will attempt to bring up all the auxiliary processes
                 Settings settings = SettingsHandler.Load();
                 //stop any running aux apps
@@ -165,7 +192,7 @@ namespace PlexServiceWCF
         internal void Stop()
         {
             State = PlexState.Stopping;
-            endPlex();
+            EndPlex();
         }
 
         #endregion
@@ -197,14 +224,14 @@ namespace PlexServiceWCF
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void plex_Exited(object sender, EventArgs e)
+        void Plex_Exited(object sender, EventArgs e)
         {
             OnPlexStatusChange(this, new StatusChangeEventArgs("Plex Media Server has stopped!"));
             //unsubscribe
-            _plex.Exited -= plex_Exited;
+            _plex.Exited -= Plex_Exited;
 
             //kill the supporting processes.
-            killSupportingProcesses();
+            KillSupportingProcesses();
 
             if (_plex != null)
             {
@@ -237,13 +264,13 @@ namespace PlexServiceWCF
         /// <summary>
         /// Start a new/get a handle on existing Plex process
         /// </summary>
-        private void startPlex()
+        private void StartPlex()
         {
             State = PlexState.Pending;
             //always try to get rid of the plex auto start registry entry
-            purgeAutoStartRegistryEntry();
+            PurgeAutoStartRegistryEntry();
             // make sure we don't spawn a browser
-            disableFirstRun(); 
+            DisableFirstRun(); 
             if (_plex == null)
             {
                 //see if its running already
@@ -271,7 +298,7 @@ namespace PlexServiceWCF
                     }
                     _plex.StartInfo = plexStartInfo;
                     _plex.EnableRaisingEvents = true;
-                    _plex.Exited += new EventHandler(plex_Exited);
+                    _plex.Exited += new EventHandler(Plex_Exited);
                     try
                     {
                         _plex.Start();
@@ -291,7 +318,7 @@ namespace PlexServiceWCF
                     try
                     {
                         _plex.EnableRaisingEvents = true;
-                        _plex.Exited += new EventHandler(plex_Exited);
+                        _plex.Exited += new EventHandler(Plex_Exited);
                         State = PlexState.Running;
                     }
                     catch
@@ -313,7 +340,7 @@ namespace PlexServiceWCF
         /// <summary>
         /// Kill the plex process
         /// </summary>
-        private void endPlex()
+        private void EndPlex()
         {
             if (_plex != null)
             {
@@ -337,11 +364,11 @@ namespace PlexServiceWCF
         /// Kill all processes with the specified names
         /// </summary>
         /// <param name="names">The names of the processes to kill</param>
-        private void killSupportingProcesses()
+        private void KillSupportingProcesses()
         {
             foreach (string name in _supportingProcesses)
             {
-                killSupportingProcess(name);
+                KillSupportingProcess(name);
             }
         }
 
@@ -349,7 +376,7 @@ namespace PlexServiceWCF
         /// Kill all instances of the specified process.
         /// </summary>
         /// <param name="name">The name of the process to kill</param>
-        private void killSupportingProcess(string name)
+        private void KillSupportingProcess(string name)
         {
             //see if its running
             Process[] supportProcesses = Process.GetProcessesByName(name);
@@ -417,7 +444,7 @@ namespace PlexServiceWCF
         /// Returns the full path and filename of the plex media server executable
         /// </summary>
         /// <returns></returns>
-        private string getPlexExecutable()
+        private string GetPlexExecutable()
         {
             string result = string.Empty;
 
@@ -544,13 +571,7 @@ namespace PlexServiceWCF
         /// <param name="data"></param>
         protected void OnPlexStop(object sender, EventArgs data)
         {
-            var handler = PlexStop;
-            //Check if event has been subscribed to
-            if (handler != null)
-            {
-                //call the event
-                handler(this, data);
-            }
+            PlexStop?.Invoke(this, data);
         }
 
         /// <summary>
@@ -565,14 +586,20 @@ namespace PlexServiceWCF
         /// <param name="data"></param>
         protected void OnPlexStatusChange(object sender, StatusChangeEventArgs data)
         {
-            var handler = PlexStatusChange;
-            //Check if event has been subscribed to
-            if (handler != null)
-            {
-                //call the event
-                handler(this, data);
-            }
+            PlexStatusChange?.Invoke(this, data);
         }
+
+        #region StateChange
+
+        public event EventHandler StateChange;
+
+        protected void OnStateChange()
+        {
+            StateChange?.Invoke(this, new EventArgs());
+        }
+
+        #endregion
+
         #endregion
     }
 }

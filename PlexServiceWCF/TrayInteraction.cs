@@ -22,12 +22,33 @@ namespace PlexServiceWCF
 
         private PmsMonitor _pms;
 
+        private static readonly List<ITrayCallback> CallbackChannels = new List<ITrayCallback>();
+
         public TrayInteraction()
         {
             _pms = new PmsMonitor();
             _pms.PlexStatusChange += OnPlexEvent;
+            _pms.StateChange += PlexStateChange;
             ///Start plex
             Start();
+        }
+
+        private void PlexStateChange(object sender, EventArgs e)
+        {
+            if (_pms != null)
+            {
+                CallbackChannels.ForEach(callback =>
+                {
+                    if (callback != null)
+                    {
+                        try
+                        {
+                            callback.OnPlexStateChange(_pms.State);
+                        }
+                        catch { }
+                    }
+                });
+            }
         }
 
         /// <summary>
@@ -142,6 +163,24 @@ namespace PlexServiceWCF
         public void StopAuxApp(string name)
         {
             _pms.StopAuxApp(name);
+        }
+
+        public void Subscribe()
+        {
+            var channel = OperationContext.Current.GetCallbackChannel<ITrayCallback>();
+            if (!CallbackChannels.Contains(channel)) //if CallbackChannels not contain current one.
+            {
+                CallbackChannels.Add(channel);
+            }
+        }
+
+        public void UnSubscribe()
+        {
+            var channel = OperationContext.Current.GetCallbackChannel<ITrayCallback>();
+            if (CallbackChannels.Contains(channel)) //if CallbackChannels not contain current one.
+            {
+                CallbackChannels.Remove(channel);
+            }
         }
     }
 }

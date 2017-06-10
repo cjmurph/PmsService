@@ -53,11 +53,12 @@
     <StartupObject>
     </StartupObject>
   </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationManifest>PlexServiceTray.exe.manifest</ApplicationManifest>
-  </PropertyGroup>
+  <PropertyGroup />
   <PropertyGroup>
     <ApplicationIcon>PlexService.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>PlexServiceTray.exe.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FontAwesome.WPF, Version=4.5.0.37524, Culture=neutral, PublicKeyToken=0758b07a11a4f466, processorArchitecture=MSIL">
@@ -113,6 +114,8 @@
     </Compile>
     <Compile Include="SettingsWindowViewModel.cs" />
     <Compile Include="Themes\Metro\Light\CheckBoxTransformConverter.cs" />
+    <Compile Include="TrayCallback.cs" />
+    <Compile Include="TrayInteractionClient.cs" />
     <Compile Include="Validation\UniqueAuxAppNameAttribute.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
