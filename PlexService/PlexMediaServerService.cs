@@ -88,18 +88,18 @@ namespace PlexService
             base.OnStart(args);
         }
 
-        private void startPlex()
+        private void StartPlex()
         {
             //Try and connect to the WCF service and call its start method
             try
             {
                 if (_plexService == null)
-                    connect();
+                    Connect();
 
                 if (_plexService != null)
                 {
                     _plexService.Start();
-                    disconnect();
+                    Disconnect();
                 }
             }
             catch { }
@@ -116,12 +116,12 @@ namespace PlexService
                 try
                 {
                     if (_plexService == null)
-                        connect();
+                        Connect();
 
                     if (_plexService != null)
                     {
                         _plexService.Stop();
-                        disconnect();
+                        Disconnect();
                     }
                 }
                 catch { }
@@ -141,7 +141,7 @@ namespace PlexService
         /// <summary>
         /// Connect to WCF service
         /// </summary>
-        private void connect()
+        private void Connect()
         {
             //Create a NetTcp binding to the service and set some appropriate timeouts.
             //Use reliable connection so we know when we have been disconnected
@@ -176,7 +176,7 @@ namespace PlexService
         /// <summary>
         /// Disconnect from WCF service
         /// </summary>
-        private void disconnect()
+        private void Disconnect()
         {
             //try and be nice...
             if (_plexService != null)

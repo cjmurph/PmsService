@@ -51,7 +51,6 @@ namespace PlexServiceCommon
         {
             _stopping = false;
 
-            //every time a start attempt is made, check for the existance of the auto start registry key and remove it.
             if(!string.IsNullOrEmpty(_aux.FilePath) && File.Exists(_aux.FilePath))
             {
                 start();
@@ -121,14 +120,14 @@ namespace PlexServiceCommon
         #region Start methods
 
         /// <summary>
-        /// Start a new/get a handle on existing Plex process
+        /// Start a new/get a handle on existing process
         /// </summary>
         private void start()
         {
             OnStatusChange(this, new StatusChangeEventArgs("Attempting to start " + _aux.Name));
             if (_auxProcess == null)
             {
-                //we dont care if this is already running, depending on teh application, this could cause lots of issues but hey... 
+                //we dont care if this is already running, depending on the application, this could cause lots of issues but hey... 
                 
                 //Auxiliary process
                 _auxProcess = new Process();

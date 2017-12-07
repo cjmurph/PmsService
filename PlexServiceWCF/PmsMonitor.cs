@@ -168,10 +168,32 @@ namespace PlexServiceWCF
             }
             else
             {
-                OnPlexStatusChange(this, new StatusChangeEventArgs("Plex executable found at " + _executableFileName));
-                StartPlex();
-                //load the settings and start a thread that will attempt to bring up all the auxiliary processes
+                //load the settings
                 Settings settings = SettingsHandler.Load();
+
+                OnPlexStatusChange(this, new StatusChangeEventArgs("Plex executable found at " + _executableFileName));
+                
+                //map network drives
+                if (settings.DriveMaps.Count > 0)
+                {
+                    OnPlexStatusChange(this, new StatusChangeEventArgs("Mapping Network Drives"));
+                    foreach(DriveMap map in settings.DriveMaps)
+                    {
+                        try
+                        {
+                            map.MapDrive(true);
+                            OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("Map share {0} to letter '{1}' successful", map.ShareName, map.DriveLetter)));
+                        }
+                        catch(Exception ex)
+                        {
+                            OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("Unable to map share {0} to letter '{1}': {2}", map.ShareName, map.DriveLetter, ex.Message), EventLogEntryType.Error));
+                        }
+                    }
+                }
+
+
+                StartPlex();
+                
                 //stop any running aux apps
                 _auxAppMonitors.ForEach(a => a.Stop());
                 _auxAppMonitors.Clear();

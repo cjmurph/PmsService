@@ -65,6 +65,27 @@ namespace PlexServiceTray
             }
         }
 
+        private int _selectedTab;
+
+        public int SelectedTab
+        {
+            get
+            {
+                return _selectedTab;
+            }
+            set
+            {
+                if (_selectedTab != value)
+                {
+                    _selectedTab = value;
+                    OnPropertyChanged("SelectedTab");
+                    OnPropertyChanged("RemoveToolTip");
+                    OnPropertyChanged("AddToolTip");
+                }
+            }
+        }
+
+
         private ObservableCollection<AuxiliaryApplicationViewModel> _auxilaryApplications;
         /// <summary>
         /// Collection of Auxiliary applications to run alongside plex
@@ -104,15 +125,81 @@ namespace PlexServiceTray
             }
         }
 
+        private ObservableCollection<DriveMapViewModel> _driveMaps;
+
+        public ObservableCollection<DriveMapViewModel> DriveMaps
+        {
+            get
+            {
+                return _driveMaps;
+            }
+            set
+            {
+                if (_driveMaps != value)
+                {
+                    _driveMaps = value;
+                    OnPropertyChanged("DriveMaps");
+                }
+            }
+        }
+
+        private DriveMapViewModel _selectedDriveMap;
+
+        public DriveMapViewModel SelectedDriveMap
+        {
+            get
+            {
+                return _selectedDriveMap;
+            }
+            set
+            {
+                if (_selectedDriveMap != value)
+                {
+                    _selectedDriveMap = value;
+                    OnPropertyChanged("SelectedDriveMap");
+                    OnPropertyChanged("RemoveToolTip");
+                }
+            }
+        }
+
         public string RemoveToolTip
         {
             get
             {
-                if (SelectedAuxApplication != null)
+                switch (SelectedTab)
                 {
-                    return "Remove " + SelectedAuxApplication.Name;
+                    case 0:
+                        if (SelectedAuxApplication != null)
+                        {
+                            return "Remove " + SelectedAuxApplication.Name;
+                        }
+                        break;
+                    case 1:
+                        if (SelectedDriveMap != null)
+                        {
+                            return "Remove Drive Map " + SelectedDriveMap.DriveLetter + " -> " + SelectedDriveMap.ShareName;
+                        }
+                        break;
+                    default:
+                        break; ;
                 }
                 return "Nothing selected!";
+            }
+        }
+
+        public string AddToolTip
+        {
+            get
+            {
+                switch (SelectedTab)
+                {
+                    case 0:
+                        return "Add Auxiliary Application";
+                    case 1:
+                        return "Add Drive Map";
+                    default:
+                        return null;
+                }
             }
         }
 
@@ -143,6 +230,8 @@ namespace PlexServiceTray
         {
             WorkingSettings = settings;
             AuxiliaryApplications = new ObservableCollection<AuxiliaryApplicationViewModel>();
+            DriveMaps = new ObservableCollection<DriveMapViewModel>();
+
             WorkingSettings.AuxiliaryApplications.ForEach(x =>
             {
                 var auxApp = new AuxiliaryApplicationViewModel(x, this);
@@ -151,6 +240,9 @@ namespace PlexServiceTray
                 auxApp.CheckRunningRequest += OnAuxAppCheckRunRequest;
                 AuxiliaryApplications.Add(auxApp);
             });
+
+            WorkingSettings.DriveMaps.ForEach(x => DriveMaps.Add(new DriveMapViewModel(x)));
+
             if (AuxiliaryApplications.Count > 0)
             {
                 AuxiliaryApplications[0].IsExpanded = true;
@@ -182,14 +274,27 @@ namespace PlexServiceTray
 
         private void OnAdd(object parameter)
         {
-            AuxiliaryApplication newAuxApp = new AuxiliaryApplication();
-            newAuxApp.Name = "New Auxiliary Application";
-            AuxiliaryApplicationViewModel newAuxAppViewModel = new AuxiliaryApplicationViewModel(newAuxApp, this);
-            newAuxAppViewModel.StartRequest += OnAuxAppStartRequest;
-            newAuxAppViewModel.StopRequest += OnAuxAppStopRequest;
-            newAuxAppViewModel.CheckRunningRequest += OnAuxAppCheckRunRequest;
-            newAuxAppViewModel.IsExpanded = true;
-            AuxiliaryApplications.Add(newAuxAppViewModel);
+            switch (SelectedTab)
+            {
+                case 0:
+                    AuxiliaryApplication newAuxApp = new AuxiliaryApplication();
+                    newAuxApp.Name = "New Auxiliary Application";
+                    AuxiliaryApplicationViewModel newAuxAppViewModel = new AuxiliaryApplicationViewModel(newAuxApp, this);
+                    newAuxAppViewModel.StartRequest += OnAuxAppStartRequest;
+                    newAuxAppViewModel.StopRequest += OnAuxAppStopRequest;
+                    newAuxAppViewModel.CheckRunningRequest += OnAuxAppCheckRunRequest;
+                    newAuxAppViewModel.IsExpanded = true;
+                    AuxiliaryApplications.Add(newAuxAppViewModel);
+                    break;
+                case 1:
+                    DriveMap newDriveMap = new DriveMap(@"\\computer\share", "Z");
+                    DriveMapViewModel newDriveMapViewModel = new DriveMapViewModel(newDriveMap);
+                    DriveMaps.Add(newDriveMapViewModel);
+                    break;
+                default:
+                    break;
+            }
+            
         }
 
         #endregion AddCommand
@@ -214,14 +319,34 @@ namespace PlexServiceTray
 
         private bool CanRemove(object parameter)
         {
-            return SelectedAuxApplication != null;
+            switch (SelectedTab)
+            {
+                case 0:
+                    return SelectedAuxApplication != null;
+                case 1:
+                    return SelectedDriveMap != null;
+                default:
+                    return false;
+            }
+            
         }
 
         private void OnRemove(object parameter)
         {
-            SelectedAuxApplication.StartRequest -= OnAuxAppStartRequest;
-            SelectedAuxApplication.StopRequest -= OnAuxAppStopRequest;
-            AuxiliaryApplications.Remove(SelectedAuxApplication);
+            switch (SelectedTab)
+            {
+                case 0:
+                    SelectedAuxApplication.StartRequest -= OnAuxAppStartRequest;
+                    SelectedAuxApplication.StopRequest -= OnAuxAppStopRequest;
+                    AuxiliaryApplications.Remove(SelectedAuxApplication);
+                    break;
+                case 1:
+                    DriveMaps.Remove(SelectedDriveMap);
+                    break;
+                default:
+                    break;
+            }
+            
         }
 
         #endregion RemoveCommand
@@ -246,7 +371,7 @@ namespace PlexServiceTray
 
         private bool CanSave(object parameter)
         {
-            return ServerPort > 0 && string.IsNullOrEmpty(Error) && !AuxiliaryApplications.Any(a => !string.IsNullOrEmpty(a.Error) || string.IsNullOrEmpty(a.Name));
+            return ServerPort > 0 && string.IsNullOrEmpty(Error) && !AuxiliaryApplications.Any(a => !string.IsNullOrEmpty(a.Error) || string.IsNullOrEmpty(a.Name)) && !DriveMaps.Any(dm => !string.IsNullOrEmpty(dm.Error) || string.IsNullOrEmpty(dm.ShareName) || string.IsNullOrEmpty(dm.DriveLetter));
         }
 
         private void OnSave(object parameter)
@@ -255,6 +380,11 @@ namespace PlexServiceTray
             foreach (AuxiliaryApplicationViewModel aux in AuxiliaryApplications)
             {
                 WorkingSettings.AuxiliaryApplications.Add(aux.GetAuxiliaryApplication());
+            }
+            WorkingSettings.DriveMaps.Clear();
+            foreach(DriveMapViewModel dMap in DriveMaps)
+            {
+                WorkingSettings.DriveMaps.Add(dMap.GetDriveMap());
             }
             DialogResult = true;
         }

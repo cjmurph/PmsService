@@ -41,6 +41,12 @@ namespace PlexServiceCommon
         [JsonProperty]
         public bool KeepAlive { get; set; }
 
+        /// <summary>
+        /// A url link to the auxilliary application interface.
+        /// </summary>
+        [JsonProperty]
+        public string Url { get; set; }
+
         public AuxiliaryApplication()
         {
             Name = string.Empty;

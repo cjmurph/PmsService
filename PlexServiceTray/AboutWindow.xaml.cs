@@ -126,9 +126,14 @@ namespace PlexServiceTray
 
         #endregion OkCommand
 
+        public static bool Shown {get; private set;}
+
         public static bool? ShowAboutDialog()
         {
-            return new AboutWindow().ShowDialog();
+            Shown = true;
+            var result = new AboutWindow().ShowDialog();
+            Shown = false;
+            return result;
         }
 
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)

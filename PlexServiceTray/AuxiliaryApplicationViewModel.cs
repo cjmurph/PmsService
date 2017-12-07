@@ -116,6 +116,22 @@ namespace PlexServiceTray
             }
         }
 
+        public string Url
+        {
+            get
+            {
+                return _auxApplication.Url;
+            }
+            set
+            {
+                if (_auxApplication.Url != value)
+                {
+                    _auxApplication.Url = value;
+                    OnPropertyChanged("Url");
+                }
+            }
+        }
+
         #endregion Properties
 
         private AuxiliaryApplication _auxApplication;
@@ -264,6 +280,33 @@ namespace PlexServiceTray
         public event EventHandler StopRequest;
 
         #endregion StopCommand
+
+        #region GoToUrlCommand
+        RelayCommand _goToUrlCommand = null;
+        public ICommand GoToUrlCommand
+        {
+            get
+            {
+                if (_goToUrlCommand == null)
+                {
+                    _goToUrlCommand = new RelayCommand((p) => OnGoToUrl(p), (p) => CanGoToUrl(p));
+                }
+
+                return _goToUrlCommand;
+            }
+        }
+
+        private bool CanGoToUrl(object parameter)
+        {
+            return !string.IsNullOrEmpty(Url);
+        }
+
+        private void OnGoToUrl(object parameter)
+        {
+            System.Diagnostics.Process.Start(Url);
+        }
+
+        #endregion GoToUrlCommand
 
         #region CheckRunningRequest
 

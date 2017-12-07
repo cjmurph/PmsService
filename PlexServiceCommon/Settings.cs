@@ -20,6 +20,12 @@ namespace PlexServiceCommon
         public List<AuxiliaryApplication> AuxiliaryApplications { get; set; }
 
         /// <summary>
+        /// Drive mappings to create before starting plex
+        /// </summary>
+        [JsonProperty]
+        public List<DriveMap> DriveMaps { get; set; }
+
+        /// <summary>
         /// port the WCF service should listen on (endpoint port)
         /// </summary>
         [JsonProperty]
@@ -40,6 +46,7 @@ namespace PlexServiceCommon
         public Settings()
         {
             AuxiliaryApplications = new List<AuxiliaryApplication>();
+            DriveMaps = new List<DriveMap>();
             ServerPort = 8787;
             RestartDelay = 300;
         }

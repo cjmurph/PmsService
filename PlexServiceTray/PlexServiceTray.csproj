@@ -103,6 +103,7 @@
     <Compile Include="Controls\RichTextFile.cs" />
     <Compile Include="DialogCloser.cs" />
     <Compile Include="ConnectionSettings.cs" />
+    <Compile Include="DriveMapViewModel.cs" />
     <Compile Include="NotepadHelper.cs" />
     <Compile Include="NotifyIconApplicationContext.cs" />
     <Compile Include="ObservableObject.cs" />

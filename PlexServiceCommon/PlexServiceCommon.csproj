@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="AuxiliaryApplication.cs" />
     <Compile Include="AuxiliaryApplicationMonitor.cs" />
+    <Compile Include="DriveMap.cs" />
     <Compile Include="Interface\ITrayCallback.cs" />
     <Compile Include="Interface\ITrayInteraction.cs" />
     <Compile Include="PlexState.cs" />

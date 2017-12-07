@@ -20,10 +20,40 @@ namespace PlexServiceTray
     /// </summary>
     public partial class SettingsWindow : Window
     {
+        private bool _maximiseRequired = false;
+
         public SettingsWindow(SettingsWindowViewModel settingsViewModel)
         {
             InitializeComponent();
             DataContext = settingsViewModel;
+        }
+
+        private void TitleMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount >= 2)
+            {
+                _maximiseRequired = true;
+            }
+            else
+            {
+                DragMove();
+            }
+        }
+
+        private void TitleMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (_maximiseRequired)
+            {
+                _maximiseRequired = false;
+                if (WindowState == WindowState.Maximized)
+                {
+                    WindowState = WindowState.Normal;
+                }
+                else
+                {
+                    WindowState = WindowState.Maximized;
+                }
+            }
         }
     }
 }

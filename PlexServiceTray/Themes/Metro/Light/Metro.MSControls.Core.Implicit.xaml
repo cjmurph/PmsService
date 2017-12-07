@@ -936,4 +936,8 @@
     <Style BasedOn="{StaticResource ToggleButtonStyle}" TargetType="{x:Type ToggleButton}" />
     <Style BasedOn="{StaticResource GroupBoxStyle}" TargetType="{x:Type GroupBox}" />
     <Style BasedOn="{StaticResource TextBlockStyle}" TargetType="{x:Type TextBlock}"/>
+    <Style BasedOn="{StaticResource TabItemStyle}" TargetType="{x:Type TabItem}"/>
+    <Style BasedOn="{StaticResource MenuStyle}" TargetType="{x:Type Menu}"/>
+    <Style BasedOn="{StaticResource MenuItemStyle}" TargetType="{x:Type MenuItem}"/>
+    <Style BasedOn="{StaticResource ContextMenuStyle}" TargetType="{x:Type ContextMenu}"/>
 </ResourceDictionary>

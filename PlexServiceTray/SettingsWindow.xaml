@@ -5,7 +5,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PlexServiceTray"
              xmlns:fa="http://schemas.fontawesome.io/icons/"
-             MinHeight="520" Height="520" MinWidth="450" Width="450" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowStyle="None" local:DialogCloser.DialogResult="{Binding DialogResult}" Icon="PlexService.ico">
+             MinHeight="620" Height="620" MinWidth="500" Width="500" 
+             BorderBrush="{DynamicResource Brush04}" BorderThickness="2"
+             WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip" AllowsTransparency="True" 
+             TextOptions.TextFormattingMode="Display" UseLayoutRounding="True" WindowStyle="None" 
+             local:DialogCloser.DialogResult="{Binding DialogResult}" Icon="PlexService.ico">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -21,7 +25,8 @@
                 <RowDefinition/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <TextBlock FontSize="20" HorizontalAlignment="Stretch" TextAlignment="Center" VerticalAlignment="Center" Background="{DynamicResource Brush04}" Foreground="{DynamicResource Brush02}" Text="Plex Media Server Service Settings" Padding="5" Margin="5,10,5,0"/>
+            <TextBlock FontSize="20" HorizontalAlignment="Stretch" TextAlignment="Center" VerticalAlignment="Center" Background="{DynamicResource Brush04}" Foreground="{DynamicResource Brush02}" Text="Plex Media Server Service Settings" Padding="5" Margin="5,10,5,0"
+                       MouseLeftButtonDown="TitleMouseLeftButtonDown" MouseLeftButtonUp="TitleMouseLeftButtonUp"/>
             <Grid Grid.Row="1" Margin="5,5,5,0">
                 <Grid.RowDefinitions>
                     <RowDefinition/>
@@ -38,70 +43,116 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition/>
+                        <ColumnDefinition MinWidth="100" Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <CheckBox Grid.Column="0" Content=":Automatically Restart Plex if it Stops" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Center" IsChecked="{Binding AutoRestart, UpdateSourceTrigger=PropertyChanged}"/>
+                    <CheckBox Grid.Column="0" Content=":Automatically restart Plex if it stops" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Center" IsChecked="{Binding AutoRestart, UpdateSourceTrigger=PropertyChanged}"/>
                     <TextBlock Grid.Column="1" Text="Delay (s):" Margin="5,5,0,5" VerticalAlignment="Center" IsEnabled="{Binding AutoRestart}"/>
-                    <TextBox Grid.Column="2" Text="{Binding RestartDelay, UpdateSourceTrigger=PropertyChanged}" Margin="5" IsEnabled="{Binding AutoRestart}" ToolTip="If plex stops this is how long the service waits before restarting it"/>
-                    
+                    <TextBox Grid.Column="2" Text="{Binding RestartDelay, UpdateSourceTrigger=PropertyChanged}" Margin="5" IsEnabled="{Binding AutoRestart}" ToolTip="If plex stops this is how long the service waits before restarting it"/>                    
                 </Grid>
             </Grid>
-            <GroupBox Grid.Row="2" Header="Auxiliary Applications" Margin="5,0,5,5">
-                <ListBox ItemsSource="{Binding AuxiliaryApplications}" SelectedItem="{Binding SelectedAuxApplication}" HorizontalContentAlignment="Stretch">
-                    <ListBox.Resources>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent" />
-                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black" />
-                        <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Transparent" />
-                    </ListBox.Resources>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Expander IsExpanded="{Binding IsExpanded}" MaxWidth="400">
-                                <Expander.Header>
+            <TabControl Grid.Row="2" Margin="5,0,5,5" SelectedIndex="{Binding SelectedTab}">
+                <TabItem Header="Auxiliary Applications">
+                    <ListBox ItemsSource="{Binding AuxiliaryApplications}" SelectedItem="{Binding SelectedAuxApplication}" HorizontalContentAlignment="Stretch" ToolTip="Right Click to add/remove items">
+                        <ListBox.Resources>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent" />
+                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black" />
+                            <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Transparent" />
+                        </ListBox.Resources>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Expander IsExpanded="{Binding IsExpanded}" >
+                                    <Expander.Header>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Margin="5"/>
+                                            <Button Grid.Column="1" Command="{Binding StartCommand}" Margin="0,5">
+                                                <fa:FontAwesome Icon="Play" FontSize="14"/>
+                                            </Button>
+                                            <Button Grid.Column="2" Command="{Binding StopCommand}" Margin="5">
+                                                <fa:FontAwesome Icon="Stop" FontSize="14"/>
+                                            </Button>
+                                        </Grid>
+                                    </Expander.Header>
                                     <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition/>
                                             <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition />
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Margin="5"/>
-                                        <Button Grid.Column="1" Command="{Binding StartCommand}" Margin="0,5">
-                                            <fa:FontAwesome Icon="Play" FontSize="14"/>
-                                        </Button>
-                                        <Button Grid.Column="2" Command="{Binding StopCommand}" Margin="5">
-                                            <fa:FontAwesome Icon="Stop" FontSize="14"/>
-                                        </Button>
+                                        <TextBlock Grid.Row="0" HorizontalAlignment="Right" Text="Name:" Margin="5" VerticalAlignment="Center"/>
+                                        <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True, ValidatesOnDataErrors=True}" Margin="5" ToolTip="Enter a user friendly name for this application"/>
+                                        <TextBlock Grid.Row="1" HorizontalAlignment="Right" Text="File:" Margin="5" VerticalAlignment="Center"/>
+                                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding FilePath, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True, ValidatesOnDataErrors=True}" Margin="5,5,0,5" ToolTip="This is the file you want to execute when plex is running."/>
+                                        <Button Grid.Row="1" Grid.Column="2" Content="..." Width="30" Command="{Binding BrowseCommand}" Margin="0,5,5,5"/>
+                                        <TextBlock Grid.Row="2" HorizontalAlignment="Right" Text="Argument:" Margin="5" VerticalAlignment="Center" ToolTip="Enter any command line arguments you want added to the startup command for this application"/>
+                                        <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Argument, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
+                                        <TextBlock Grid.Row="3" HorizontalAlignment="Right" Text="Working Directory:" Margin="5" VerticalAlignment="Center"/>
+                                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding WorkingFolder, UpdateSourceTrigger=PropertyChanged}" Margin="5,5,0,5" ToolTip="This is the working directory for the application."/>
+                                        <Button Grid.Row="3" Grid.Column="2" Content="..." Width="30" Command="{Binding BrowseFolderCommand}" Margin="0,5,5,5"/>
+                                        <TextBlock Grid.Row="4" HorizontalAlignment="Right" Text="URL:" Margin="5" VerticalAlignment="Center" ToolTip="Enter a url if the application has a web interface. A link will be added to the tray icon context menu."/>
+                                        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
+                                        <Button Grid.Row="4" Grid.Column="2" Content="è" Width="30" Command="{Binding GoToUrlCommand}" Margin="0,5,5,5" FontFamily="Wingdings" FontSize="9" ToolTip="Open link in browser"/>
+                                        <CheckBox Grid.Row="5" HorizontalAlignment="Right" IsChecked="{Binding KeepAlive}" Margin="5" ToolTip="If selected, The service will attempt to keep this application running while plex is running. Otherwise when it stops it will not be restarted."/>
+                                        <TextBlock Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Text="Keep alive while plex is running" Margin="5" VerticalAlignment="Center"/>
                                     </Grid>
-                                </Expander.Header>
+                                </Expander>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                        <ListBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Add Auxiliary Application" Command="{Binding AddCommand}"/>
+                                <MenuItem Header="{Binding RemoveToolTip}" Command="{Binding RemoveCommand}"/>
+                            </ContextMenu>
+                        </ListBox.ContextMenu>
+                    </ListBox>
+                </TabItem>
+                <TabItem Header="Drive Mapping">
+                    <ListBox ItemsSource="{Binding DriveMaps}" SelectedItem="{Binding SelectedDriveMap}" HorizontalContentAlignment="Stretch">
+                        <ListBox.Resources>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent" />
+                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black" />
+                            <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Transparent" />
+                        </ListBox.Resources>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
                                 <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                    </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition MaxWidth="280"/>
+                                        <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="30"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Row="0" HorizontalAlignment="Right" Text="Name:" Margin="5" VerticalAlignment="Center"/>
-                                    <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True, ValidatesOnDataErrors=True}" Margin="5" ToolTip="Enter a user friendly name for this application"/>
-                                    <TextBlock Grid.Row="1" HorizontalAlignment="Right" Text="File:" Margin="5" VerticalAlignment="Center"/>
-                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding FilePath, UpdateSourceTrigger=PropertyChanged}" Margin="5,5,0,5" ToolTip="This is the file you want to execute when plex is running."/>
-                                    <Button Grid.Row="1" Grid.Column="2" Content="..." Width="30" Command="{Binding BrowseCommand}" Margin="0,5,5,5"/>
-                                    <TextBlock Grid.Row="2" HorizontalAlignment="Right" Text="Argument:" Margin="5" VerticalAlignment="Center" ToolTip="Enter any command line arguments you want added to the startup command for this application"/>
-                                    <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Argument, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
-                                    <TextBlock Grid.Row="3" HorizontalAlignment="Right" Text="Working Directory:" Margin="5" VerticalAlignment="Center"/>
-                                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding WorkingFolder, UpdateSourceTrigger=PropertyChanged}" Margin="5,5,0,5" ToolTip="This is the working directory for the application."/>
-                                    <Button Grid.Row="3" Grid.Column="2" Content="..." Width="30" Command="{Binding BrowseFolderCommand}" Margin="0,5,5,5"/>
-                                    <CheckBox Grid.Row="4" Grid.ColumnSpan="3" HorizontalAlignment="Left" FlowDirection="RightToLeft" Content=":Keep alive while plex is running" IsChecked="{Binding KeepAlive}" Margin="5" ToolTip="If selected, The service will attempt to keep this application running while plex is running. Otherwise when it stops it will not be restarted."/>
+                                    <TextBlock VerticalAlignment="Center" Text="Share (UNC path):" Margin="5"/>
+                                    <TextBox Grid.Column="1" VerticalAlignment="Center" Text="{Binding ShareName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, NotifyOnValidationError=True}" Margin="0,5,5,5"/>
+                                    <TextBlock Grid.Column="2" VerticalAlignment="Center" Text="Drive Letter:" Margin="5"/>
+                                    <TextBox Grid.Column="3" VerticalAlignment="Center" Text="{Binding DriveLetter, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, NotifyOnValidationError=True}" Margin="0,5,5,5"/>
                                 </Grid>
-                            </Expander>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </GroupBox>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                        <ListBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Add Drive Mapping" Command="{Binding AddCommand}"/>
+                                <MenuItem Header="{Binding RemoveToolTip}" Command="{Binding RemoveCommand}"/>
+                            </ContextMenu>
+                        </ListBox.ContextMenu>
+                    </ListBox>
+                </TabItem>
+            </TabControl>
+            <!--<GroupBox Grid.Row="2" Header="Auxiliary Applications" Margin="5,0,5,5">
+                
+            </GroupBox>-->
             <Grid Grid.Row="3">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -111,7 +162,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Content="+" Command="{Binding AddCommand}" Width="30" Margin="5" ToolTip="Add new Application"/>
+                <Button Grid.Column="0" Content="+" Command="{Binding AddCommand}" Width="30" Margin="5" ToolTip="{Binding AddToolTip}"/>
                 <Button Grid.Column="1" Content="-" Command="{Binding RemoveCommand}" Width="30" Margin="5" ToolTip="{Binding RemoveToolTip}"/>
                 <Button Grid.Column="4" Content="Save" Command="{Binding SaveCommand}" Width="70" Margin="5"/>
                 <Button Grid.Column="5" Content="Cancel" Command="{Binding CancelCommand}" Width="70" Margin="5"/>            
