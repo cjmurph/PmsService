@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -6,6 +7,7 @@ using System.Text;
 
 namespace PlexServiceCommon
 {
+    [JsonObject(MemberSerialization=MemberSerialization.OptIn)]
     public class DriveMap
     {
         [DllImport("mpr.dll")] private static extern int WNetAddConnection2A(ref NetworkResource netRes, string password, string username, int flags);
@@ -24,9 +26,18 @@ namespace PlexServiceCommon
             public string Provider;
         }
 
+        [JsonProperty]
         public string ShareName { get; set; }
 
+        [JsonProperty]
         public string DriveLetter { get; set; }
+
+        [JsonConstructor]
+        private DriveMap()
+        {
+            ShareName = string.Empty;
+            DriveLetter = string.Empty;
+        }
 
         public DriveMap(string shareName, string driveLetter)
         {
