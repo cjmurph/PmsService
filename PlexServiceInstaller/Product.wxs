@@ -88,7 +88,6 @@
                                           Password="[SERVICE_PASSWORD]"
                                           ErrorControl="normal" >
               <ServiceDependency Id="LanmanServer"/>
-              <ServiceDependency Id="upnphost"/>
             </ServiceInstall>
             <ServiceControl Id="StartService"
                             Start="install"
