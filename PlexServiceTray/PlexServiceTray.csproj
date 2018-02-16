@@ -115,8 +115,6 @@
     </Compile>
     <Compile Include="SettingsWindowViewModel.cs" />
     <Compile Include="Themes\Metro\Light\CheckBoxTransformConverter.cs" />
-    <Compile Include="TrayCallback.cs" />
-    <Compile Include="TrayInteractionClient.cs" />
     <Compile Include="Validation\UniqueAuxAppNameAttribute.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -51,14 +51,14 @@ namespace PlexServiceTray
 
         public NotifyIconApplicationContext()
         {
-            initializeContext();
+            InitializeContext();
             Connect();
         }
 
         /// <summary>
         /// Setup our tray icon
         /// </summary>
-        private void initializeContext()
+        private void InitializeContext()
         {
             _components = new System.ComponentModel.Container();
             _notifyIcon = new NotifyIcon(_components);

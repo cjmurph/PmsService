@@ -29,8 +29,27 @@ namespace PlexServiceWCF
             _pms = new PmsMonitor();
             _pms.PlexStatusChange += OnPlexEvent;
             _pms.StateChange += PlexStateChange;
+            _pms.PlexStop += PlexStopped;
             ///Start plex
             Start();
+        }
+
+        private void PlexStopped(object sender, EventArgs e)
+        {
+            if (_pms != null)
+            {
+                CallbackChannels.ForEach(callback =>
+                {
+                    if (callback != null)
+                    {
+                        try
+                        {
+                            callback.OnPlexStopped();
+                        }
+                        catch { }
+                    }
+                });
+            }
         }
 
         private void PlexStateChange(object sender, EventArgs e)
@@ -65,8 +84,7 @@ namespace PlexServiceWCF
         /// </summary>
         public void Stop()
         {
-            //do this in the calling thread so it only returns upon completion of stop
-            _pms.Stop();
+            Task.Factory.StartNew(() => _pms.Stop());
         }
 
         /// <summary>

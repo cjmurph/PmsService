@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using PlexServiceCommon;
 
-namespace PlexServiceTray
+namespace PlexServiceCommon
 {
-    class TrayCallback : PlexServiceCommon.Interface.ITrayCallback
+    public class TrayCallback : Interface.ITrayCallback
     {
         public void OnPlexStateChange(PlexState state)
         {
@@ -36,6 +36,22 @@ namespace PlexServiceTray
         protected void OnStateChange(string message)
         {
             StateChange?.Invoke(this, new StatusChangeEventArgs(message));
+        }
+
+        #endregion
+
+        public void OnPlexStopped()
+        {
+            OnStopped();
+        }
+
+        #region StateChange
+
+        public event EventHandler<EventArgs> Stopped;
+
+        protected void OnStopped()
+        {
+            Stopped?.Invoke(this, new EventArgs());
         }
 
         #endregion

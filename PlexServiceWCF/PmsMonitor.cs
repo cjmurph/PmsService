@@ -380,6 +380,8 @@ namespace PlexServiceWCF
                 //remove event hook
                 appMonitor.StatusChange -= OnPlexStatusChange;
             });
+
+            OnPlexStop(this, new EventArgs());
         }
 
         /// <summary>

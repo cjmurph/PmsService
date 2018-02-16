@@ -10,6 +10,7 @@ using System.ServiceProcess;
 using System.Text;
 using PlexServiceCommon;
 using PlexServiceWCF;
+using System.Threading;
 
 namespace PlexService
 {
@@ -30,6 +31,8 @@ namespace PlexService
         private ServiceHost _host;
 
         private PlexServiceCommon.Interface.ITrayInteraction _plexService;
+
+        private AutoResetEvent _stopped = new AutoResetEvent(false);
 
         public PlexMediaServerService()
         {
@@ -121,6 +124,11 @@ namespace PlexService
                     if (_plexService != null)
                     {
                         _plexService.Stop();
+                        //wait for plex to stop for 10 seconds
+                        if(!_stopped.WaitOne(10000))
+                        {
+                            TrayInteraction.WriteToLog("Timed out waiting for plex to stop");
+                        }
                         Disconnect();
                     }
                 }
@@ -153,16 +161,24 @@ namespace PlexService
             plexServiceBinding.ReliableSession.InactivityTimeout = TimeSpan.FromMinutes(1);
             //Generate the endpoint from the local settings
             var plexServiceEndpoint = new EndpointAddress(_address);
+
+            TrayCallback callback = new TrayCallback();
+            callback.Stopped += (s,e) => _stopped.Set();
+            var client = new TrayInteractionClient(callback, plexServiceBinding, plexServiceEndpoint);
+
             //Make a channel factory so we can create the link to the service
-            var plexServiceChannelFactory = new ChannelFactory<PlexServiceCommon.Interface.ITrayInteraction>(plexServiceBinding, plexServiceEndpoint);
+            //var plexServiceChannelFactory = new ChannelFactory<PlexServiceCommon.Interface.ITrayInteraction>(plexServiceBinding, plexServiceEndpoint);
 
             _plexService = null;
 
             try
             {
-                _plexService = plexServiceChannelFactory.CreateChannel();
+                _plexService = client.ChannelFactory.CreateChannel();
+                
+                _plexService.Subscribe();
                 //If we lose connection to the service, set the object to null so we will know to reconnect the next time the tray icon is clicked
                 ((ICommunicationObject)_plexService).Faulted += (s, e) => _plexService = null;
+                ((ICommunicationObject)_plexService).Closed += (s, e) => _plexService = null;
             }
             catch
             {

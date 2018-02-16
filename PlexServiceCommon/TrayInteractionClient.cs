@@ -6,7 +6,7 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
 
-namespace PlexServiceTray
+namespace PlexServiceCommon
 {
     public class TrayInteractionClient:DuplexClientBase<ITrayInteraction>
     {

@@ -10,5 +10,8 @@ namespace PlexServiceCommon.Interface
     {
         [OperationContract]
         void OnPlexStateChange(PlexState state);
+
+        [OperationContract]
+        void OnPlexStopped();
     }
 }
