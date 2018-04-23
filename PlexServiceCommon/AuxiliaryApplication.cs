@@ -8,7 +8,7 @@ namespace PlexServiceCommon
 {
     /// <summary>
     /// Auxilliary application class.
-    /// This calss represenets an application that should be run when plex runs
+    /// This class represenets an application that should be run when plex runs
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
     public class AuxiliaryApplication
