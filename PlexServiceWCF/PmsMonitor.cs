@@ -389,6 +389,7 @@ namespace PlexServiceWCF
         /// <param name="names">The names of the processes to kill</param>
         private void KillSupportingProcesses()
         {
+            OnPlexStatusChange(this, new StatusChangeEventArgs("Killing supporting processes."));
             foreach (string name in _supportingProcesses)
             {
                 KillSupportingProcess(name);
@@ -402,24 +403,29 @@ namespace PlexServiceWCF
         private void KillSupportingProcess(string name)
         {
             //see if its running
+            OnPlexStatusChange(this, new StatusChangeEventArgs("Looking for " + name));
             Process[] supportProcesses = Process.GetProcessesByName(name);
+            OnPlexStatusChange(this, new StatusChangeEventArgs(supportProcesses.Length + " instances of " + name + " found"));
             if (supportProcesses.Length > 0)
             {
                 foreach (Process supportProcess in supportProcesses)
                 {
+                    OnPlexStatusChange(this, new StatusChangeEventArgs("Stopping " + name + " with PID " + supportProcess.Id));
                     try
                     {
                         supportProcess.Kill();
+                        OnPlexStatusChange(this, new StatusChangeEventArgs(name + " with PID stopped"));
                     }
                     catch
                     {
+                        OnPlexStatusChange(this, new StatusChangeEventArgs("Unable to stop process " + supportProcess.Id));
                     }
                     finally
                     {
                         supportProcess.Dispose();
                     }
                 }
-                OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("{0} Stopped.", name)));
+                //OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("{0} Stopped.", name)));
             }
         }
 
