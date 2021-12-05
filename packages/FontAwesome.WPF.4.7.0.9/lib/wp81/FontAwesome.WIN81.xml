@@ -1,0 +1,3228 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FontAwesome.WIN81</name>
+    </assembly>
+    <members>
+        <member name="T:FontAwesome.WIN81.DescriptionAttribute">
+            <summary>
+            Specifies a description for a property or event.
+            </summary>
+        </member>
+        <member name="P:FontAwesome.WIN81.DescriptionAttribute.Description">
+            <summary>
+            Gets the description stored in this attribute.
+            </summary>
+        </member>
+        <member name="M:FontAwesome.WIN81.DescriptionAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the DescriptionAttribute class with a description.
+            </summary>
+            <param name="description">The description text.</param>
+        </member>
+        <member name="T:FontAwesome.WIN81.IconCategoryAttribute">
+            <summary>
+            Represents the category of a fontawesome icon.
+            </summary>
+        </member>
+        <member name="P:FontAwesome.WIN81.IconCategoryAttribute.Category">
+            <summary>
+            Gets or sets the category of the icon.
+            </summary>
+        </member>
+        <member name="M:FontAwesome.WIN81.IconCategoryAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the FontAwesome.WPF.IconCategoryAttribute class.
+            </summary>
+            <param name="category">The icon category.</param>
+        </member>
+        <member name="T:FontAwesome.WIN81.IconAliasAttribute">
+            <summary>
+            Represents the field is an alias of another icon.
+            </summary>
+        </member>
+        <member name="T:FontAwesome.WIN81.IconIdAttribute">
+            <summary>
+            Represents the id (css class name) of the icon.
+            </summary>
+        </member>
+        <member name="P:FontAwesome.WIN81.IconIdAttribute.Id">
+            <summary>
+            Gets or sets the id (css class name) of the icon.
+            </summary>
+        </member>
+        <member name="M:FontAwesome.WIN81.IconIdAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the FontAwesome.WPF.IconIdAttribute class.
+            </summary>
+            <param name="id">The icon id (css class name).</param>
+        </member>
+        <member name="T:FontAwesome.WIN81.FontAwesome">
+            <summary>
+            Represents ann icon that uses the FontAwesome font
+            </summary>
+        </member>
+        <member name="P:FontAwesome.WIN81.FontAwesome.Icon">
+            <summary>
+            Gets or sets the FontAwesome icon
+            </summary>
+        </member>
+        <member name="T:FontAwesome.WIN81.FontAwesomeIcon">
+            <summary>
+            	FontAwesome v4.7.0 by Dave Gandy (@davegandy)
+            	The iconic font and CSS toolkit
+            	License http://fontawesome.io/license (Font: v4.7.0, C#: MIT License)
+            </summary>
+            <see href="http://fontawesome.io" />
+            <seealso href="https://github.com/FortAwesome/Font-Awesome" />
+            <seealso href="https://github.com/charri/Font-Awesome-WPF" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.None">
+            <summary>Set this value to show no icon.</summary>
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Glass">
+            <summary>Glass (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/glass/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Music">
+            <summary>Music (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/music/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Search">
+            <summary>Search (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/search/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.EnvelopeOutline">
+            <summary>Envelope Outlined (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/envelope-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Heart">
+            <summary>Heart (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/heart/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Star">
+            <summary>Star (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/star/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.StarOutline">
+            <summary>Star Outlined (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/star-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.User">
+            <summary>User (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/user/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Film">
+            <summary>Film (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/film/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ThLarge">
+            <summary>th-large (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/th-large/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Th">
+            <summary>th (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/th/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ThList">
+            <summary>th-list (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/th-list/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Check">
+            <summary>Check (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/check/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Times">
+            <summary>Times (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/times/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Remove">
+            <summary>Alias of: Times</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Times" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Close">
+            <summary>Alias of: Times</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Times" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SearchPlus">
+            <summary>Search Plus (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/search-plus/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SearchMinus">
+            <summary>Search Minus (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/search-minus/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PowerOff">
+            <summary>Power Off (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/power-off/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Signal">
+            <summary>signal (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/signal/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Cog">
+            <summary>cog (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/cog/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Gear">
+            <summary>Alias of: Cog</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Cog" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.TrashOutline">
+            <summary>Trash Outlined (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/trash-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Home">
+            <summary>home (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/home/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FileOutline">
+            <summary>File Outlined (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/file-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ClockOutline">
+            <summary>Clock Outlined (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/clock-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Road">
+            <summary>road (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/road/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Download">
+            <summary>Download (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/download/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ArrowCircleOutlineDown">
+            <summary>Arrow Circle Outlined Down (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/arrow-circle-o-down/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ArrowCircleOutlineUp">
+            <summary>Arrow Circle Outlined Up (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/arrow-circle-o-up/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Inbox">
+            <summary>inbox (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/inbox/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PlayCircleOutline">
+            <summary>Play Circle Outlined (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/play-circle-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Repeat">
+            <summary>Repeat (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/repeat/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.RotateRight">
+            <summary>Alias of: Repeat</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Repeat" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Refresh">
+            <summary>refresh (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/refresh/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ListAlt">
+            <summary>list-alt (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/list-alt/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Lock">
+            <summary>lock (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/lock/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Flag">
+            <summary>flag (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/flag/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Headphones">
+            <summary>headphones (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/headphones/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.VolumeOff">
+            <summary>volume-off (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/volume-off/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.VolumeDown">
+            <summary>volume-down (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/volume-down/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.VolumeUp">
+            <summary>volume-up (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/volume-up/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Qrcode">
+            <summary>qrcode (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/qrcode/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Barcode">
+            <summary>barcode (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/barcode/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Tag">
+            <summary>tag (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/tag/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Tags">
+            <summary>tags (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/tags/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Book">
+            <summary>book (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/book/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Bookmark">
+            <summary>bookmark (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/bookmark/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Print">
+            <summary>print (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/print/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Camera">
+            <summary>camera (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/camera/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Font">
+            <summary>font (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/font/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Bold">
+            <summary>bold (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/bold/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Italic">
+            <summary>italic (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/italic/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.TextHeight">
+            <summary>text-height (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/text-height/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.TextWidth">
+            <summary>text-width (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/text-width/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.AlignLeft">
+            <summary>align-left (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/align-left/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.AlignCenter">
+            <summary>align-center (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/align-center/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.AlignRight">
+            <summary>align-right (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/align-right/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.AlignJustify">
+            <summary>align-justify (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/align-justify/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.List">
+            <summary>list (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/list/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Outdent">
+            <summary>Outdent (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/outdent/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Dedent">
+            <summary>Alias of: Outdent</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Outdent" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Indent">
+            <summary>Indent (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/indent/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.VideoCamera">
+            <summary>Video Camera (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/video-camera/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PictureOutline">
+            <summary>Picture Outlined (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/picture-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Photo">
+            <summary>Alias of: PictureOutline</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.PictureOutline" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Image">
+            <summary>Alias of: PictureOutline</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.PictureOutline" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Pencil">
+            <summary>pencil (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/pencil/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.MapMarker">
+            <summary>map-marker (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/map-marker/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Adjust">
+            <summary>adjust (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/adjust/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Tint">
+            <summary>tint (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/tint/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PencilSquareOutline">
+            <summary>Pencil Square Outlined (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/pencil-square-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Edit">
+            <summary>Alias of: PencilSquareOutline</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.PencilSquareOutline" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ShareSquareOutline">
+            <summary>Share Square Outlined (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/share-square-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CheckSquareOutline">
+            <summary>Check Square Outlined (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/check-square-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Arrows">
+            <summary>Arrows (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/arrows/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.StepBackward">
+            <summary>step-backward (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/step-backward/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FastBackward">
+            <summary>fast-backward (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/fast-backward/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Backward">
+            <summary>backward (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/backward/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Play">
+            <summary>play (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/play/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Pause">
+            <summary>pause (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/pause/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Stop">
+            <summary>stop (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/stop/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Forward">
+            <summary>forward (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/forward/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FastForward">
+            <summary>fast-forward (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/fast-forward/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.StepForward">
+            <summary>step-forward (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/step-forward/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Eject">
+            <summary>eject (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/eject/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ChevronLeft">
+            <summary>chevron-left (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/chevron-left/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ChevronRight">
+            <summary>chevron-right (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/chevron-right/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PlusCircle">
+            <summary>Plus Circle (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/plus-circle/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.MinusCircle">
+            <summary>Minus Circle (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/minus-circle/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.TimesCircle">
+            <summary>Times Circle (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/times-circle/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CheckCircle">
+            <summary>Check Circle (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/check-circle/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.QuestionCircle">
+            <summary>Question Circle (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/question-circle/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.InfoCircle">
+            <summary>Info Circle (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/info-circle/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Crosshairs">
+            <summary>Crosshairs (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/crosshairs/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.TimesCircleOutline">
+            <summary>Times Circle Outlined (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/times-circle-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CheckCircleOutline">
+            <summary>Check Circle Outlined (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/check-circle-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Ban">
+            <summary>ban (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/ban/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ArrowLeft">
+            <summary>arrow-left (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/arrow-left/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ArrowRight">
+            <summary>arrow-right (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/arrow-right/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ArrowUp">
+            <summary>arrow-up (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/arrow-up/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ArrowDown">
+            <summary>arrow-down (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/arrow-down/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Share">
+            <summary>Share (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/share/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.MailForward">
+            <summary>Alias of: Share</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Share" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Expand">
+            <summary>Expand (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/expand/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Compress">
+            <summary>Compress (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/compress/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Plus">
+            <summary>plus (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/plus/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Minus">
+            <summary>minus (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/minus/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Asterisk">
+            <summary>asterisk (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/asterisk/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ExclamationCircle">
+            <summary>Exclamation Circle (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/exclamation-circle/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Gift">
+            <summary>gift (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/gift/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Leaf">
+            <summary>leaf (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/leaf/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Fire">
+            <summary>fire (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/fire/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Eye">
+            <summary>Eye (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/eye/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.EyeSlash">
+            <summary>Eye Slash (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/eye-slash/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ExclamationTriangle">
+            <summary>Exclamation Triangle (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/exclamation-triangle/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Warning">
+            <summary>Alias of: ExclamationTriangle</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.ExclamationTriangle" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Plane">
+            <summary>plane (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/plane/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Calendar">
+            <summary>calendar (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/calendar/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Random">
+            <summary>random (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/random/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Comment">
+            <summary>comment (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/comment/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Magnet">
+            <summary>magnet (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/magnet/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ChevronUp">
+            <summary>chevron-up (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/chevron-up/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ChevronDown">
+            <summary>chevron-down (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/chevron-down/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Retweet">
+            <summary>retweet (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/retweet/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ShoppingCart">
+            <summary>shopping-cart (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/shopping-cart/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Folder">
+            <summary>Folder (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/folder/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FolderOpen">
+            <summary>Folder Open (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/folder-open/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ArrowsV">
+            <summary>Arrows Vertical (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/arrows-v/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ArrowsH">
+            <summary>Arrows Horizontal (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/arrows-h/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.BarChart">
+            <summary>Bar Chart (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/bar-chart/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.BarChartOutline">
+            <summary>Alias of: BarChart</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.BarChart" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.TwitterSquare">
+            <summary>Twitter Square (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/twitter-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FacebookSquare">
+            <summary>Facebook Square (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/facebook-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CameraRetro">
+            <summary>camera-retro (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/camera-retro/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Key">
+            <summary>key (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/key/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Cogs">
+            <summary>cogs (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/cogs/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Gears">
+            <summary>Alias of: Cogs</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Cogs" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Comments">
+            <summary>comments (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/comments/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ThumbsOutlineUp">
+            <summary>Thumbs Up Outlined (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/thumbs-o-up/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ThumbsOutlineDown">
+            <summary>Thumbs Down Outlined (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/thumbs-o-down/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.StarHalf">
+            <summary>star-half (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/star-half/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HeartOutline">
+            <summary>Heart Outlined (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/heart-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SignOut">
+            <summary>Sign Out (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/sign-out/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.LinkedinSquare">
+            <summary>LinkedIn Square (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/linkedin-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ThumbTack">
+            <summary>Thumb Tack (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/thumb-tack/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ExternalLink">
+            <summary>External Link (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/external-link/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SignIn">
+            <summary>Sign In (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/sign-in/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Trophy">
+            <summary>trophy (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/trophy/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.GithubSquare">
+            <summary>GitHub Square (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/github-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Upload">
+            <summary>Upload (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/upload/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.LemonOutline">
+            <summary>Lemon Outlined (created: 1.0)</summary>
+            <see href="http://fontawesome.io/icon/lemon-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Phone">
+            <summary>Phone (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/phone/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SquareOutline">
+            <summary>Square Outlined (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/square-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.BookmarkOutline">
+            <summary>Bookmark Outlined (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/bookmark-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PhoneSquare">
+            <summary>Phone Square (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/phone-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Twitter">
+            <summary>Twitter (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/twitter/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Facebook">
+            <summary>Facebook (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/facebook/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FacebookF">
+            <summary>Alias of: Facebook</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Facebook" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Github">
+            <summary>GitHub (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/github/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Unlock">
+            <summary>unlock (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/unlock/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CreditCard">
+            <summary>credit-card (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/credit-card/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Rss">
+            <summary>rss (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/rss/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Feed">
+            <summary>Alias of: Rss</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Rss" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HddOutline">
+            <summary>HDD (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/hdd-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Bullhorn">
+            <summary>bullhorn (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/bullhorn/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Bell">
+            <summary>bell (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/bell/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Certificate">
+            <summary>certificate (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/certificate/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HandOutlineRight">
+            <summary>Hand Outlined Right (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/hand-o-right/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HandOutlineLeft">
+            <summary>Hand Outlined Left (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/hand-o-left/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HandOutlineUp">
+            <summary>Hand Outlined Up (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/hand-o-up/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HandOutlineDown">
+            <summary>Hand Outlined Down (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/hand-o-down/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ArrowCircleLeft">
+            <summary>Arrow Circle Left (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/arrow-circle-left/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ArrowCircleRight">
+            <summary>Arrow Circle Right (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/arrow-circle-right/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ArrowCircleUp">
+            <summary>Arrow Circle Up (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/arrow-circle-up/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ArrowCircleDown">
+            <summary>Arrow Circle Down (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/arrow-circle-down/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Globe">
+            <summary>Globe (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/globe/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Wrench">
+            <summary>Wrench (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/wrench/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Tasks">
+            <summary>Tasks (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/tasks/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Filter">
+            <summary>Filter (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/filter/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Briefcase">
+            <summary>Briefcase (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/briefcase/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ArrowsAlt">
+            <summary>Arrows Alt (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/arrows-alt/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Users">
+            <summary>Users (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/users/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Group">
+            <summary>Alias of: Users</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Users" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Link">
+            <summary>Link (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/link/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Chain">
+            <summary>Alias of: Link</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Link" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Cloud">
+            <summary>Cloud (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/cloud/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Flask">
+            <summary>Flask (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/flask/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Scissors">
+            <summary>Scissors (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/scissors/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Cut">
+            <summary>Alias of: Scissors</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Scissors" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FilesOutline">
+            <summary>Files Outlined (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/files-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Copy">
+            <summary>Alias of: FilesOutline</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.FilesOutline" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Paperclip">
+            <summary>Paperclip (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/paperclip/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FloppyOutline">
+            <summary>Floppy Outlined (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/floppy-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Save">
+            <summary>Alias of: FloppyOutline</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.FloppyOutline" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Square">
+            <summary>Square (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Bars">
+            <summary>Bars (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/bars/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Navicon">
+            <summary>Alias of: Bars</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Bars" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Reorder">
+            <summary>Alias of: Bars</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Bars" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ListUl">
+            <summary>list-ul (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/list-ul/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ListOl">
+            <summary>list-ol (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/list-ol/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Strikethrough">
+            <summary>Strikethrough (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/strikethrough/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Underline">
+            <summary>Underline (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/underline/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Table">
+            <summary>table (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/table/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Magic">
+            <summary>magic (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/magic/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Truck">
+            <summary>truck (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/truck/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Pinterest">
+            <summary>Pinterest (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/pinterest/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PinterestSquare">
+            <summary>Pinterest Square (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/pinterest-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.GooglePlusSquare">
+            <summary>Google Plus Square (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/google-plus-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.GooglePlus">
+            <summary>Google Plus (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/google-plus/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Money">
+            <summary>Money (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/money/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CaretDown">
+            <summary>Caret Down (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/caret-down/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CaretUp">
+            <summary>Caret Up (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/caret-up/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CaretLeft">
+            <summary>Caret Left (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/caret-left/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CaretRight">
+            <summary>Caret Right (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/caret-right/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Columns">
+            <summary>Columns (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/columns/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Sort">
+            <summary>Sort (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/sort/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Unsorted">
+            <summary>Alias of: Sort</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Sort" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SortDesc">
+            <summary>Sort Descending (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/sort-desc/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SortDown">
+            <summary>Alias of: SortDesc</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.SortDesc" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SortAsc">
+            <summary>Sort Ascending (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/sort-asc/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SortUp">
+            <summary>Alias of: SortAsc</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.SortAsc" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Envelope">
+            <summary>Envelope (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/envelope/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Linkedin">
+            <summary>LinkedIn (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/linkedin/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Undo">
+            <summary>Undo (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/undo/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.RotateLeft">
+            <summary>Alias of: Undo</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Undo" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Gavel">
+            <summary>Gavel (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/gavel/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Legal">
+            <summary>Alias of: Gavel</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Gavel" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Tachometer">
+            <summary>Tachometer (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/tachometer/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Dashboard">
+            <summary>Alias of: Tachometer</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Tachometer" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CommentOutline">
+            <summary>comment-o (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/comment-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CommentsOutline">
+            <summary>comments-o (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/comments-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Bolt">
+            <summary>Lightning Bolt (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/bolt/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Flash">
+            <summary>Alias of: Bolt</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Bolt" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Sitemap">
+            <summary>Sitemap (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/sitemap/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Umbrella">
+            <summary>Umbrella (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/umbrella/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Clipboard">
+            <summary>Clipboard (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/clipboard/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Paste">
+            <summary>Alias of: Clipboard</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Clipboard" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.LightbulbOutline">
+            <summary>Lightbulb Outlined (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/lightbulb-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Exchange">
+            <summary>Exchange (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/exchange/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CloudDownload">
+            <summary>Cloud Download (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/cloud-download/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CloudUpload">
+            <summary>Cloud Upload (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/cloud-upload/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.UserMd">
+            <summary>user-md (created: 2.0)</summary>
+            <see href="http://fontawesome.io/icon/user-md/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Stethoscope">
+            <summary>Stethoscope (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/stethoscope/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Suitcase">
+            <summary>Suitcase (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/suitcase/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.BellOutline">
+            <summary>Bell Outlined (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/bell-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Coffee">
+            <summary>Coffee (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/coffee/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Cutlery">
+            <summary>Cutlery (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/cutlery/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FileTextOutline">
+            <summary>File Text Outlined (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/file-text-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.BuildingOutline">
+            <summary>Building Outlined (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/building-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HospitalOutline">
+            <summary>hospital Outlined (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/hospital-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Ambulance">
+            <summary>ambulance (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/ambulance/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Medkit">
+            <summary>medkit (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/medkit/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FighterJet">
+            <summary>fighter-jet (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/fighter-jet/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Beer">
+            <summary>beer (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/beer/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HSquare">
+            <summary>H Square (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/h-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PlusSquare">
+            <summary>Plus Square (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/plus-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.AngleDoubleLeft">
+            <summary>Angle Double Left (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/angle-double-left/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.AngleDoubleRight">
+            <summary>Angle Double Right (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/angle-double-right/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.AngleDoubleUp">
+            <summary>Angle Double Up (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/angle-double-up/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.AngleDoubleDown">
+            <summary>Angle Double Down (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/angle-double-down/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.AngleLeft">
+            <summary>angle-left (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/angle-left/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.AngleRight">
+            <summary>angle-right (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/angle-right/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.AngleUp">
+            <summary>angle-up (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/angle-up/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.AngleDown">
+            <summary>angle-down (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/angle-down/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Desktop">
+            <summary>Desktop (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/desktop/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Laptop">
+            <summary>Laptop (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/laptop/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Tablet">
+            <summary>tablet (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/tablet/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Mobile">
+            <summary>Mobile Phone (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/mobile/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.MobilePhone">
+            <summary>Alias of: Mobile</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Mobile" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CircleOutline">
+            <summary>Circle Outlined (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/circle-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.QuoteLeft">
+            <summary>quote-left (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/quote-left/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.QuoteRight">
+            <summary>quote-right (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/quote-right/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Spinner">
+            <summary>Spinner (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/spinner/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Circle">
+            <summary>Circle (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/circle/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Reply">
+            <summary>Reply (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/reply/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.MailReply">
+            <summary>Alias of: Reply</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Reply" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.GithubAlt">
+            <summary>GitHub Alt (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/github-alt/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FolderOutline">
+            <summary>Folder Outlined (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/folder-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FolderOutlinepenOutline">
+            <summary>Folder Open Outlined (created: 3.0)</summary>
+            <see href="http://fontawesome.io/icon/folder-open-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SmileOutline">
+            <summary>Smile Outlined (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/smile-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FrownOutline">
+            <summary>Frown Outlined (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/frown-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.MehOutline">
+            <summary>Meh Outlined (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/meh-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Gamepad">
+            <summary>Gamepad (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/gamepad/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.KeyboardOutline">
+            <summary>Keyboard Outlined (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/keyboard-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FlagOutline">
+            <summary>Flag Outlined (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/flag-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FlagCheckered">
+            <summary>flag-checkered (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/flag-checkered/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Terminal">
+            <summary>Terminal (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/terminal/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Code">
+            <summary>Code (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/code/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ReplyAll">
+            <summary>reply-all (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/reply-all/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.MailReplyAll">
+            <summary>Alias of: ReplyAll</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.ReplyAll" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.StarHalfOutline">
+            <summary>Star Half Outlined (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/star-half-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.StarHalfEmpty">
+            <summary>Alias of: StarHalfOutline</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.StarHalfOutline" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.StarHalfFull">
+            <summary>Alias of: StarHalfOutline</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.StarHalfOutline" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.LocationArrow">
+            <summary>location-arrow (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/location-arrow/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Crop">
+            <summary>crop (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/crop/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CodeFork">
+            <summary>code-fork (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/code-fork/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ChainBroken">
+            <summary>Chain Broken (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/chain-broken/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Unlink">
+            <summary>Alias of: ChainBroken</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.ChainBroken" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Question">
+            <summary>Question (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/question/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Info">
+            <summary>Info (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/info/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Exclamation">
+            <summary>exclamation (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/exclamation/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Superscript">
+            <summary>superscript (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/superscript/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Subscript">
+            <summary>subscript (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/subscript/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Eraser">
+            <summary>eraser (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/eraser/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PuzzlePiece">
+            <summary>Puzzle Piece (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/puzzle-piece/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Microphone">
+            <summary>microphone (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/microphone/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.MicrophoneSlash">
+            <summary>Microphone Slash (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/microphone-slash/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Shield">
+            <summary>shield (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/shield/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CalendarOutline">
+            <summary>calendar-o (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/calendar-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FireExtinguisher">
+            <summary>fire-extinguisher (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/fire-extinguisher/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Rocket">
+            <summary>rocket (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/rocket/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Maxcdn">
+            <summary>MaxCDN (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/maxcdn/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ChevronCircleLeft">
+            <summary>Chevron Circle Left (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/chevron-circle-left/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ChevronCircleRight">
+            <summary>Chevron Circle Right (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/chevron-circle-right/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ChevronCircleUp">
+            <summary>Chevron Circle Up (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/chevron-circle-up/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ChevronCircleDown">
+            <summary>Chevron Circle Down (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/chevron-circle-down/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Html5">
+            <summary>HTML 5 Logo (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/html5/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Css3">
+            <summary>CSS 3 Logo (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/css3/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Anchor">
+            <summary>Anchor (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/anchor/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.UnlockAlt">
+            <summary>Unlock Alt (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/unlock-alt/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Bullseye">
+            <summary>Bullseye (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/bullseye/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.EllipsisH">
+            <summary>Ellipsis Horizontal (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/ellipsis-h/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.EllipsisV">
+            <summary>Ellipsis Vertical (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/ellipsis-v/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.RssSquare">
+            <summary>RSS Square (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/rss-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PlayCircle">
+            <summary>Play Circle (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/play-circle/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Ticket">
+            <summary>Ticket (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/ticket/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.MinusSquare">
+            <summary>Minus Square (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/minus-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.MinusSquareOutline">
+            <summary>Minus Square Outlined (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/minus-square-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.LevelUp">
+            <summary>Level Up (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/level-up/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.LevelDown">
+            <summary>Level Down (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/level-down/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CheckSquare">
+            <summary>Check Square (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/check-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PencilSquare">
+            <summary>Pencil Square (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/pencil-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ExternalLinkSquare">
+            <summary>External Link Square (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/external-link-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ShareSquare">
+            <summary>Share Square (created: 3.1)</summary>
+            <see href="http://fontawesome.io/icon/share-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Compass">
+            <summary>Compass (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/compass/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CaretSquareOutlineDown">
+            <summary>Caret Square Outlined Down (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/caret-square-o-down/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ToggleDown">
+            <summary>Alias of: CaretSquareOutlineDown</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.CaretSquareOutlineDown" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CaretSquareOutlineUp">
+            <summary>Caret Square Outlined Up (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/caret-square-o-up/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ToggleUp">
+            <summary>Alias of: CaretSquareOutlineUp</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.CaretSquareOutlineUp" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CaretSquareOutlineRight">
+            <summary>Caret Square Outlined Right (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/caret-square-o-right/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ToggleRight">
+            <summary>Alias of: CaretSquareOutlineRight</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.CaretSquareOutlineRight" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Eur">
+            <summary>Euro (EUR) (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/eur/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Euro">
+            <summary>Alias of: Eur</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Eur" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Gbp">
+            <summary>GBP (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/gbp/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Usd">
+            <summary>US Dollar (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/usd/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Dollar">
+            <summary>Alias of: Usd</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Usd" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Inr">
+            <summary>Indian Rupee (INR) (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/inr/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Rupee">
+            <summary>Alias of: Inr</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Inr" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Jpy">
+            <summary>Japanese Yen (JPY) (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/jpy/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Cny">
+            <summary>Alias of: Jpy</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Jpy" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Rmb">
+            <summary>Alias of: Jpy</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Jpy" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Yen">
+            <summary>Alias of: Jpy</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Jpy" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Rub">
+            <summary>Russian Ruble (RUB) (created: 4.0)</summary>
+            <see href="http://fontawesome.io/icon/rub/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Ruble">
+            <summary>Alias of: Rub</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Rub" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Rouble">
+            <summary>Alias of: Rub</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Rub" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Krw">
+            <summary>Korean Won (KRW) (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/krw/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Won">
+            <summary>Alias of: Krw</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Krw" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Btc">
+            <summary>Bitcoin (BTC) (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/btc/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Bitcoin">
+            <summary>Alias of: Btc</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Btc" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.File">
+            <summary>File (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/file/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FileText">
+            <summary>File Text (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/file-text/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SortAlphaAsc">
+            <summary>Sort Alpha Ascending (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/sort-alpha-asc/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SortAlphaDesc">
+            <summary>Sort Alpha Descending (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/sort-alpha-desc/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SortAmountAsc">
+            <summary>Sort Amount Ascending (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/sort-amount-asc/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SortAmountDesc">
+            <summary>Sort Amount Descending (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/sort-amount-desc/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SortNumericAsc">
+            <summary>Sort Numeric Ascending (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/sort-numeric-asc/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SortNumericDesc">
+            <summary>Sort Numeric Descending (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/sort-numeric-desc/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ThumbsUp">
+            <summary>thumbs-up (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/thumbs-up/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ThumbsDown">
+            <summary>thumbs-down (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/thumbs-down/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.YoutubeSquare">
+            <summary>YouTube Square (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/youtube-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Youtube">
+            <summary>YouTube (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/youtube/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Xing">
+            <summary>Xing (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/xing/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.XingSquare">
+            <summary>Xing Square (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/xing-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.YoutubePlay">
+            <summary>YouTube Play (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/youtube-play/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Dropbox">
+            <summary>Dropbox (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/dropbox/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.StackOverflow">
+            <summary>Stack Overflow (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/stack-overflow/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Instagram">
+            <summary>Instagram (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/instagram/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Flickr">
+            <summary>Flickr (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/flickr/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Adn">
+            <summary>App.net (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/adn/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Bitbucket">
+            <summary>Bitbucket (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/bitbucket/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.BitbucketSquare">
+            <summary>Bitbucket Square (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/bitbucket-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Tumblr">
+            <summary>Tumblr (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/tumblr/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.TumblrSquare">
+            <summary>Tumblr Square (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/tumblr-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.LongArrowDown">
+            <summary>Long Arrow Down (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/long-arrow-down/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.LongArrowUp">
+            <summary>Long Arrow Up (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/long-arrow-up/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.LongArrowLeft">
+            <summary>Long Arrow Left (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/long-arrow-left/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.LongArrowRight">
+            <summary>Long Arrow Right (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/long-arrow-right/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Apple">
+            <summary>Apple (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/apple/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Windows">
+            <summary>Windows (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/windows/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Android">
+            <summary>Android (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/android/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Linux">
+            <summary>Linux (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/linux/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Dribbble">
+            <summary>Dribbble (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/dribbble/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Skype">
+            <summary>Skype (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/skype/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Foursquare">
+            <summary>Foursquare (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/foursquare/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Trello">
+            <summary>Trello (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/trello/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Female">
+            <summary>Female (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/female/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Male">
+            <summary>Male (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/male/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Gratipay">
+            <summary>Gratipay (Gittip) (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/gratipay/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Gittip">
+            <summary>Alias of: Gratipay</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Gratipay" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SunOutline">
+            <summary>Sun Outlined (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/sun-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.MoonOutline">
+            <summary>Moon Outlined (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/moon-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Archive">
+            <summary>Archive (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/archive/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Bug">
+            <summary>Bug (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/bug/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Vk">
+            <summary>VK (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/vk/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Weibo">
+            <summary>Weibo (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/weibo/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Renren">
+            <summary>Renren (created: 3.2)</summary>
+            <see href="http://fontawesome.io/icon/renren/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Pagelines">
+            <summary>Pagelines (created: 4.0)</summary>
+            <see href="http://fontawesome.io/icon/pagelines/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.StackExchange">
+            <summary>Stack Exchange (created: 4.0)</summary>
+            <see href="http://fontawesome.io/icon/stack-exchange/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ArrowCircleOutlineRight">
+            <summary>Arrow Circle Outlined Right (created: 4.0)</summary>
+            <see href="http://fontawesome.io/icon/arrow-circle-o-right/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ArrowCircleOutlineLeft">
+            <summary>Arrow Circle Outlined Left (created: 4.0)</summary>
+            <see href="http://fontawesome.io/icon/arrow-circle-o-left/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CaretSquareOutlineLeft">
+            <summary>Caret Square Outlined Left (created: 4.0)</summary>
+            <see href="http://fontawesome.io/icon/caret-square-o-left/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ToggleLeft">
+            <summary>Alias of: CaretSquareOutlineLeft</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.CaretSquareOutlineLeft" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.DotCircleOutline">
+            <summary>Dot Circle Outlined (created: 4.0)</summary>
+            <see href="http://fontawesome.io/icon/dot-circle-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Wheelchair">
+            <summary>Wheelchair (created: 4.0)</summary>
+            <see href="http://fontawesome.io/icon/wheelchair/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.VimeoSquare">
+            <summary>Vimeo Square (created: 4.0)</summary>
+            <see href="http://fontawesome.io/icon/vimeo-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Try">
+            <summary>Turkish Lira (TRY) (created: 4.0)</summary>
+            <see href="http://fontawesome.io/icon/try/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.TurkishLira">
+            <summary>Alias of: Try</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Try" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PlusSquareOutline">
+            <summary>Plus Square Outlined (created: 4.0)</summary>
+            <see href="http://fontawesome.io/icon/plus-square-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SpaceShuttle">
+            <summary>Space Shuttle (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/space-shuttle/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Slack">
+            <summary>Slack Logo (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/slack/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.EnvelopeSquare">
+            <summary>Envelope Square (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/envelope-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Wordpress">
+            <summary>WordPress Logo (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/wordpress/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Openid">
+            <summary>OpenID (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/openid/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.University">
+            <summary>University (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/university/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Institution">
+            <summary>Alias of: University</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.University" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Bank">
+            <summary>Alias of: University</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.University" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.GraduationCap">
+            <summary>Graduation Cap (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/graduation-cap/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.MortarBoard">
+            <summary>Alias of: GraduationCap</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.GraduationCap" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Yahoo">
+            <summary>Yahoo Logo (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/yahoo/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Google">
+            <summary>Google Logo (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/google/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Reddit">
+            <summary>reddit Logo (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/reddit/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.RedditSquare">
+            <summary>reddit Square (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/reddit-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.StumbleuponCircle">
+            <summary>StumbleUpon Circle (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/stumbleupon-circle/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Stumbleupon">
+            <summary>StumbleUpon Logo (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/stumbleupon/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Delicious">
+            <summary>Delicious Logo (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/delicious/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Digg">
+            <summary>Digg Logo (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/digg/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PiedPiperPp">
+            <summary>Pied Piper PP Logo (Old) (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/pied-piper-pp/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PiedPiperAlt">
+            <summary>Pied Piper Alternate Logo (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/pied-piper-alt/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Drupal">
+            <summary>Drupal Logo (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/drupal/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Joomla">
+            <summary>Joomla Logo (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/joomla/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Language">
+            <summary>Language (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/language/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Fax">
+            <summary>Fax (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/fax/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Building">
+            <summary>Building (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/building/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Child">
+            <summary>Child (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/child/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Paw">
+            <summary>Paw (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/paw/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Spoon">
+            <summary>spoon (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/spoon/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Cube">
+            <summary>Cube (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/cube/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Cubes">
+            <summary>Cubes (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/cubes/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Behance">
+            <summary>Behance (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/behance/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.BehanceSquare">
+            <summary>Behance Square (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/behance-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Steam">
+            <summary>Steam (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/steam/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SteamSquare">
+            <summary>Steam Square (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/steam-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Recycle">
+            <summary>Recycle (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/recycle/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Car">
+            <summary>Car (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/car/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Automobile">
+            <summary>Alias of: Car</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Car" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Taxi">
+            <summary>Taxi (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/taxi/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Cab">
+            <summary>Alias of: Taxi</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Taxi" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Tree">
+            <summary>Tree (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/tree/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Spotify">
+            <summary>Spotify (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/spotify/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Deviantart">
+            <summary>deviantART (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/deviantart/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Soundcloud">
+            <summary>SoundCloud (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/soundcloud/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Database">
+            <summary>Database (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/database/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FilePdfOutline">
+            <summary>PDF File Outlined (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/file-pdf-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FileWordOutline">
+            <summary>Word File Outlined (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/file-word-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FileExcelOutline">
+            <summary>Excel File Outlined (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/file-excel-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FilePowerpointOutline">
+            <summary>Powerpoint File Outlined (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/file-powerpoint-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FileImageOutline">
+            <summary>Image File Outlined (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/file-image-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FilePhotoOutline">
+            <summary>Alias of: FileImageOutline</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.FileImageOutline" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FilePictureOutline">
+            <summary>Alias of: FileImageOutline</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.FileImageOutline" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FileArchiveOutline">
+            <summary>Archive File Outlined (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/file-archive-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FileZipOutline">
+            <summary>Alias of: FileArchiveOutline</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.FileArchiveOutline" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FileAudioOutline">
+            <summary>Audio File Outlined (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/file-audio-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FileSoundOutline">
+            <summary>Alias of: FileAudioOutline</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.FileAudioOutline" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FileVideoOutline">
+            <summary>Video File Outlined (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/file-video-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FileMovieOutline">
+            <summary>Alias of: FileVideoOutline</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.FileVideoOutline" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FileCodeOutline">
+            <summary>Code File Outlined (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/file-code-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Vine">
+            <summary>Vine (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/vine/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Codepen">
+            <summary>Codepen (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/codepen/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Jsfiddle">
+            <summary>jsFiddle (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/jsfiddle/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.LifeRing">
+            <summary>Life Ring (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/life-ring/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.LifeBouy">
+            <summary>Alias of: LifeRing</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.LifeRing" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.LifeBuoy">
+            <summary>Alias of: LifeRing</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.LifeRing" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.LifeSaver">
+            <summary>Alias of: LifeRing</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.LifeRing" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Support">
+            <summary>Alias of: LifeRing</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.LifeRing" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CircleOutlineNotch">
+            <summary>Circle Outlined Notched (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/circle-o-notch/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Rebel">
+            <summary>Rebel Alliance (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/rebel/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Ra">
+            <summary>Alias of: Rebel</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Rebel" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Resistance">
+            <summary>Alias of: Rebel</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Rebel" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Empire">
+            <summary>Galactic Empire (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/empire/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Ge">
+            <summary>Alias of: Empire</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Empire" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.GitSquare">
+            <summary>Git Square (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/git-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Git">
+            <summary>Git (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/git/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HackerNews">
+            <summary>Hacker News (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/hacker-news/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.YCombinatorSquare">
+            <summary>Alias of: HackerNews</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.HackerNews" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.YcSquare">
+            <summary>Alias of: HackerNews</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.HackerNews" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.TencentWeibo">
+            <summary>Tencent Weibo (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/tencent-weibo/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Qq">
+            <summary>QQ (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/qq/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Weixin">
+            <summary>Weixin (WeChat) (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/weixin/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Wechat">
+            <summary>Alias of: Weixin</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Weixin" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PaperPlane">
+            <summary>Paper Plane (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/paper-plane/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Send">
+            <summary>Alias of: PaperPlane</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.PaperPlane" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PaperPlaneOutline">
+            <summary>Paper Plane Outlined (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/paper-plane-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SendOutline">
+            <summary>Alias of: PaperPlaneOutline</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.PaperPlaneOutline" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.History">
+            <summary>History (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/history/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CircleThin">
+            <summary>Circle Outlined Thin (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/circle-thin/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Header">
+            <summary>header (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/header/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Paragraph">
+            <summary>paragraph (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/paragraph/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Sliders">
+            <summary>Sliders (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/sliders/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ShareAlt">
+            <summary>Share Alt (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/share-alt/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ShareAltSquare">
+            <summary>Share Alt Square (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/share-alt-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Bomb">
+            <summary>Bomb (created: 4.1)</summary>
+            <see href="http://fontawesome.io/icon/bomb/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FutbolOutline">
+            <summary>Futbol Outlined (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/futbol-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SoccerBallOutline">
+            <summary>Alias of: FutbolOutline</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.FutbolOutline" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Tty">
+            <summary>TTY (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/tty/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Binoculars">
+            <summary>Binoculars (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/binoculars/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Plug">
+            <summary>Plug (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/plug/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Slideshare">
+            <summary>Slideshare (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/slideshare/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Twitch">
+            <summary>Twitch (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/twitch/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Yelp">
+            <summary>Yelp (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/yelp/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.NewspaperOutline">
+            <summary>Newspaper Outlined (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/newspaper-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Wifi">
+            <summary>WiFi (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/wifi/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Calculator">
+            <summary>Calculator (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/calculator/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Paypal">
+            <summary>Paypal (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/paypal/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.GoogleWallet">
+            <summary>Google Wallet (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/google-wallet/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CcVisa">
+            <summary>Visa Credit Card (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/cc-visa/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CcMastercard">
+            <summary>MasterCard Credit Card (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/cc-mastercard/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CcDiscover">
+            <summary>Discover Credit Card (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/cc-discover/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CcAmex">
+            <summary>American Express Credit Card (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/cc-amex/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CcPaypal">
+            <summary>Paypal Credit Card (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/cc-paypal/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CcStripe">
+            <summary>Stripe Credit Card (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/cc-stripe/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.BellSlash">
+            <summary>Bell Slash (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/bell-slash/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.BellSlashOutline">
+            <summary>Bell Slash Outlined (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/bell-slash-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Trash">
+            <summary>Trash (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/trash/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Copyright">
+            <summary>Copyright (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/copyright/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.At">
+            <summary>At (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/at/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Eyedropper">
+            <summary>Eyedropper (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/eyedropper/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PaintBrush">
+            <summary>Paint Brush (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/paint-brush/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.BirthdayCake">
+            <summary>Birthday Cake (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/birthday-cake/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.AreaChart">
+            <summary>Area Chart (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/area-chart/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PieChart">
+            <summary>Pie Chart (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/pie-chart/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.LineChart">
+            <summary>Line Chart (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/line-chart/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Lastfm">
+            <summary>last.fm (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/lastfm/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.LastfmSquare">
+            <summary>last.fm Square (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/lastfm-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ToggleOff">
+            <summary>Toggle Off (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/toggle-off/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ToggleOn">
+            <summary>Toggle On (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/toggle-on/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Bicycle">
+            <summary>Bicycle (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/bicycle/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Bus">
+            <summary>Bus (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/bus/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Ioxhost">
+            <summary>ioxhost (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/ioxhost/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Angellist">
+            <summary>AngelList (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/angellist/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Cc">
+            <summary>Closed Captions (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/cc/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Ils">
+            <summary>Shekel (ILS) (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/ils/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Shekel">
+            <summary>Alias of: Ils</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Ils" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Sheqel">
+            <summary>Alias of: Ils</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Ils" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Meanpath">
+            <summary>meanpath (created: 4.2)</summary>
+            <see href="http://fontawesome.io/icon/meanpath/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Buysellads">
+            <summary>BuySellAds (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/buysellads/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Connectdevelop">
+            <summary>Connect Develop (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/connectdevelop/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Dashcube">
+            <summary>DashCube (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/dashcube/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Forumbee">
+            <summary>Forumbee (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/forumbee/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Leanpub">
+            <summary>Leanpub (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/leanpub/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Sellsy">
+            <summary>Sellsy (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/sellsy/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Shirtsinbulk">
+            <summary>Shirts in Bulk (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/shirtsinbulk/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Simplybuilt">
+            <summary>SimplyBuilt (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/simplybuilt/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Skyatlas">
+            <summary>skyatlas (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/skyatlas/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CartPlus">
+            <summary>Add to Shopping Cart (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/cart-plus/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CartArrowDown">
+            <summary>Shopping Cart Arrow Down (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/cart-arrow-down/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Diamond">
+            <summary>Diamond (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/diamond/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Ship">
+            <summary>Ship (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/ship/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.UserSecret">
+            <summary>User Secret (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/user-secret/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Motorcycle">
+            <summary>Motorcycle (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/motorcycle/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.StreetView">
+            <summary>Street View (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/street-view/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Heartbeat">
+            <summary>Heartbeat (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/heartbeat/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Venus">
+            <summary>Venus (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/venus/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Mars">
+            <summary>Mars (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/mars/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Mercury">
+            <summary>Mercury (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/mercury/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Transgender">
+            <summary>Transgender (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/transgender/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Intersex">
+            <summary>Alias of: Transgender</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Transgender" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.TransgenderAlt">
+            <summary>Transgender Alt (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/transgender-alt/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.VenusDouble">
+            <summary>Venus Double (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/venus-double/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.MarsDouble">
+            <summary>Mars Double (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/mars-double/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.VenusMars">
+            <summary>Venus Mars (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/venus-mars/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.MarsStroke">
+            <summary>Mars Stroke (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/mars-stroke/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.MarsStrokeV">
+            <summary>Mars Stroke Vertical (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/mars-stroke-v/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.MarsStrokeH">
+            <summary>Mars Stroke Horizontal (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/mars-stroke-h/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Neuter">
+            <summary>Neuter (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/neuter/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Genderless">
+            <summary>Genderless (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/genderless/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FacebookOfficial">
+            <summary>Facebook Official (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/facebook-official/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PinterestP">
+            <summary>Pinterest P (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/pinterest-p/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Whatsapp">
+            <summary>What's App (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/whatsapp/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Server">
+            <summary>Server (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/server/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.UserPlus">
+            <summary>Add User (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/user-plus/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.UserTimes">
+            <summary>Remove User (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/user-times/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Bed">
+            <summary>Bed (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/bed/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Hotel">
+            <summary>Alias of: Bed</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Bed" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Viacoin">
+            <summary>Viacoin (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/viacoin/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Train">
+            <summary>Train (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/train/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Subway">
+            <summary>Subway (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/subway/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Medium">
+            <summary>Medium (created: 4.3)</summary>
+            <see href="http://fontawesome.io/icon/medium/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.YCombinator">
+            <summary>Y Combinator (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/y-combinator/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Yc">
+            <summary>Alias of: YCombinator</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.YCombinator" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.OptinMonster">
+            <summary>Optin Monster (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/optin-monster/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Opencart">
+            <summary>OpenCart (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/opencart/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Expeditedssl">
+            <summary>ExpeditedSSL (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/expeditedssl/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.BatteryFull">
+            <summary>Battery Full (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/battery-full/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Battery4">
+            <summary>Alias of: BatteryFull</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.BatteryFull" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Battery">
+            <summary>Alias of: BatteryFull</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.BatteryFull" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.BatteryThreeQuarters">
+            <summary>Battery 3/4 Full (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/battery-three-quarters/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Battery3">
+            <summary>Alias of: BatteryThreeQuarters</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.BatteryThreeQuarters" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.BatteryHalf">
+            <summary>Battery 1/2 Full (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/battery-half/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Battery2">
+            <summary>Alias of: BatteryHalf</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.BatteryHalf" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.BatteryQuarter">
+            <summary>Battery 1/4 Full (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/battery-quarter/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Battery1">
+            <summary>Alias of: BatteryQuarter</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.BatteryQuarter" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.BatteryEmpty">
+            <summary>Battery Empty (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/battery-empty/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Battery0">
+            <summary>Alias of: BatteryEmpty</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.BatteryEmpty" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.MousePointer">
+            <summary>Mouse Pointer (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/mouse-pointer/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ICursor">
+            <summary>I Beam Cursor (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/i-cursor/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ObjectGroup">
+            <summary>Object Group (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/object-group/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ObjectUngroup">
+            <summary>Object Ungroup (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/object-ungroup/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.StickyNote">
+            <summary>Sticky Note (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/sticky-note/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.StickyNoteOutline">
+            <summary>Sticky Note Outlined (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/sticky-note-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CcJcb">
+            <summary>JCB Credit Card (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/cc-jcb/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CcDinersClub">
+            <summary>Diner's Club Credit Card (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/cc-diners-club/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Clone">
+            <summary>Clone (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/clone/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.BalanceScale">
+            <summary>Balance Scale (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/balance-scale/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HourglassOutline">
+            <summary>Hourglass Outlined (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/hourglass-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HourglassStart">
+            <summary>Hourglass Start (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/hourglass-start/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Hourglass1">
+            <summary>Alias of: HourglassStart</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.HourglassStart" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HourglassHalf">
+            <summary>Hourglass Half (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/hourglass-half/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Hourglass2">
+            <summary>Alias of: HourglassHalf</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.HourglassHalf" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HourglassEnd">
+            <summary>Hourglass End (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/hourglass-end/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Hourglass3">
+            <summary>Alias of: HourglassEnd</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.HourglassEnd" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Hourglass">
+            <summary>Hourglass (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/hourglass/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HandRockOutline">
+            <summary>Rock (Hand) (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/hand-rock-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HandGrabOutline">
+            <summary>Alias of: HandRockOutline</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.HandRockOutline" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HandPaperOutline">
+            <summary>Paper (Hand) (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/hand-paper-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HandStopOutline">
+            <summary>Alias of: HandPaperOutline</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.HandPaperOutline" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HandScissorsOutline">
+            <summary>Scissors (Hand) (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/hand-scissors-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HandLizardOutline">
+            <summary>Lizard (Hand) (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/hand-lizard-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HandSpockOutline">
+            <summary>Spock (Hand) (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/hand-spock-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HandPointerOutline">
+            <summary>Hand Pointer (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/hand-pointer-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HandPeaceOutline">
+            <summary>Hand Peace (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/hand-peace-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Trademark">
+            <summary>Trademark (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/trademark/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Registered">
+            <summary>Registered Trademark (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/registered/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CreativeCommons">
+            <summary>Creative Commons (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/creative-commons/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Gg">
+            <summary>GG Currency (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/gg/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.GgCircle">
+            <summary>GG Currency Circle (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/gg-circle/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Tripadvisor">
+            <summary>TripAdvisor (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/tripadvisor/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Odnoklassniki">
+            <summary>Odnoklassniki (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/odnoklassniki/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.OdnoklassnikiSquare">
+            <summary>Odnoklassniki Square (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/odnoklassniki-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.GetPocket">
+            <summary>Get Pocket (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/get-pocket/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.WikipediaW">
+            <summary>Wikipedia W (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/wikipedia-w/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Safari">
+            <summary>Safari (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/safari/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Chrome">
+            <summary>Chrome (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/chrome/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Firefox">
+            <summary>Firefox (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/firefox/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Opera">
+            <summary>Opera (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/opera/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.InternetExplorer">
+            <summary>Internet-explorer (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/internet-explorer/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Television">
+            <summary>Television (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/television/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Tv">
+            <summary>Alias of: Television</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Television" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Contao">
+            <summary>Contao (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/contao/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon._500Px">
+            <summary>500px (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/500px/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Amazon">
+            <summary>Amazon (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/amazon/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CalendarPlusOutline">
+            <summary>Calendar Plus Outlined (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/calendar-plus-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CalendarMinusOutline">
+            <summary>Calendar Minus Outlined (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/calendar-minus-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CalendarTimesOutline">
+            <summary>Calendar Times Outlined (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/calendar-times-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CalendarCheckOutline">
+            <summary>Calendar Check Outlined (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/calendar-check-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Industry">
+            <summary>Industry (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/industry/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.MapPin">
+            <summary>Map Pin (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/map-pin/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.MapSigns">
+            <summary>Map Signs (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/map-signs/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.MapOutline">
+            <summary>Map Outlined (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/map-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Map">
+            <summary>Map (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/map/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Commenting">
+            <summary>Commenting (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/commenting/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CommentingOutline">
+            <summary>Commenting Outlined (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/commenting-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Houzz">
+            <summary>Houzz (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/houzz/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Vimeo">
+            <summary>Vimeo (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/vimeo/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.BlackTie">
+            <summary>Font Awesome Black Tie (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/black-tie/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Fonticons">
+            <summary>Fonticons (created: 4.4)</summary>
+            <see href="http://fontawesome.io/icon/fonticons/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.RedditAlien">
+            <summary>reddit Alien (created: 4.5)</summary>
+            <see href="http://fontawesome.io/icon/reddit-alien/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Edge">
+            <summary>Edge Browser (created: 4.5)</summary>
+            <see href="http://fontawesome.io/icon/edge/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.CreditCardAlt">
+            <summary>Credit Card (created: 4.5)</summary>
+            <see href="http://fontawesome.io/icon/credit-card-alt/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Codiepie">
+            <summary>Codie Pie (created: 4.5)</summary>
+            <see href="http://fontawesome.io/icon/codiepie/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Modx">
+            <summary>MODX (created: 4.5)</summary>
+            <see href="http://fontawesome.io/icon/modx/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FortAwesome">
+            <summary>Fort Awesome (created: 4.5)</summary>
+            <see href="http://fontawesome.io/icon/fort-awesome/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Usb">
+            <summary>USB (created: 4.5)</summary>
+            <see href="http://fontawesome.io/icon/usb/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ProductHunt">
+            <summary>Product Hunt (created: 4.5)</summary>
+            <see href="http://fontawesome.io/icon/product-hunt/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Mixcloud">
+            <summary>Mixcloud (created: 4.5)</summary>
+            <see href="http://fontawesome.io/icon/mixcloud/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Scribd">
+            <summary>Scribd (created: 4.5)</summary>
+            <see href="http://fontawesome.io/icon/scribd/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PauseCircle">
+            <summary>Pause Circle (created: 4.5)</summary>
+            <see href="http://fontawesome.io/icon/pause-circle/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PauseCircleOutline">
+            <summary>Pause Circle Outlined (created: 4.5)</summary>
+            <see href="http://fontawesome.io/icon/pause-circle-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.StopCircle">
+            <summary>Stop Circle (created: 4.5)</summary>
+            <see href="http://fontawesome.io/icon/stop-circle/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.StopCircleOutline">
+            <summary>Stop Circle Outlined (created: 4.5)</summary>
+            <see href="http://fontawesome.io/icon/stop-circle-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ShoppingBag">
+            <summary>Shopping Bag (created: 4.5)</summary>
+            <see href="http://fontawesome.io/icon/shopping-bag/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ShoppingBasket">
+            <summary>Shopping Basket (created: 4.5)</summary>
+            <see href="http://fontawesome.io/icon/shopping-basket/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Hashtag">
+            <summary>Hashtag (created: 4.5)</summary>
+            <see href="http://fontawesome.io/icon/hashtag/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Bluetooth">
+            <summary>Bluetooth (created: 4.5)</summary>
+            <see href="http://fontawesome.io/icon/bluetooth/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.BluetoothB">
+            <summary>Bluetooth (created: 4.5)</summary>
+            <see href="http://fontawesome.io/icon/bluetooth-b/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Percent">
+            <summary>Percent (created: 4.5)</summary>
+            <see href="http://fontawesome.io/icon/percent/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Gitlab">
+            <summary>GitLab (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/gitlab/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Wpbeginner">
+            <summary>WPBeginner (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/wpbeginner/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Wpforms">
+            <summary>WPForms (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/wpforms/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Envira">
+            <summary>Envira Gallery (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/envira/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.UniversalAccess">
+            <summary>Universal Access (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/universal-access/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.WheelchairAlt">
+            <summary>Wheelchair Alt (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/wheelchair-alt/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.QuestionCircleOutline">
+            <summary>Question Circle Outlined (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/question-circle-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Blind">
+            <summary>Blind (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/blind/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.AudioDescription">
+            <summary>Audio Description (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/audio-description/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.VolumeControlPhone">
+            <summary>Volume Control Phone (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/volume-control-phone/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Braille">
+            <summary>Braille (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/braille/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.AssistiveListeningSystems">
+            <summary>Assistive Listening Systems (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/assistive-listening-systems/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.AmericanSignLanguageInterpreting">
+            <summary>American Sign Language Interpreting (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/american-sign-language-interpreting/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.AslInterpreting">
+            <summary>Alias of: AmericanSignLanguageInterpreting</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.AmericanSignLanguageInterpreting" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Deaf">
+            <summary>Deaf (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/deaf/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Deafness">
+            <summary>Alias of: Deaf</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Deaf" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HardOfHearing">
+            <summary>Alias of: Deaf</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Deaf" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Glide">
+            <summary>Glide (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/glide/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.GlideG">
+            <summary>Glide G (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/glide-g/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SignLanguage">
+            <summary>Sign Language (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/sign-language/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Signing">
+            <summary>Alias of: SignLanguage</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.SignLanguage" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.LowVision">
+            <summary>Low Vision (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/low-vision/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Viadeo">
+            <summary>Viadeo (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/viadeo/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ViadeoSquare">
+            <summary>Viadeo Square (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/viadeo-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Snapchat">
+            <summary>Snapchat (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/snapchat/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SnapchatGhost">
+            <summary>Snapchat Ghost (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/snapchat-ghost/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SnapchatSquare">
+            <summary>Snapchat Square (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/snapchat-square/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.PiedPiper">
+            <summary>Pied Piper Logo (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/pied-piper/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FirstOrder">
+            <summary>First Order (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/first-order/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Yoast">
+            <summary>Yoast (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/yoast/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Themeisle">
+            <summary>ThemeIsle (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/themeisle/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.GooglePlusOfficial">
+            <summary>Google Plus Official (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/google-plus-official/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.GooglePlusCircle">
+            <summary>Alias of: GooglePlusOfficial</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.GooglePlusOfficial" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FontAwesome">
+            <summary>Font Awesome (created: 4.6)</summary>
+            <see href="http://fontawesome.io/icon/font-awesome/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Fa">
+            <summary>Alias of: FontAwesome</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.FontAwesome" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.HandshakeOutline">
+            <summary>Handshake Outlined (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/handshake-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.EnvelopeOpen">
+            <summary>Envelope Open (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/envelope-open/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.EnvelopeOutlinepenOutline">
+            <summary>Envelope Open Outlined (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/envelope-open-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Linode">
+            <summary>Linode (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/linode/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.AddressBook">
+            <summary>Address Book (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/address-book/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.AddressBookOutline">
+            <summary>Address Book Outlined (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/address-book-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.AddressCard">
+            <summary>Address Card (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/address-card/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Vcard">
+            <summary>Alias of: AddressCard</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.AddressCard" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.AddressCardOutline">
+            <summary>Address Card Outlined (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/address-card-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.VcardOutline">
+            <summary>Alias of: AddressCardOutline</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.AddressCardOutline" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.UserCircle">
+            <summary>User Circle (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/user-circle/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.UserCircleOutline">
+            <summary>User Circle Outlined (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/user-circle-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.UserOutline">
+            <summary>User Outlined (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/user-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.IdBadge">
+            <summary>Identification Badge (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/id-badge/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.IdCard">
+            <summary>Identification Card (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/id-card/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.DriversLicense">
+            <summary>Alias of: IdCard</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.IdCard" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.IdCardOutline">
+            <summary>Identification Card Outlined (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/id-card-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.DriversLicenseOutline">
+            <summary>Alias of: IdCardOutline</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.IdCardOutline" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Quora">
+            <summary>Quora (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/quora/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.FreeCodeCamp">
+            <summary>Free Code Camp (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/free-code-camp/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Telegram">
+            <summary>Telegram (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/telegram/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ThermometerFull">
+            <summary>Thermometer Full (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/thermometer-full/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Thermometer4">
+            <summary>Alias of: ThermometerFull</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.ThermometerFull" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Thermometer">
+            <summary>Alias of: ThermometerFull</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.ThermometerFull" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ThermometerThreeQuarters">
+            <summary>Thermometer 3/4 Full (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/thermometer-three-quarters/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Thermometer3">
+            <summary>Alias of: ThermometerThreeQuarters</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.ThermometerThreeQuarters" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ThermometerHalf">
+            <summary>Thermometer 1/2 Full (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/thermometer-half/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Thermometer2">
+            <summary>Alias of: ThermometerHalf</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.ThermometerHalf" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ThermometerQuarter">
+            <summary>Thermometer 1/4 Full (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/thermometer-quarter/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Thermometer1">
+            <summary>Alias of: ThermometerQuarter</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.ThermometerQuarter" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.ThermometerEmpty">
+            <summary>Thermometer Empty (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/thermometer-empty/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Thermometer0">
+            <summary>Alias of: ThermometerEmpty</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.ThermometerEmpty" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Shower">
+            <summary>Shower (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/shower/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Bath">
+            <summary>Bath (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/bath/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Bathtub">
+            <summary>Alias of: Bath</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Bath" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.S15">
+            <summary>Alias of: Bath</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.Bath" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Podcast">
+            <summary>Podcast (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/podcast/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.WindowMaximize">
+            <summary>Window Maximize (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/window-maximize/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.WindowMinimize">
+            <summary>Window Minimize (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/window-minimize/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.WindowRestore">
+            <summary>Window Restore (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/window-restore/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.WindowClose">
+            <summary>Window Close (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/window-close/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.TimesRectangle">
+            <summary>Alias of: WindowClose</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.WindowClose" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.WindowCloseOutline">
+            <summary>Window Close Outline (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/window-close-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.TimesRectangleOutline">
+            <summary>Alias of: WindowCloseOutline</summary>
+            <see cref="F:FontAwesome.WPF.FontAwesomeIcon.WindowCloseOutline" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Bandcamp">
+            <summary>Bandcamp (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/bandcamp/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Grav">
+            <summary>Grav (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/grav/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Etsy">
+            <summary>Etsy (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/etsy/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Imdb">
+            <summary>IMDB (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/imdb/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Ravelry">
+            <summary>Ravelry (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/ravelry/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Eercast">
+            <summary>Eercast (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/eercast/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Microchip">
+            <summary>Microchip (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/microchip/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.SnowflakeOutline">
+            <summary>Snowflake Outlined (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/snowflake-o/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Superpowers">
+            <summary>Superpowers (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/superpowers/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Wpexplorer">
+            <summary>WPExplorer (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/wpexplorer/" />
+        </member>
+        <member name="F:FontAwesome.WIN81.FontAwesomeIcon.Meetup">
+            <summary>Meetup (created: 4.7)</summary>
+            <see href="http://fontawesome.io/icon/meetup/" />
+        </member>
+    </members>
+</doc>
