@@ -31,6 +31,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition/>
+                    <RowDefinition />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -48,6 +49,16 @@
                     <CheckBox Grid.Column="0" Content=":Automatically restart Plex if it stops" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Center" IsChecked="{Binding AutoRestart, UpdateSourceTrigger=PropertyChanged}"/>
                     <TextBlock Grid.Column="1" Text="Delay (s):" Margin="5,5,0,5" VerticalAlignment="Center" IsEnabled="{Binding AutoRestart}"/>
                     <TextBox Grid.Column="2" Text="{Binding RestartDelay, UpdateSourceTrigger=PropertyChanged}" Margin="5" IsEnabled="{Binding AutoRestart}" ToolTip="If plex stops this is how long the service waits before restarting it"/>                    
+                </Grid>
+                <Grid Grid.Row="2" Grid.ColumnSpan="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition MinWidth="100" Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox Grid.Column="0" Content=":Attempt to reconnect drive mappings:" FlowDirection="RightToLeft" HorizontalAlignment="Left" Margin="5" VerticalAlignment="Center" IsChecked="{Binding AutoRemount, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Grid.Column="1" Text="Retry attempts:" Margin="5,5,0,5" VerticalAlignment="Center" IsEnabled="{Binding AutoRestart}"/>
+                    <TextBox Grid.Column="2" Text="{Binding RestartDelay, UpdateSourceTrigger=PropertyChanged}" Margin="5" IsEnabled="{Binding AutoRemountCount}" ToolTip="If plex stops this is how long the service waits before restarting it"/>                    
                 </Grid>
             </Grid>
             <TabControl Grid.Row="2" Margin="5,0,5,5" SelectedIndex="{Binding SelectedTab}">

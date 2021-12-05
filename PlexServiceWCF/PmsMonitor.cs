@@ -6,6 +6,8 @@ using Microsoft.Win32;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using PlexServiceCommon;
 
 namespace PlexServiceWCF
@@ -178,15 +180,7 @@ namespace PlexServiceWCF
                     OnPlexStatusChange(this, new StatusChangeEventArgs("Mapping Network Drives"));
                     foreach(DriveMap map in settings.DriveMaps)
                     {
-                        try
-                        {
-                            map.MapDrive(true);
-                            OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("Map share {0} to letter '{1}' successful", map.ShareName, map.DriveLetter)));
-                        }
-                        catch(Exception ex)
-                        {
-                            OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("Unable to map share {0} to letter '{1}': {2}", map.ShareName, map.DriveLetter, ex.Message), EventLogEntryType.Error));
-                        }
+                        TryMap(map, settings);
                     }
                 }
 
@@ -201,6 +195,39 @@ namespace PlexServiceWCF
                 _auxAppMonitors.ForEach(x => x.StatusChange += new AuxiliaryApplicationMonitor.StatusChangeHandler(OnPlexStatusChange));
                 _auxAppMonitors.AsParallel().ForAll(x => x.Start());
             }
+        }
+
+        private void TryMap(DriveMap map, Settings settings) {
+            if (settings.AutoRemount) {
+                var count = settings.AutoRemountCount;
+                var mapped = false;
+                while (count > 0 && !mapped) {
+                    try
+                    {
+                        map.MapDrive(true);
+                        OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("Map share {0} to letter '{1}' successful", map.ShareName, map.DriveLetter)));
+                        mapped = true;
+                    }
+                    catch(Exception ex)
+                    {
+                        OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("Unable to map share {0} to letter '{1}': {2}, {3} more attempts remaining.", map.ShareName, map.DriveLetter, ex.Message, count - 1), EventLogEntryType.Error));
+                    }
+                    // Wait 5s
+                    Thread.Sleep(5000);
+                    count--;
+                }
+            } else {
+                try
+                {
+                    map.MapDrive(true);
+                    OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("Map share {0} to letter '{1}' successful", map.ShareName, map.DriveLetter)));
+                }
+                catch(Exception ex)
+                {
+                    OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("Unable to map share {0} to letter '{1}': {2}", map.ShareName, map.DriveLetter, ex.Message), EventLogEntryType.Error));
+                }
+            }
+            
         }
 
         #endregion

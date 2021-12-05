@@ -42,6 +42,18 @@ namespace PlexServiceCommon
         /// </summary>
         [JsonProperty]
         public bool AutoRestart { get; set; }
+        
+        /// <summary>
+        /// Choose whether to try auto-remounting shares if failed
+        /// </summary>
+        [JsonProperty]
+        public bool AutoRemount { get; set; }
+
+        /// <summary>
+        /// How many times to try re-mounting shares before giving up
+        /// </summary>
+        [JsonProperty]
+        public int AutoRemountCount { get; set; } = 5;
 
         public Settings()
         {
