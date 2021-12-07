@@ -145,6 +145,11 @@
             </RegistryKey>
             <Shortcut Id="PlexServiceTrayStartMenu" Directory="PlexServiceProgramMenuFolder" Name="Plex Service Tray" Target="[INSTALLDIR]PlexServiceTray.exe"
               WorkingDirectory='INSTALLDIR' Icon="PlexServiceTray.exe" IconIndex="0" Advertise="no" />
+            <Shortcut Id="UninstallProduct"
+                        Name="Uninstall Plex Service"
+                        Target="[SystemFolder]msiexec.exe"
+                        Arguments="/x [ProductCode]"
+                        Description="Uninstall Plex Service" />
           </Component>
           <Component Id="PlexServiceHKLM" Guid="*">
             <RegistryKey Id="PlexServiceHKLM" Root="HKLM" Key="Software\[ProductName]" ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes">
