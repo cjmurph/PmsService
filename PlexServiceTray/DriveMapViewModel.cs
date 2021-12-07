@@ -6,7 +6,7 @@ namespace PlexServiceTray
     public class DriveMapViewModel : ObservableObject
     {
         [Required(ErrorMessage = "Please enter a UNC path to map")]
-        [RegularExpression(@"", ErrorMessage = "Please enter a UNC path to map")]
+        [RegularExpression(@"^\\\\[a-zA-Z0-9\.\-_]{1,}(\\[a-zA-Z0-9\.\x20\-_]{1,}[\$]{0,1}){1,}$", ErrorMessage = "Please enter a UNC path to map")]
         public string ShareName
         {
             get => _driveMap.ShareName;
