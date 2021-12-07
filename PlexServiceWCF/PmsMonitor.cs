@@ -46,6 +46,11 @@ namespace PlexServiceWCF
         /// </summary>
         private Process _plex;
 
+        /// <summary>
+        /// Flag to determine if PMS is updating itself.
+        /// </summary>
+        private bool _updating;
+
         private readonly List<AuxiliaryApplicationMonitor> _auxAppMonitors;
 
         #endregion
@@ -79,7 +84,7 @@ namespace PlexServiceWCF
             settings.AuxiliaryApplications.ForEach(x => _auxAppMonitors.Add(new AuxiliaryApplicationMonitor(x)));
             //hook up the state change event for all the applications
             _auxAppMonitors.ForEach(x => x.StatusChange += OnPlexStatusChange);
-
+            WatchLog();
         }
         #endregion
 
@@ -205,6 +210,64 @@ namespace PlexServiceWCF
             }
         }
 
+        private void WatchLog() {
+            var path = PlexDirHelper.GetPlexDataDir();
+            if (string.IsNullOrEmpty(path)) {
+                return;
+            }
+
+            path = Path.Combine(path, "Plex Media Server", "Logs");
+            LogWriter.WriteLine("PMS Log Path: " + path);
+            try {
+                var watcher = new FileSystemWatcher(path,"Plex Update Service Launcher.log");
+                watcher.NotifyFilter = NotifyFilters.LastWrite;
+                watcher.EnableRaisingEvents = true;
+                LogWriter.WriteLine("Set filesystem watcher for " + path + "Plex Update Service Launcher.log");
+                watcher.Changed += OnChanged;
+            } catch (Exception e) {
+                LogWriter.WriteLine("Exception: " + e.Message);
+            }
+        }
+        
+        private void OnChanged(object sender, FileSystemEventArgs e)
+        {
+            if (e.ChangeType != WatcherChangeTypes.Changed)
+            {
+                return;
+            }
+            var settings = SettingsHandler.Load();
+            LogWriter.WriteLine("Name: " + e.Name);
+            var lastLine = string.Empty;
+            try {
+                lastLine = File.ReadLines(e.FullPath).Last();
+            } catch (Exception ex) {
+                LogWriter.WriteLine("Exception reading log: " + ex.Message);
+            }
+            
+            if (lastLine.Contains("Closing Plex Media Server Processes")) {
+                LogWriter.WriteLine("PMS is updating itself, skipping auto-restart if enabled.");
+                _updating = true;
+                return;
+            }
+
+            if (!lastLine.Contains("Success starting PMS") || !_updating) {
+                return;
+            }
+            LogWriter.WriteLine("PMS update is complete, seizing process.");
+            _updating = false;
+            var toKill = Process.GetProcessesByName(_plexName).FirstOrDefault();
+            toKill?.Kill();
+            EndPlex();
+            LogWriter.WriteLine("PMS killed, restarting.");
+            OnPlexStatusChange(this, new StatusChangeEventArgs(
+                $"Waiting {settings.RestartDelay} seconds before re-starting the Plex process."));
+            State = PlexState.Pending;
+            var autoEvent = new AutoResetEvent(false);
+            var t = new Timer(_ => { Start(); autoEvent.Set(); }, null, settings.RestartDelay * 1000, Timeout.Infinite);
+            autoEvent.WaitOne();
+            t.Dispose();
+        }
+
         private bool TryMap(DriveMap map, Settings settings) {
             var mapped = false;
             if (settings.AutoRemount) {
@@ -305,6 +368,11 @@ namespace PlexServiceWCF
             var settings = SettingsHandler.Load();
             if (State != PlexState.Stopping && settings.AutoRestart)
             {
+                if (_updating) {
+                    State = PlexState.Stopped;
+                    OnPlexStatusChange(this,new StatusChangeEventArgs("Plex is updating, waiting for finish before re-starting."));
+                    return;
+                }
                 OnPlexStatusChange(this, new StatusChangeEventArgs(
                     $"Waiting {settings.RestartDelay} seconds before re-starting the Plex process."));
                 State = PlexState.Pending;
@@ -338,6 +406,7 @@ namespace PlexServiceWCF
             {
                 //see if its running already
                 _plex = Process.GetProcessesByName(_plexName).FirstOrDefault();
+                
                 if (_plex == null)
                 {
                     OnPlexStatusChange(this, new StatusChangeEventArgs("Attempting to start Plex"));
@@ -609,6 +678,8 @@ namespace PlexServiceWCF
             return result;
         }
 
+        
+        
         #endregion
 
         #region Events
