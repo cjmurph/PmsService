@@ -52,7 +52,7 @@ namespace PlexServiceTray
                 var svm = (SettingsWindowViewModel)DataContext;
                 svm.WorkingSettings.Theme = theme;
             } catch (Exception ex) {
-                LogWriter.WriteLine("Exception: " + ex.Message);
+                LogWriter.WriteLine("Exception changing theme: " + ex.Message);
             }
         }
     }

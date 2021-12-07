@@ -34,8 +34,14 @@ namespace PlexServiceCommon
                 }
 
                 // Create a writer and open the file:
-                using var log = new StreamWriter(LogFile, true);
-                log.WriteLine(DateTime.Now.ToString(CultureInfo.InvariantCulture) + ": " + detail);
+                try {
+                    using var log = new StreamWriter(LogFile, true);
+                    log.WriteLine(DateTime.Now.ToString(CultureInfo.InvariantCulture) + ": " + detail);
+                } 
+                catch (IOException ex)
+                {
+                    System.Diagnostics.EventLog.WriteEntry("PlexService", "Log file could not be written to" + Environment.NewLine + ex.Message);
+                }
             }
         }
 

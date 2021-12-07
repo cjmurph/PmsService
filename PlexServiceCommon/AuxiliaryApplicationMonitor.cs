@@ -169,8 +169,8 @@ namespace PlexServiceCommon
             try
             {
                 _auxProcess.Kill();
-            } catch {
-                // ignored
+            } catch (Exception ex) {
+                LogWriter.WriteLine($"Exception stopping auxProc {_aux.Name}: " + ex.Message);
             } finally
             {
                 _auxProcess.Dispose();

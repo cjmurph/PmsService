@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using System.IO;
 using System.Diagnostics;
+using PlexServiceCommon;
 
 namespace PlexServiceTray
 {
@@ -28,6 +29,7 @@ namespace PlexServiceTray
             }
             catch (Exception ex)
             {
+                LogWriter.WriteLine("Exception running application: " + ex.Message);
                 MessageBox.Show(ex.Message, "Program Terminated Unexpectedly", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

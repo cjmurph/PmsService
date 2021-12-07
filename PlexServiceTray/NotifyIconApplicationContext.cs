@@ -105,8 +105,9 @@ namespace PlexServiceTray
 
 
             }
-            catch
+            catch (Exception e)
             {
+                LogWriter.WriteLine("Exception connecting: " + e.Message);
                 _plexService = null;
             }
         }
@@ -129,7 +130,7 @@ namespace PlexServiceTray
                     _plexService.UnSubscribe();
                     ((ICommunicationObject)_plexService).Close();
                 } catch {
-                    // ignored
+                    LogWriter.WriteLine("Exception disconnecting: " + String.Empty.GetEnumerator());
                 }
             }
             _plexService = null;
@@ -213,11 +214,12 @@ namespace PlexServiceTray
                         {
                             auxAppsItem.DropDownItems.Add(aux.Name, null, (_, _) => 
                             {
-                                try
-                                {
+                                try {
                                     Process.Start(aux.Url);
+                                } catch (Exception ex) {
+                                    LogWriter.WriteLine("Aux exception: " + ex.Message);
+                                    System.Windows.Forms.MessageBox.Show(ex.Message, "Whoops!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 }
-                                catch(Exception ex) { System.Windows.Forms.MessageBox.Show(ex.Message, "Whoops!", MessageBoxButtons.OK, MessageBoxIcon.Error); }
                             });
                         });
                         _notifyIcon.ContextMenuStrip.Items.Add(auxAppsItem);
@@ -229,8 +231,9 @@ namespace PlexServiceTray
                         settingsItem.Enabled = false;
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    LogWriter.WriteLine("Exception with strip: " + ex.Message);
                     Disconnect();
                     _notifyIcon.ContextMenuStrip.Items.Add("Unable to connect to service. Check settings");
                 }
@@ -266,8 +269,9 @@ namespace PlexServiceTray
             {
                 settings = Settings.Deserialize(_plexService.GetSettings());
             }
-            catch 
+            catch (Exception ex)
             {
+                LogWriter.WriteLine("Exception with settings command: " + ex.Message);
                 Disconnect();
             }
 
@@ -312,6 +316,7 @@ namespace PlexServiceTray
                 }
                 catch(Exception ex)
                 {
+                    LogWriter.WriteLine("Exception saving settings: " + ex.Message);
                     Disconnect();
                     System.Windows.MessageBox.Show("Unable to save settings" + Environment.NewLine + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 }     
@@ -355,8 +360,8 @@ namespace PlexServiceTray
                 {
                     Disconnect();
                     Connect();
-                } catch {
-                    // ignored
+                } catch (Exception ex){
+                    LogWriter.WriteLine("Exception on connection setting command" + ex.Message);
                 }
             }
             _connectionSettingsWindow = null;
@@ -397,8 +402,9 @@ namespace PlexServiceTray
                 {
                     _plexService.Start();
                 }
-                catch 
+                catch (Exception ex) 
                 {
+                    LogWriter.WriteLine("Exception on startPlex click: " + ex);
                     Disconnect();
                 }
             }
@@ -418,8 +424,9 @@ namespace PlexServiceTray
                 {
                     _plexService.Stop();
                 }
-                catch 
+                catch (Exception ex)
                 {
+                    LogWriter.WriteLine("Exception stopping Plex..." + ex.Message);
                     Disconnect();
                 }
             }
@@ -448,7 +455,11 @@ namespace PlexServiceTray
             {
                 NotepadHelper.ShowMessage(_plexService.GetLog(), "Plex Service Log");
             }
-            catch
+            catch (Exception ex)
+            {
+                LogWriter.WriteLine("Exception viewing logs: " + ex.Message);
+                Disconnect();
+            }
             {
                 Disconnect();
             }

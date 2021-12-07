@@ -135,29 +135,13 @@ namespace PlexServiceWCF
         }
 
         /// <summary>
-        /// Write the passed string to the logfile
-        /// </summary>
-        /// <param name="data"></param>
-        public static void WriteToLog(string data)
-        {
-            try
-            {
-                LogWriter.WriteLine(data);
-            }
-            catch (System.IO.IOException ex)
-            {
-                System.Diagnostics.EventLog.WriteEntry("PlexService", "Log file could not be written to" + Environment.NewLine + ex.Message);
-            }
-        }
-
-        /// <summary>
         /// Plex status change event handler, forward any status changes to the clients
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void OnPlexEvent(object sender, StatusChangeEventArgs e)
+        private static void OnPlexEvent(object sender, StatusChangeEventArgs e)
         {
-            WriteToLog(e.Description);
+            LogWriter.WriteLine(e.Description);
         }
 
         /// <summary>
