@@ -32,6 +32,11 @@
       <ComponentRef Id="NewtonsoftJsonComponent" />
       <ComponentRef Id="FontAwesomeWpfDll"/>
       <ComponentRef Id="OokiiComponent"/>
+      <ComponentRef Id="MahAppsComponent"/>
+      <ComponentRef Id="MahAppsResComponent"/>
+      <ComponentRef Id="ControlzEzComponent"/>
+      <ComponentRef Id="XamlBehaviorsComponent"/>
+      <ComponentRef Id="BarIconComponent"/>
       <ComponentRef Id="LicensesComponent"/>
       <ComponentRef Id="PlexServiceTrayAutostart"/>
       <ComponentRef Id="PlexServiceTrayStartMenu"/>
@@ -129,12 +134,28 @@
           <Component Id="NewtonsoftJsonComponent" Guid="*">
             <File Id="NewtonsoftJsonDll" Source="$(var.PlexService.TargetDir)Newtonsoft.Json.dll"/>
           </Component>
+          <Component Id="MahAppsComponent" Guid="*">
+            <File Id="MahAppsDll" Source="$(var.PlexServiceTray.TargetDir)MahApps.Metro.dll"/>
+          </Component>
+          <Component Id="MahAppsResComponent" Guid="*">
+            <File Id="MahAppsResDll" Source="$(var.PlexServiceTray.TargetDir)de\MahApps.Metro.resources.dll"/>
+          </Component>
+          <Component Id="ControlzEzComponent" Guid="*">
+            <File Id="ControlzEzDll" Source="$(var.PlexServiceTray.TargetDir)ControlzEx.dll"/>
+          </Component>
+          <Component Id="XamlBehaviorsComponent" Guid="*">
+            <File Id="XamlBehaviorsDll" Source="$(var.PlexServiceTray.TargetDir)Microsoft.Xaml.Behaviors.dll"/>
+          </Component>
+          <Component Id="BarIconComponent" Guid="*">
+            <File Id="BarIconIco" Source="$(var.PlexServiceTray.TargetDir)PlexService_Bar.ico"/>
+          </Component>
           <Component Id="OokiiComponent" Guid="*">
             <File Id="OokiiDll" Source="$(var.PlexServiceTray.TargetDir)Ookii.Dialogs.Wpf.dll"/>
           </Component>
           <Component Id="LicensesComponent" Guid="9C268F52-1375-490C-8126-BB0B39DADBD5">
             <File Id="NewtonsoftJsonLic" Source="$(var.SolutionDir)\ThirdPartyLibraries\Newtonsoft.Json-license.txt"/>
             <File Id="MsiExtLic" Source="$(var.SolutionDir)\ThirdPartyLibraries\msiext-license.txt"/>
+            <File Id="MahAppsLic" Source="$(var.SolutionDir)\ThirdPartyLibraries\mahapps-license.txt"/>
             <File Id="OokiiLic" Source="$(var.SolutionDir)\ThirdPartyLibraries\ookiidialogs-license.txt"/>
             <File Id="FontAwesomeWPFLic" Source="$(var.SolutionDir)\ThirdPartyLibraries\FontAwesome-WPF.txt"/>
             <File Id="PlexServiceLic" Source="$(var.PlexServiceTray.TargetDir)LICENCE.rtf"/>
