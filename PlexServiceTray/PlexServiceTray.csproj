@@ -109,7 +109,6 @@
     <Compile Include="DialogCloser.cs" />
     <Compile Include="ConnectionSettings.cs" />
     <Compile Include="DriveMapViewModel.cs" />
-    <Compile Include="LogWriter.cs" />
     <Compile Include="NotepadHelper.cs" />
     <Compile Include="NotifyIconApplicationContext.cs" />
     <Compile Include="ObservableObject.cs" />

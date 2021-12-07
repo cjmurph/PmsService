@@ -3,18 +3,21 @@ using System.Globalization;
 using System.Linq;
 using System.IO;
 
-namespace PlexServiceWCF
+namespace PlexServiceCommon
 {
     /// <summary>
     /// Static class for writing to the log file
     /// </summary>
-    internal static class LogWriter
+    public static class LogWriter
+    
     {
-        private static readonly string LogFile = Path.Combine(TrayInteraction.AppDataPath, "plexServiceLog.txt");
+        private static readonly string AppDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Plex Service\");
+
+        private static readonly string LogFile = Path.Combine(AppDataPath, "plexService.log");
 
         private static readonly object SyncObject = new();
 
-        internal static void WriteLine(string detail)
+        public static void WriteLine(string detail)
         {
             lock (SyncObject)
             {
@@ -67,7 +70,7 @@ namespace PlexServiceWCF
             return count;
         }
 
-        internal static string Read()
+        public static string Read()
         {
             var log = string.Empty;
             if (!File.Exists(LogFile)) {

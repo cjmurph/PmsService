@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using ControlzEx.Theming;
+using PlexServiceCommon;
 
 namespace PlexServiceTray
 {
@@ -47,7 +48,6 @@ namespace PlexServiceTray
                 var item = (ComboBoxItem)e.AddedItems[0];
                 var theme = (string) item.Content;
                 theme = theme.Replace(" ", ".");
-                LogWriter.WriteLine("Theme: " + theme);
                 ThemeManager.Current.ChangeTheme(this, theme);
                 var svm = (SettingsWindowViewModel)DataContext;
                 svm.WorkingSettings.Theme = theme;
