@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ServiceModel;
+﻿using System.ServiceModel;
 
 namespace PlexServiceCommon.Interface
 {
+    [ServiceContract]
     public interface ITrayCallback
     {
         [OperationContract]

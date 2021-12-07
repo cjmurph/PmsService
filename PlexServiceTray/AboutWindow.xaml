@@ -1,15 +1,16 @@
-﻿<Window x:Class="PlexServiceTray.AboutWindow"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:PlexServiceTray"
-        xmlns:controls="clr-namespace:PlexServiceTray.Controls"
-        Title="About" Height="400" Width="450"
-        WindowStyle="None" BorderThickness="2" BorderBrush="{DynamicResource Brush01}" 
-        WindowStartupLocation="CenterScreen" AllowsTransparency="True" ResizeMode="NoResize" TextOptions.TextFormattingMode="Display" UseLayoutRounding="True" Icon="PlexService.ico">
+﻿<mah:MetroWindow x:Class="PlexServiceTray.AboutWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:controls="clr-namespace:PlexServiceTray.Controls"
+                 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                 Height="400" Width="450" WindowStyle="None" 
+                 WindowStartupLocation="CenterScreen" AllowsTransparency="True" ResizeMode="NoResize" 
+                 TextOptions.TextFormattingMode="Display" UseLayoutRounding="True" Icon="PlexService_Bar.ico">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Themes/Metro/Light/Metro.MSControls.Core.Implicit.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
@@ -19,7 +20,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <TextBlock Text="About Plex Media Server Service" MouseLeftButtonDown="Title_MouseLeftButtonDown" FontSize="20" HorizontalAlignment="Stretch" TextAlignment="Center" VerticalAlignment="Center" Background="{DynamicResource Brush04}" Foreground="{DynamicResource Brush02}" Padding="5" Margin="5,10,5,0"/>
+        <TextBlock Text="About Plex Media Server Service" MouseLeftButtonDown="Title_MouseLeftButtonDown" FontSize="20" HorizontalAlignment="Stretch" TextAlignment="Center" VerticalAlignment="Center" Padding="5" Margin="5,10,5,0"/>
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -34,7 +35,7 @@
                 <TextBlock Text="{Binding HelpLinkDisplayText}"/>
             </Hyperlink>
             </TextBlock>
-            <controls:RichTextFile Grid.Row="3" Margin="5" Background="PapayaWhip" IsReadOnly="True" OpenLinksInBrowser="True" File="{Binding File}"/>
+            <controls:RichTextFile Grid.Row="3" Margin="5" IsReadOnly="True" OpenLinksInBrowser="True" File="{Binding File}"/>
         </Grid>
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
@@ -45,5 +46,5 @@
             <Button Content="OK" Margin="5" Grid.Column="1" Width="70" Command="{Binding OkCommand}" IsDefault="True"/>
         </Grid>
     </Grid>
-</Window>
+</mah:MetroWindow>
 

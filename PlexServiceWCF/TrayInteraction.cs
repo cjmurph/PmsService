@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
 using System.ServiceModel;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using PlexServiceCommon;
 using PlexServiceCommon.Interface;
@@ -18,11 +13,11 @@ namespace PlexServiceWCF
     [ServiceBehavior(ConfigurationName = "PlexServiceWCF:PlexServiceWCF.TrayInteraction", InstanceContextMode = InstanceContextMode.Single)]
     public class TrayInteraction : ITrayInteraction
     {
-        public static string APP_DATA_PATH = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Plex Service\");
+        public static readonly string AppDataPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Plex Service\");
 
-        private PmsMonitor _pms;
+        private readonly PmsMonitor _pms;
 
-        private static readonly List<ITrayCallback> CallbackChannels = new List<ITrayCallback>();
+        private static readonly List<ITrayCallback> CallbackChannels = new();
 
         public TrayInteraction()
         {
@@ -30,7 +25,7 @@ namespace PlexServiceWCF
             _pms.PlexStatusChange += OnPlexEvent;
             _pms.StateChange += PlexStateChange;
             _pms.PlexStop += PlexStopped;
-            ///Start plex
+            //Start plex
             Start();
         }
 
@@ -38,15 +33,16 @@ namespace PlexServiceWCF
         {
             if (_pms != null)
             {
-                CallbackChannels.ForEach(callback =>
-                {
-                    if (callback != null)
+                CallbackChannels.ForEach(callback => {
+                    if (callback == null) {
+                        return;
+                    }
+
+                    try
                     {
-                        try
-                        {
-                            callback.OnPlexStopped();
-                        }
-                        catch { }
+                        callback.OnPlexStopped();
+                    } catch {
+                        // ignored
                     }
                 });
             }
@@ -56,15 +52,16 @@ namespace PlexServiceWCF
         {
             if (_pms != null)
             {
-                CallbackChannels.ForEach(callback =>
-                {
-                    if (callback != null)
+                CallbackChannels.ForEach(callback => {
+                    if (callback == null) {
+                        return;
+                    }
+
+                    try
                     {
-                        try
-                        {
-                            callback.OnPlexStateChange(_pms.State);
-                        }
-                        catch { }
+                        callback.OnPlexStateChange(_pms.State);
+                    } catch {
+                        // ignored
                     }
                 });
             }
@@ -92,7 +89,7 @@ namespace PlexServiceWCF
         /// </summary>
         public void Restart()
         {
-            //stop and restart plex and the auxilliary apps
+            //stop and restart plex and the auxiliary apps
             Task.Factory.StartNew(() =>
                 {
                     _pms.Restart(5000);
@@ -164,9 +161,9 @@ namespace PlexServiceWCF
         }
 
         /// <summary>
-        /// A request from the client for the running status of a specific auxilliary application
+        /// A request from the client for the running status of a specific auxiliary application
         /// </summary>
-        /// <param name="name">the name of the auxilliary application to check</param>
+        /// <param name="name">the name of the auxiliary application to check</param>
         /// <returns></returns>
         public bool IsAuxAppRunning(string name)
         {

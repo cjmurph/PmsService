@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace PlexServiceTray
 {
@@ -23,7 +20,7 @@ namespace PlexServiceTray
 
         public static void ShowMessage(string message = null, string title = null)
         {
-            Process notepad = Process.Start(new ProcessStartInfo("notepad.exe"));
+            var notepad = Process.Start(new ProcessStartInfo("notepad.exe"));
             if (notepad != null)
             {
                 notepad.WaitForInputIdle();
@@ -33,7 +30,7 @@ namespace PlexServiceTray
 
                 if (!string.IsNullOrEmpty(message))
                 {
-                    IntPtr child = FindWindowEx(notepad.MainWindowHandle, new IntPtr(0), "Edit", null);
+                    var child = FindWindowEx(notepad.MainWindowHandle, new IntPtr(0), "Edit", null);
                     SendMessage(child, 0x000C, 0, message);
                 }
             }

@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Globalization;
-using System.Linq;
 using System.IO;
+using System.Linq;
 
-namespace PlexServiceWCF
+namespace PlexServiceTray
 {
     /// <summary>
     /// Static class for writing to the log file
     /// </summary>
     internal static class LogWriter
     {
-        private static readonly string LogFile = Path.Combine(TrayInteraction.AppDataPath, "plexServiceLog.txt");
+        private static readonly string AppDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Plex Service\");
+
+        private static readonly string LogFile = Path.Combine(AppDataPath, "plexServiceLog.txt");
 
         private static readonly object SyncObject = new();
 

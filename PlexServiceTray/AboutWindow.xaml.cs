@@ -1,28 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+﻿using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
+using ControlzEx.Theming;
 
 namespace PlexServiceTray
 {
     /// <summary>
     /// Interaction logic for AboutWindow.xaml
     /// </summary>
-    public partial class AboutWindow : Window
+    public partial class AboutWindow
     {
         public string Version
         {
-            get { return (string)GetValue(VersionProperty); }
-            set { SetValue(VersionProperty, value); }
+            get => (string)GetValue(VersionProperty);
+            set => SetValue(VersionProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for Version.  This enables animation, styling, binding, etc...
@@ -32,8 +23,8 @@ namespace PlexServiceTray
 
         public string Help
         {
-            get { return (string)GetValue(HelpProperty); }
-            set { SetValue(HelpProperty, value); }
+            get => (string)GetValue(HelpProperty);
+            set => SetValue(HelpProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for Help.  This enables animation, styling, binding, etc...
@@ -43,8 +34,8 @@ namespace PlexServiceTray
 
         public string HelpLink
         {
-            get { return (string)GetValue(HelpLinkProperty); }
-            set { SetValue(HelpLinkProperty, value); }
+            get => (string)GetValue(HelpLinkProperty);
+            set => SetValue(HelpLinkProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for HelpLink.  This enables animation, styling, binding, etc...
@@ -54,8 +45,8 @@ namespace PlexServiceTray
 
         public string HelpLinkDisplayText
         {
-            get { return (string)GetValue(HelpLinkDisplayTextProperty); }
-            set { SetValue(HelpLinkDisplayTextProperty, value); }
+            get => (string)GetValue(HelpLinkDisplayTextProperty);
+            set => SetValue(HelpLinkDisplayTextProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for HelpLinkDisplayText.  This enables animation, styling, binding, etc...
@@ -65,8 +56,8 @@ namespace PlexServiceTray
 
         public string File
         {
-            get { return (string)GetValue(FileProperty); }
-            set { SetValue(FileProperty, value); }
+            get => (string)GetValue(FileProperty);
+            set => SetValue(FileProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for File.  This enables animation, styling, binding, etc...
@@ -76,8 +67,8 @@ namespace PlexServiceTray
 
         public bool? DialogueResult
         {
-            get { return (bool?)GetValue(DialogueResultProperty); }
-            set { SetValue(DialogueResultProperty, value); }
+            get => (bool?)GetValue(DialogueResultProperty);
+            set => SetValue(DialogueResultProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for DialogueResult.  This enables animation, styling, binding, etc...
@@ -85,11 +76,12 @@ namespace PlexServiceTray
             DependencyProperty.Register("DialogueResult", typeof(bool?), typeof(AboutWindow), new PropertyMetadata(null));
 
 
-        public AboutWindow()
+        public AboutWindow(string theme)
         {
             InitializeComponent();
+            ThemeManager.Current.ChangeTheme(this, theme);
             File = "LICENCE.rtf";
-            Version = string.Format("PMS Service {0}", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString());
+            Version = $"PMS Service {System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
             Help = "Please report any bugs or issues to:";
             DataContext = this;
         }
@@ -100,14 +92,14 @@ namespace PlexServiceTray
         }
 
         #region OkCommand
-        RelayCommand _okCommand = null;
+        RelayCommand _okCommand;
         public ICommand OkCommand
         {
             get
             {
                 if (_okCommand == null)
                 {
-                    _okCommand = new RelayCommand((p) => OnOk(p), (p) => CanOk(p));
+                    _okCommand = new RelayCommand(p => OnOk(p), p => CanOk(p));
                 }
 
                 return _okCommand;
@@ -128,10 +120,10 @@ namespace PlexServiceTray
 
         public static bool Shown {get; private set;}
 
-        public static bool? ShowAboutDialog()
+        public static bool? ShowAboutDialog(string theme)
         {
             Shown = true;
-            var result = new AboutWindow().ShowDialog();
+            var result = new AboutWindow(theme).ShowDialog();
             Shown = false;
             return result;
         }

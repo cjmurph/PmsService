@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using Newtonsoft.Json;
 
 namespace PlexServiceTray
@@ -43,9 +40,9 @@ namespace PlexServiceTray
         /// Turn the properties into a useful endpoint uri
         /// </summary>
         /// <returns></returns>
-        public string getServiceAddress()
+        public string GetServiceAddress()
         {
-            return string.Format("net.tcp://{0}:{1}/PlexService/", ServerAddress, ServerPort);
+            return $"net.tcp://{ServerAddress}:{ServerPort}/PlexService/";
         }
 
         #region Load/Save
@@ -59,31 +56,27 @@ namespace PlexServiceTray
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Plex Service\LocalSettings.json");
         }
 
-        /// <summary>
-        /// Get the common serialiser settings (shared with server settings)
-        /// </summary>
-        /// <returns></returns>
-        private static JsonSerializerSettings getSerializerSettings()
-        {
-            return PlexServiceCommon.Settings.GetSettingsSerializerSettings();
-        }
+       
 
         /// <summary>
         /// Save the settings file
         /// </summary>
         internal void Save()
         {
-            string filePath = GetSettingsFile();
+            var filePath = GetSettingsFile();
 
-            if (!Directory.Exists(Path.GetDirectoryName(filePath)))
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+            if (!Directory.Exists(Path.GetDirectoryName(filePath))) {
+                var dir = Path.GetDirectoryName(filePath);
+                if (!string.IsNullOrEmpty(dir)) {
+                    Directory.CreateDirectory(dir);    
+                } else {
+                    throw new DirectoryNotFoundException(dir);
+                }
             }
-            using (StreamWriter sw = new StreamWriter(filePath, false))
-            {
-                string rawSettings = JsonConvert.SerializeObject(this, getSerializerSettings());
-                sw.Write(rawSettings);
-            }
+
+            using var sw = new StreamWriter(filePath, false);
+            var rawSettings = JsonConvert.SerializeObject(this);
+            sw.Write(rawSettings);
         }
 
 
@@ -93,15 +86,12 @@ namespace PlexServiceTray
         /// <returns></returns>
         internal static ConnectionSettings Load()
         {
-            string filePath = GetSettingsFile();
-            ConnectionSettings settings = null;
-            if (File.Exists(filePath))
-            {
-                using (StreamReader sr = new StreamReader(filePath))
-                {
-                    string rawSettings = sr.ReadToEnd();
-                    settings = (ConnectionSettings)JsonConvert.DeserializeObject(rawSettings, typeof(ConnectionSettings), getSerializerSettings());
-                }
+            var filePath = GetSettingsFile();
+            ConnectionSettings settings;
+            if (File.Exists(filePath)) {
+                using var sr = new StreamReader(filePath);
+                var rawSettings = sr.ReadToEnd();
+                settings = JsonConvert.DeserializeObject<ConnectionSettings>(rawSettings);
             }
             else
             {

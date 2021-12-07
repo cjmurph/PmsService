@@ -1,31 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using PlexServiceCommon;
+using ControlzEx.Theming;
 
 namespace PlexServiceTray
 {
     /// <summary>
     /// Interaction logic for SettingsWindow.xaml
     /// </summary>
-    public partial class SettingsWindow : Window
-    {
-        private bool _maximiseRequired = false;
-
+    public partial class SettingsWindow {
+        private bool _maximiseRequired;
+        
         public SettingsWindow(SettingsWindowViewModel settingsViewModel)
         {
             InitializeComponent();
             DataContext = settingsViewModel;
+            var theme = settingsViewModel.WorkingSettings.Theme;
+            if (theme != null) ThemeManager.Current.ChangeTheme(this, theme);
         }
 
         private void TitleMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -40,19 +32,27 @@ namespace PlexServiceTray
             }
         }
 
-        private void TitleMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            if (_maximiseRequired)
-            {
-                _maximiseRequired = false;
-                if (WindowState == WindowState.Maximized)
-                {
-                    WindowState = WindowState.Normal;
-                }
-                else
-                {
-                    WindowState = WindowState.Maximized;
-                }
+        private void TitleMouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
+            if (!_maximiseRequired) {
+                return;
+            }
+
+            _maximiseRequired = false;
+            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        }
+        
+        
+        private void ThemeChanged(object sender, SelectionChangedEventArgs e) {
+            try {
+                var item = (ComboBoxItem)e.AddedItems[0];
+                var theme = (string) item.Content;
+                theme = theme.Replace(" ", ".");
+                LogWriter.WriteLine("Theme: " + theme);
+                ThemeManager.Current.ChangeTheme(this, theme);
+                var svm = (SettingsWindowViewModel)DataContext;
+                svm.WorkingSettings.Theme = theme;
+            } catch (Exception ex) {
+                LogWriter.WriteLine("Exception: " + ex.Message);
             }
         }
     }

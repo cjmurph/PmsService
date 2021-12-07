@@ -1,24 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
 
 namespace PlexServiceTray.Validation
 {
     class UniqueAuxAppNameAttribute:ValidationAttribute
     {
-        private const string _errorMessage = "There's already an Auxilliary Application called {0}.";
+        private new const string ErrorMessage = "There's already an Auxilliary Application called {0}.";
 
         private SettingsWindowViewModel _context;
 
-        public UniqueAuxAppNameAttribute()
-        {
-        }
-
         public override string FormatErrorMessage(string name)
         {
-            return string.Format(_errorMessage, name);
+            return string.Format(ErrorMessage, name);
         }
 
         public override bool IsValid(object value)
@@ -30,14 +23,13 @@ namespace PlexServiceTray.Validation
         {
             if (validationContext != null)
                 _context = validationContext.ObjectInstance as SettingsWindowViewModel;
-            string name = value as string;
-            ErrorMessage = FormatErrorMessage(name);
-            if (!string.IsNullOrEmpty(name) && _context != null && _context.AuxiliaryApplications != null)
-            {
-                if (_context.AuxiliaryApplications.Count(a => a.Name == name) > 1)
-                    return new ValidationResult(ErrorMessage);
+            var name = value as string;
+            base.ErrorMessage = FormatErrorMessage(name);
+            if (string.IsNullOrEmpty(name) || _context?.AuxiliaryApplications == null) {
+                return ValidationResult.Success;
             }
-            return ValidationResult.Success;
+
+            return _context.AuxiliaryApplications.Count(a => a.Name == name) > 1 ? new ValidationResult(base.ErrorMessage) : ValidationResult.Success;
         }
     }
 }

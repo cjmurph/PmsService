@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using PlexServiceCommon;
 
 namespace PlexServiceCommon
 {
@@ -13,18 +9,16 @@ namespace PlexServiceCommon
             switch (state)
             {
                 case PlexState.Running:
-                    OnStateChange(string.Format("Plex {0}", state.ToString()));
+                    OnStateChange($"Plex {state.ToString()}");
                     break;
                 case PlexState.Stopped:
-                    OnStateChange(string.Format("Plex {0}", state.ToString()));
+                    OnStateChange($"Plex {state.ToString()}");
                     break;
                 case PlexState.Pending:
-                    OnStateChange(string.Format("Plex Start {0}", state.ToString()));
+                    OnStateChange($"Plex Start {state.ToString()}");
                     break;
                 case PlexState.Stopping:
-                    OnStateChange(string.Format("Plex {0}", state.ToString()));
-                    break;
-                default:
+                    OnStateChange($"Plex {state.ToString()}");
                     break;
             }
         }
@@ -33,7 +27,7 @@ namespace PlexServiceCommon
 
         public event EventHandler<StatusChangeEventArgs> StateChange;
 
-        protected void OnStateChange(string message)
+        private void OnStateChange(string message)
         {
             StateChange?.Invoke(this, new StatusChangeEventArgs(message));
         }
@@ -49,9 +43,9 @@ namespace PlexServiceCommon
 
         public event EventHandler<EventArgs> Stopped;
 
-        protected void OnStopped()
+        private void OnStopped()
         {
-            Stopped?.Invoke(this, new EventArgs());
+            Stopped?.Invoke(this, EventArgs.Empty);
         }
 
         #endregion

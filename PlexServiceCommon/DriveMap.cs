@@ -1,9 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace PlexServiceCommon
 {
@@ -22,8 +19,8 @@ namespace PlexServiceCommon
             public int Usage;
             public string LocalName;
             public string RemoteName;
-            public string Comment;
-            public string Provider;
+            private readonly string Comment;
+            private readonly string Provider;
         }
 
         [JsonProperty]
@@ -56,24 +53,26 @@ namespace PlexServiceCommon
                 var drive = DriveLetter.Substring(0,1) + ":";
                 
                 //create struct data
-                NetworkResource netRes = new NetworkResource();
-                netRes.Scope = 2;
-                netRes.Type = 0x1;
-                netRes.DisplayType = 3;
-                netRes.Usage = 1;
-                netRes.RemoteName = ShareName;
-                netRes.LocalName = drive;
+                var netRes = new NetworkResource {
+                    Scope = 2,
+                    Type = 0x1,
+                    DisplayType = 3,
+                    Usage = 1,
+                    RemoteName = ShareName,
+                    LocalName = drive
+                };
                 //if force, unmap ready for new connection
                 if (force)
                 {
                     try
                     {
                         UnMapDrive(true);
+                    } catch {
+                        // ignored
                     }
-                    catch { }
                 }
                 //call and return
-                int i = WNetAddConnection2A(ref netRes, null, null, 0);
+                var i = WNetAddConnection2A(ref netRes, null, null, 0);
 
                 if (i > 0)
                     throw new System.ComponentModel.Win32Exception(i);
@@ -95,7 +94,7 @@ namespace PlexServiceCommon
                 var drive = DriveLetter.Substring(0, 1) + ":";
 
                 //call unmap and return
-                int i = WNetCancelConnection2A(drive, 0, Convert.ToInt32(force));
+                var i = WNetCancelConnection2A(drive, 0, Convert.ToInt32(force));
 
                 if (i > 0)
                     throw new System.ComponentModel.Win32Exception(i);

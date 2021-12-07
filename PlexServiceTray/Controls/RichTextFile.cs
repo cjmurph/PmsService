@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -18,35 +14,35 @@ namespace PlexServiceTray.Controls
             AddHandler(Hyperlink.RequestNavigateEvent, new RoutedEventHandler(HandleHyperlinkClick));
         }
 
-        private void HandleHyperlinkClick(object inSender, RoutedEventArgs inArgs)
-        {
-            if (OpenLinksInBrowser)
-            {
-                Hyperlink link = inArgs.Source as Hyperlink;
-                if (link != null)
-                {
-                    Process.Start(link.NavigateUri.ToString());
-                    inArgs.Handled = true;
-                }
+        private void HandleHyperlinkClick(object inSender, RoutedEventArgs inArgs) {
+            if (!OpenLinksInBrowser) {
+                return;
             }
+
+            if (inArgs.Source is not Hyperlink link) {
+                return;
+            }
+
+            Process.Start(link.NavigateUri.ToString());
+            inArgs.Handled = true;
         }
 
         #region Properties
         public bool OpenLinksInBrowser { get; set; }
 
-        public String File
+        public string File
         {
-            get { return (string)GetValue(FileProperty); }
-            set { SetValue(FileProperty, value); }
+            get => (string)GetValue(FileProperty);
+            set => SetValue(FileProperty, value);
         }
 
-        public static DependencyProperty FileProperty =
+        public static readonly DependencyProperty FileProperty =
             DependencyProperty.Register("File", typeof(String), typeof(RichTextFile),
             new PropertyMetadata(OnFileChanged));
 
         private static void OnFileChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            RichTextFile rtf = d as RichTextFile;
+            var rtf = d as RichTextFile;
             if (rtf == null)
                 return;
 
@@ -59,8 +55,8 @@ namespace PlexServiceTray.Controls
         {
             if (System.IO.File.Exists(inFilename))
             {
-                TextRange range = new TextRange(inFlowDocument.ContentStart, inFlowDocument.ContentEnd);
-                FileStream fStream = new FileStream(inFilename, FileMode.Open, FileAccess.Read, FileShare.Read);
+                var range = new TextRange(inFlowDocument.ContentStart, inFlowDocument.ContentEnd);
+                var fStream = new FileStream(inFilename, FileMode.Open, FileAccess.Read, FileShare.Read);
 
                 range.Load(fStream, DataFormats.Rtf);
                 fStream.Close();
