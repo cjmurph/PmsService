@@ -36,6 +36,12 @@ namespace PlexServiceCommon
         /// </summary>
         [JsonProperty]
         public bool KeepAlive { get; set; }
+        
+        /// <summary>
+        /// A flag to determine if the application's std. output should be redirected to the Plex Service log.
+        /// </summary>
+        [JsonProperty]
+        public bool LogOutput { get; set; }
 
         /// <summary>
         /// A url link to the auxiliary application interface.
@@ -50,6 +56,7 @@ namespace PlexServiceCommon
             WorkingFolder = string.Empty;
             Argument = string.Empty;
             KeepAlive = true;
+            LogOutput = true;
         }
     }
 }

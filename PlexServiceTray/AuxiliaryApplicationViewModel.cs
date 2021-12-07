@@ -78,6 +78,19 @@ namespace PlexServiceTray
                 }
             }
         }
+        
+        public bool LogOutput
+        {
+            get => _auxApplication.LogOutput;
+            set
+            {
+                if (_auxApplication.LogOutput != value)
+                {
+                    _auxApplication.LogOutput = value;
+                    OnPropertyChanged("LogOutput");
+                }
+            }
+        }
 
         private bool _running;
 

@@ -116,30 +116,42 @@ namespace PlexServiceCommon
         private void ProcStart()
         {
             OnStatusChange(new StatusChangeEventArgs("Attempting to start " + _aux.Name));
-            if (_auxProcess == null)
-            {
-                //we dont care if this is already running, depending on the application, this could cause lots of issues but hey... 
-                
-                //Auxiliary process
-                _auxProcess = new Process();
-                _auxProcess.StartInfo.FileName = _aux.FilePath;
-                _auxProcess.StartInfo.WorkingDirectory = _aux.WorkingFolder;
-                _auxProcess.StartInfo.UseShellExecute = false;
-                _auxProcess.StartInfo.Arguments = _aux.Argument;
-                _auxProcess.EnableRaisingEvents = true;
-                _auxProcess.Exited += auxProcess_Exited;
-                try
-                {
-                    _auxProcess.Start();
-                    OnStatusChange(new StatusChangeEventArgs(_aux.Name + " Started."));
-                    Running = true;
-                }
-                catch (Exception ex)
-                {
-                    OnStatusChange(new StatusChangeEventArgs(_aux.Name + " failed to start. " + ex.Message));
-                }
+            if (_auxProcess != null) {
+                return;
             }
+            //we dont care if this is already running, depending on the application, this could cause lots of issues but hey... 
+                
+            //Auxiliary process
+            _auxProcess = new Process();
+            _auxProcess.StartInfo.FileName = _aux.FilePath;
+            _auxProcess.StartInfo.WorkingDirectory = _aux.WorkingFolder;
+            _auxProcess.StartInfo.UseShellExecute = false;
+            _auxProcess.StartInfo.Arguments = _aux.Argument;
+            _auxProcess.EnableRaisingEvents = true;
+            _auxProcess.StartInfo.RedirectStandardError = true;
+            _auxProcess.StartInfo.RedirectStandardOutput = true;
+            _auxProcess.Exited += auxProcess_Exited;
+            if (_aux.LogOutput) {
+                LogWriter.WriteLine("Enabling logging for " + _aux.Name);
+                _auxProcess.OutputDataReceived += (_, e) => {
+                    if (string.IsNullOrEmpty(e.Data)) return;
+                    LogWriter.WriteLine($"{_aux.Name}:{e.Data}");
+                };
+            }
+            try
+            {
+                _auxProcess.Start();
+                _auxProcess.BeginOutputReadLine();
+                OnStatusChange(new StatusChangeEventArgs(_aux.Name + " Started."));
+                Running = true;
+            }
+            catch (Exception ex)
+            {
+                OnStatusChange(new StatusChangeEventArgs(_aux.Name + " failed to start. " + ex.Message));
+            }
+            LogWriter.WriteLine("Done starting app.");
         }
+
 
         #endregion
 
