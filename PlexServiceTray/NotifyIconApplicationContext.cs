@@ -203,6 +203,7 @@ namespace PlexServiceTray
                             _notifyIcon.ContextMenuStrip.Items.Add("Plex state unknown");
                             break;
                     }
+                    _notifyIcon.ContextMenuStrip.Items.Add("PMS Data", null, PMSData_Click);
                     _notifyIcon.ContextMenuStrip.Items.Add("View Logs", null, ViewLogs_Click);
                     _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
                     var auxAppsToLink = settings.AuxiliaryApplications.Where(aux => !string.IsNullOrEmpty(aux.Url)).ToList();
@@ -460,7 +461,19 @@ namespace PlexServiceTray
                 LogWriter.WriteLine("Exception viewing logs: " + ex.Message);
                 Disconnect();
             }
+        }
+        
+        private void PMSData_Click(object sender, EventArgs e)
+        {
+            //Open a windows explorer window to PMS data
+            try {
+                var path = PlexDirHelper.GetPlexDataDir();
+                if (string.IsNullOrEmpty(path)) return;
+                Process.Start($@"{path}");
+            }
+            catch (Exception ex)
             {
+                LogWriter.WriteLine("Error opening PMS Data folder: " + ex.Message);
                 Disconnect();
             }
         }
