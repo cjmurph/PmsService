@@ -27,6 +27,7 @@ namespace PlexServiceWCF
             "PlexNewTranscoder",
             "Plex Media Scanner",
             "PlexRelay",
+            "Plex Relay",
             "EasyAudioEncoder",
             "Plex Tuner Service"
         };
