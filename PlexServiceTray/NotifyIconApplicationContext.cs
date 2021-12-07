@@ -328,7 +328,15 @@ namespace PlexServiceTray
         }
 
         private string GetTheme() {
-            var settings = Settings.Deserialize(_plexService.GetSettings());
+            if (_plexService == null) {
+                return "Dark.Amber";
+            }
+
+            var settingsString = _plexService.GetSettings();
+            if (string.IsNullOrEmpty(settingsString)) {
+                return "Dark.Amber";
+            }
+            var settings = Settings.Deserialize(settingsString);
             return settings.Theme;
         }
         
