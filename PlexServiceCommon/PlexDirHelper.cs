@@ -16,7 +16,6 @@ namespace PlexServiceCommon {
 				return path;
 			}
 			result = String.Empty;
-			//work out the os type	 (32 or 64) and set the registry view to suit. this is only a reliable check when this project is compiled to x86.
 			var is64Bit = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"));
 
 			var architecture = RegistryView.Registry32;
@@ -25,7 +24,8 @@ namespace PlexServiceCommon {
 				architecture = RegistryView.Registry64;
 			}
 
-			using var pmsDataKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, architecture).OpenSubKey(@"Software\Plex, Inc.\Plex Media Server");
+			using var pmsDataKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, architecture)
+				.OpenSubKey(@"Software\Plex, Inc.\Plex Media Server");
 			if (pmsDataKey == null) {
 				return result;
 			}
