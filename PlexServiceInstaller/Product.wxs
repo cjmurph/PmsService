@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension"
      xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
-    <Product Id="*" Name="Plex Service" Language="1033" Version="1.1.8" Manufacturer="cjmurph/digitalhigh"
+    <Product Id="*" Name="Plex Service" Language="1033" Version="1.1.9" Manufacturer="cjmurph/digitalhigh"
              UpgradeCode="daa483bb-c7e1-4c79-a4d6-3c2c4c3d9daf">
         <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" SummaryCodepage="1252"/>
         <Binary Id="success_bmp" SourceFile="$(sys.SOURCEFILEDIR)success.bmp"/>
@@ -47,6 +47,9 @@
             <ComponentRef Id="MahAppsResComponent"/>
             <ComponentRef Id="ControlzEzComponent"/>
             <ComponentRef Id="XamlBehaviorsComponent"/>
+            <ComponentRef Id="SerilogCoreComponent"/>
+            <ComponentRef Id="SerilogFileComponent"/>
+            <ComponentRef Id="SerilogAsyncComponent"/>
             <ComponentRef Id="BarIconComponent"/>
             <ComponentRef Id="LicensesComponent"/>
             <ComponentRef Id="PlexServiceTrayAutostart"/>
@@ -170,6 +173,18 @@
                     <Component Id="XamlBehaviorsComponent" Guid="*">
                         <File Id="XamlBehaviorsDll"
                               Source="$(var.PlexServiceTray.TargetDir)Microsoft.Xaml.Behaviors.dll"/>
+                    </Component>
+                    <Component Id="SerilogCoreComponent" Guid="*">
+                        <File Id="SerilogCoreDll"
+                              Source="$(var.PlexServiceCommon.TargetDir)Serilog.dll"/>
+                    </Component>
+                    <Component Id="SerilogFileComponent" Guid="*">
+                        <File Id="SerilogFileDll"
+                              Source="$(var.PlexServiceCommon.TargetDir)Serilog.Sinks.File.dll"/>
+                    </Component>
+                    <Component Id="SerilogAsyncComponent" Guid="*">
+                        <File Id="SerilogAsyncDll"
+                              Source="$(var.PlexServiceCommon.TargetDir)Serilog.Sinks.Async.dll"/>
                     </Component>
                     <Component Id="BarIconComponent" Guid="*">
                         <File Id="BarIconIco" Source="$(var.PlexServiceTray.TargetDir)PlexService_Bar.ico"/>
