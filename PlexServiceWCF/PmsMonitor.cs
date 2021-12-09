@@ -234,23 +234,31 @@ namespace PlexServiceWCF
             {
                 return;
             }
-            var settings = SettingsHandler.Load();
-            LogWriter.WriteLine("Name: " + e.Name);
-            var lastLine = string.Empty;
-            try {
-                lastLine = File.ReadLines(e.FullPath).Last();
-            } catch (Exception ex) {
-                LogWriter.WriteLine("Exception reading log: " + ex.Message);
+            var read = false;
+            var lines = Array.Empty<string>();
+            // Ensure the file isn't in use when we try to read it.
+            while (!read) {
+                try {
+                    lines = File.ReadLines(e.FullPath).ToArray();
+                    read = true;
+                } catch (Exception) {
+                    // Ignored, we know what the problem is
+                }
             }
-            
-            if (lastLine.Contains("Closing Plex Media Server Processes")) {
-                LogWriter.WriteLine("PMS is updating itself, skipping auto-restart if enabled.");
-                _updating = true;
-                return;
-            }
+            // Loop through each line in file, looking to see if Update has started or completed
+            foreach(var lastLine in lines)
+            {
+                // Only set _updating once.
+                if (lastLine.Contains("Closing Plex Media Server Processes") && !_updating) {
+                    LogWriter.Information("PMS is updating itself, skipping auto-restart if enabled.");
+                    _updating = true;
+                    return;
+                }
 
-            if (!lastLine.Contains("Success starting PMS") || !_updating) {
-                return;
+                // And only unset it if it's already been set.
+                if (!lastLine.Contains("Install: Success") || !_updating) {
+                    return;
+                }    
             }
             
             LogWriter.Information("PMS update is complete, seizing process.");
