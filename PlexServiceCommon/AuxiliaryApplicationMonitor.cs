@@ -132,10 +132,10 @@ namespace PlexServiceCommon
             _auxProcess.StartInfo.RedirectStandardOutput = true;
             _auxProcess.Exited += auxProcess_Exited;
             if (_aux.LogOutput) {
-                LogWriter.WriteLine("Enabling logging for " + _aux.Name);
+                LogWriter.Information("Enabling logging for " + _aux.Name);
                 _auxProcess.OutputDataReceived += (_, e) => {
                     if (string.IsNullOrEmpty(e.Data)) return;
-                    LogWriter.WriteLine($"{_aux.Name}:{e.Data}");
+                    LogWriter.Debug($"{_aux.Name}:{e.Data}");
                 };
             }
             try
@@ -149,7 +149,7 @@ namespace PlexServiceCommon
             {
                 OnStatusChange(new StatusChangeEventArgs(_aux.Name + " failed to start. " + ex.Message));
             }
-            LogWriter.WriteLine("Done starting app.");
+            LogWriter.Information("Done starting app.");
         }
 
 
@@ -170,7 +170,7 @@ namespace PlexServiceCommon
             {
                 _auxProcess.Kill();
             } catch (Exception ex) {
-                LogWriter.WriteLine($"Exception stopping auxProc {_aux.Name}: " + ex.Message);
+                LogWriter.Warning($"Exception stopping auxProc {_aux.Name}: " + ex.Message);
             } finally
             {
                 _auxProcess.Dispose();

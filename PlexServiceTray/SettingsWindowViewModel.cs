@@ -96,12 +96,10 @@ namespace PlexServiceTray
         {
             get => WorkingSettings.Theme.Replace("."," ");
             set {
-                LogWriter.WriteLine("TV: " + value);
                 if (WorkingSettings.Theme.Replace(" ", ".") == value) {
                     return;
                 }
                 WorkingSettings.Theme = value.Replace(" ", ".");
-                LogWriter.WriteLine("Theme set: " + WorkingSettings.Theme);
                 OnPropertyChanged("Theme");
             }
         }

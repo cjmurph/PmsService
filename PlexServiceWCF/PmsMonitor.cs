@@ -217,15 +217,14 @@ namespace PlexServiceWCF
             }
 
             path = Path.Combine(path, "Plex Media Server", "Logs");
-            LogWriter.WriteLine("PMS Log Path: " + path);
+            LogWriter.Debug("PMS Log Path: " + path);
             try {
                 var watcher = new FileSystemWatcher(path,"Plex Update Service Launcher.log");
                 watcher.NotifyFilter = NotifyFilters.LastWrite;
                 watcher.EnableRaisingEvents = true;
-                LogWriter.WriteLine("Set filesystem watcher for " + path + "Plex Update Service Launcher.log");
                 watcher.Changed += OnChanged;
             } catch (Exception e) {
-                LogWriter.WriteLine("Exception: " + e.Message);
+                LogWriter.Warning("Exception: " + e.Message);
             }
         }
         
@@ -253,12 +252,14 @@ namespace PlexServiceWCF
             if (!lastLine.Contains("Success starting PMS") || !_updating) {
                 return;
             }
-            LogWriter.WriteLine("PMS update is complete, seizing process.");
+            
+            LogWriter.Information("PMS update is complete, seizing process.");
             _updating = false;
             var toKill = Process.GetProcessesByName(_plexName).FirstOrDefault();
             toKill?.Kill();
             EndPlex();
-            LogWriter.WriteLine("PMS killed, restarting.");
+            var settings = SettingsHandler.Load();
+            LogWriter.Information("PMS killed, restarting.");
             OnPlexStatusChange(this, new StatusChangeEventArgs(
                 $"Waiting {settings.RestartDelay} seconds before re-starting the Plex process."));
             State = PlexState.Pending;

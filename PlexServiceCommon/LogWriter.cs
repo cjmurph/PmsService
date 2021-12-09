@@ -1,98 +1,67 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
+﻿#nullable enable
+using System;
 using System.IO;
+using Serilog;
 
 namespace PlexServiceCommon
 {
     /// <summary>
     /// Static class for writing to the log file
     /// </summary>
-    public static class LogWriter
-    
-    {
+    public class LogWriter {
+        private static ILogger? _log;
         private static readonly string AppDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Plex Service\");
+        public static readonly string LogFile = Path.Combine(AppDataPath, "plexService.log");
 
-        private static readonly string LogFile = Path.Combine(AppDataPath, "plexService.log");
-
-        private static readonly object SyncObject = new();
-
-        public static void WriteLine(string detail)
-        {
-            lock (SyncObject)
-            {
-                if (!Directory.Exists(Path.GetDirectoryName(LogFile))) {
-                    var dir = Path.GetDirectoryName(LogFile);
-                    if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
-                }
-
-                //reduce its size if its getting big
-                if (GetLineCount() > 200)
-                {
-                    //halve the log file
-                    RemoveFirstLines(100);
-                }
-
-                // Create a writer and open the file:
-                try {
-                    using var log = new StreamWriter(LogFile, true);
-                    log.WriteLine(DateTime.Now.ToString(CultureInfo.InvariantCulture) + ": " + detail);
-                } 
-                catch (IOException ex)
-                {
-                    System.Diagnostics.EventLog.WriteEntry("PlexService", "Log file could not be written to" + Environment.NewLine + ex.Message);
-                }
+        private static void SetLog() {
+            if (_log != null) return;
+            if (!Directory.Exists(Path.GetDirectoryName(LogFile))) {
+                var dir = Path.GetDirectoryName(LogFile);
+                if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
             }
+            const string outputTemplate = "[{Timestamp:HH:mm:ss} {Level:u3}]{Caller} {Message}{NewLine}{Exception}";
+            //var tr1 = new TextWriterTraceListener(Console.Out);
+            //Trace.Listeners.Add(tr1);
+            var lc = new LoggerConfiguration()
+                .Enrich.WithCaller()
+                .MinimumLevel.Debug()
+                .Filter.ByExcluding(c => c.Properties["Caller"].ToString().Contains("SerilogLogger"))
+                .Enrich.FromLogContext()
+                .WriteTo.Async(a =>
+                    a.File(LogFile, outputTemplate: outputTemplate));
+
+            
+            Log.Logger = lc.CreateLogger();
+            _log = Log.Logger;
+        }
+       
+        public static void Debug(string line) {
+            SetLog();
+            Log.Debug(line);
+            Log.CloseAndFlush();
         }
 
-        private static void RemoveFirstLines(int lineCount = 1)
-        {
-            if (File.Exists(LogFile))
-            {
-                var lines = File.ReadAllLines(LogFile);
-                using var log = new StreamWriter(LogFile);
-                for (var count = lineCount; count < lines.Length; count++)
-                {
-                    log.WriteLine(lines[count]);
-                }
-            }
+        public static void Information(string line) {
+            SetLog();
+            Log.Information(line);
+            Log.CloseAndFlush();
         }
 
-        internal static void DeleteLog()
-        {
-            if(File.Exists(LogFile))
-            {
-                File.Delete(LogFile);
-            }
+        public static void Warning(string line) {
+            SetLog();
+            Log.Warning(line);
         }
 
-        private static int GetLineCount()
-        {
-            var count = -1;
-            if (File.Exists(LogFile))
-            {
-                count = File.ReadLines(LogFile).Count();
-            }
-            return count;
+        public static void Error(string line) {
+            SetLog();
+            Log.Error(line);
+            Log.CloseAndFlush();
         }
 
-        public static string Read()
-        {
-            var log = string.Empty;
-            if (!File.Exists(LogFile)) {
-                return log;
-            }
-
-            try
-            {
-                lock (SyncObject)
-                {
-                    log = File.ReadAllText(LogFile);
-                }
-            } catch {
-                // ignored
-            }
-            return log;
+        public static void Fatal(string line) {
+            SetLog();
+            Log.Fatal(line);
+            Log.CloseAndFlush();
         }
     }
 }

@@ -141,7 +141,7 @@ namespace PlexServiceWCF
         /// <param name="e"></param>
         private static void OnPlexEvent(object sender, StatusChangeEventArgs e)
         {
-            LogWriter.WriteLine(e.Description);
+            LogWriter.Information(e.Description);
         }
 
         /// <summary>

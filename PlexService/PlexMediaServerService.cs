@@ -81,9 +81,9 @@ namespace PlexService
             }
             catch (Exception ex)
             {
-                LogWriter.WriteLine("Exception starting Plex Service: " + ex.Message + " at " + ex.StackTrace);
+                LogWriter.Warning("Exception starting Plex Service: " + ex.Message + " at " + ex.StackTrace);
             }
-            LogWriter.WriteLine("Plex Service Started.");
+            LogWriter.Information("Plex Service Started.");
 
             base.OnStart(args);
         }
@@ -111,45 +111,41 @@ namespace PlexService
         /// </summary>
         protected override void OnStop()
         {
-            LogWriter.WriteLine("OnStop called.");
             if (_host != null)
             {
                 //Try and connect to the WCF service and call its stop method
                 try {
                     if (_plexService == null) {
-                        LogWriter.WriteLine("Connecting to plex service.");
+                        LogWriter.Information("Connecting to plex service.");
                         Connect();
                     }
 
                     if (_plexService != null)
                     {
-                        LogWriter.WriteLine("Stopping plex service.");
+                        LogWriter.Information("Stopping plex service.");
                         _plexService.Stop();
                         //wait for plex to stop for 10 seconds
                         if(!_stopped.WaitOne(10000))
                         {
-                            LogWriter.WriteLine("Timed out waiting for plexservice to stop.");
+                            LogWriter.Warning("Timed out waiting for plex service to stop.");
                         }
-                        LogWriter.WriteLine("Disconnecting...");
                         Disconnect();
                     }
                 } catch (Exception ex) {
-                    LogWriter.WriteLine("Exception in OnStop: " + ex.Message);
+                    LogWriter.Warning("Exception in OnStop: " + ex.Message);
                 }
 
                 try {
-                    LogWriter.WriteLine("Closing host.");
                     _host.Close();
                 } catch (Exception ex) {
-                    LogWriter.WriteLine("Exception closing host: " + ex.Message);
+                    LogWriter.Warning("Exception closing host: " + ex.Message);
                 }
                 finally
                 {
-                    LogWriter.WriteLine("Clearing host.");
                     _host = null;
                 }
             }
-            LogWriter.WriteLine("Plex Service Stopped.");
+            LogWriter.Information("Plex Service Stopped.");
             base.OnStop();
         }
 
@@ -192,7 +188,7 @@ namespace PlexService
             }
             catch (Exception ex)
             {
-                LogWriter.WriteLine("Exception connecting PMS/WCF: " + ex.Message);
+                LogWriter.Warning("Exception connecting PMS/WCF: " + ex.Message);
                 _plexService = null;
             }
         }
@@ -209,7 +205,7 @@ namespace PlexService
                 {
                     ((ICommunicationObject)_plexService).Close();
                 } catch (Exception ex) {
-                    LogWriter.WriteLine("Exception disconnecting PMS/WCF: " + ex.Message);
+                    LogWriter.Warning("Exception disconnecting PMS/WCF: " + ex.Message);
                 }
             }
             _plexService = null;

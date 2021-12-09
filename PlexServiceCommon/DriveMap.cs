@@ -68,7 +68,7 @@ namespace PlexServiceCommon
                     {
                         UnMapDrive(true);
                     } catch (Exception e){
-                        LogWriter.WriteLine("Exception unmapping drive: " + e.Message);
+                        LogWriter.Warning("Exception unmapping drive: " + e.Message);
                     }
                 }
                 //call and return

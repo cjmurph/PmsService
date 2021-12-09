@@ -29,7 +29,7 @@ namespace PlexServiceTray
             }
             catch (Exception ex)
             {
-                LogWriter.WriteLine("Exception running application: " + ex.Message);
+                LogWriter.Warning("Exception running application: " + ex.Message);
                 MessageBox.Show(ex.Message, "Program Terminated Unexpectedly", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
