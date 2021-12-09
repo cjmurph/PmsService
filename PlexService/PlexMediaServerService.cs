@@ -88,24 +88,6 @@ namespace PlexService
             base.OnStart(args);
         }
 
-        private void StartPlex()
-        {
-            //Try and connect to the WCF service and call its start method
-            try
-            {
-                if (_plexService == null) Connect();
-
-                if (_plexService == null) {
-                    return;
-                }
-
-                _plexService.Start();
-                Disconnect();
-            } catch (Exception ex) {
-                LogWriter.WriteLine("Exception starting Plex: " + ex.Message);
-            }
-        }
-
         /// <summary>
         /// Fires when the service is stopped
         /// </summary>

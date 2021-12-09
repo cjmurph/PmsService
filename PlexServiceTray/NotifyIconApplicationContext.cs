@@ -91,8 +91,6 @@ namespace PlexServiceTray
             var client = new TrayInteractionClient(callback, plexServiceBinding, plexServiceEndpoint);
 
             //Make a channel factory so we can create the link to the service
-            //var plexServiceChannelFactory = new ChannelFactory<PlexServiceCommon.Interface.ITrayInteraction>(plexServiceBinding, plexServiceEndpoint);
-
             _plexService = null;
 
             try
@@ -141,7 +139,7 @@ namespace PlexServiceTray
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void NotifyIcon_Click(object sender, MouseEventArgs e)
+        private void NotifyIcon_Click(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
             {
