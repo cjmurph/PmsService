@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Runtime.InteropServices;
+using Serilog;
 
 namespace PlexServiceCommon
 {
@@ -68,7 +69,7 @@ namespace PlexServiceCommon
                     {
                         UnMapDrive(true);
                     } catch (Exception e){
-                        LogWriter.Warning("Exception unmapping drive: " + e.Message);
+                        Log.Warning("Exception unmapping drive: " + e.Message);
                     }
                 }
                 //call and return

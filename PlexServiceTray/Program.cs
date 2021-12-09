@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Diagnostics;
 using PlexServiceCommon;
+using Serilog;
 
 namespace PlexServiceTray
 {
@@ -19,7 +20,7 @@ namespace PlexServiceTray
             if (runningProcesses.Length > 1) {
                 return;
             }
-
+            LogWriter.Init();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             try
@@ -29,7 +30,7 @@ namespace PlexServiceTray
             }
             catch (Exception ex)
             {
-                LogWriter.Warning("Exception running application: " + ex.Message);
+                Log.Warning("Exception running application: " + ex.Message);
                 MessageBox.Show(ex.Message, "Program Terminated Unexpectedly", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

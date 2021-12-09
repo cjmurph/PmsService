@@ -6,6 +6,7 @@ using System.Diagnostics;
 using PlexServiceCommon;
 using System.ServiceModel;
 using System.Windows;
+using Serilog;
 
 namespace PlexServiceTray
 {
@@ -106,7 +107,7 @@ namespace PlexServiceTray
             }
             catch (Exception e)
             {
-                LogWriter.Warning("Exception connecting: " + e.Message);
+                Log.Warning("Exception connecting: " + e.Message);
                 _plexService = null;
             }
         }
@@ -129,7 +130,7 @@ namespace PlexServiceTray
                     _plexService.UnSubscribe();
                     _plexService.Close();
                 } catch {
-                    LogWriter.Warning("Exception disconnecting: " + String.Empty.GetEnumerator());
+                    Log.Warning("Exception disconnecting: " + String.Empty.GetEnumerator());
                 }
             }
             _plexService = null;
@@ -206,7 +207,7 @@ namespace PlexServiceTray
                 }
                 catch (Exception ex)
                 {
-                    LogWriter.Warning("Exception with strip: " + ex.Message);
+                    Log.Warning("Exception with strip: " + ex.Message);
                     Disconnect();
                     _notifyIcon.ContextMenuStrip.Items.Add("Unable to connect to service. Check settings");
                 }
@@ -224,7 +225,7 @@ namespace PlexServiceTray
                             try {
                                 Process.Start(aux.Url);
                             } catch (Exception ex) {
-                                LogWriter.Warning("Aux exception: " + ex.Message);
+                                Log.Warning("Aux exception: " + ex.Message);
                                 System.Windows.Forms.MessageBox.Show(ex.Message, "Whoops!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                         });
@@ -257,9 +258,7 @@ namespace PlexServiceTray
             if (AboutWindow.Shown)
                 aboutItem.Enabled = false;
             _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-            var exitItem = _notifyIcon.ContextMenuStrip.Items.Add("Exit", null, ExitCommand);
-            //if (AboutWindow.Shown || _connectionSettingsWindow != null || _settingsWindow != null)
-                //exitItem.Enabled = false;
+            _notifyIcon.ContextMenuStrip.Items.Add("Exit", null, ExitCommand);
         }
 
         /// <summary>
@@ -276,7 +275,7 @@ namespace PlexServiceTray
             }
             catch (Exception ex)
             {
-                LogWriter.Warning("Exception with settings command: " + ex.Message);
+                Log.Warning("Exception with settings command: " + ex.Message);
                 Disconnect();
             }
 
@@ -321,7 +320,7 @@ namespace PlexServiceTray
                 }
                 catch(Exception ex)
                 {
-                    LogWriter.Warning("Exception saving settings: " + ex.Message);
+                    Log.Warning("Exception saving settings: " + ex.Message);
                     Disconnect();
                     System.Windows.MessageBox.Show("Unable to save settings" + Environment.NewLine + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 }     
@@ -366,7 +365,7 @@ namespace PlexServiceTray
                     Disconnect();
                     Connect();
                 } catch (Exception ex){
-                    LogWriter.Warning("Exception on connection setting command" + ex.Message);
+                    Log.Warning("Exception on connection setting command" + ex.Message);
                 }
             }
             _connectionSettingsWindow = null;
@@ -409,7 +408,7 @@ namespace PlexServiceTray
                 }
                 catch (Exception ex) 
                 {
-                    LogWriter.Warning("Exception on startPlex click: " + ex);
+                    Log.Warning("Exception on startPlex click: " + ex);
                     Disconnect();
                 }
             }
@@ -431,7 +430,7 @@ namespace PlexServiceTray
                 }
                 catch (Exception ex)
                 {
-                    LogWriter.Warning("Exception stopping Plex..." + ex.Message);
+                    Log.Warning("Exception stopping Plex..." + ex.Message);
                     Disconnect();
                 }
             }
@@ -469,7 +468,7 @@ namespace PlexServiceTray
                 //process.WaitForExit();
             }
             catch (Exception ex) {
-                LogWriter.Warning("Exception viewing logs: " + ex.Message);
+                Log.Warning("Exception viewing logs: " + ex.Message);
                 Disconnect();
             }
         }
@@ -484,7 +483,7 @@ namespace PlexServiceTray
             }
             catch (Exception ex)
             {
-                LogWriter.Warning("Error opening PMS Data folder: " + ex.Message);
+                Log.Warning("Error opening PMS Data folder: " + ex.Message);
                 Disconnect();
             }
         }

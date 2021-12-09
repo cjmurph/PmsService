@@ -8,12 +8,12 @@ namespace PlexServiceCommon
     /// <summary>
     /// Static class for writing to the log file
     /// </summary>
-    public class LogWriter {
+    public static class LogWriter {
         private static ILogger? _log;
         private static readonly string AppDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Plex Service\");
         public static readonly string LogFile = Path.Combine(AppDataPath, "plexService.log");
 
-        private static void SetLog() {
+        public static void Init() {
             if (_log != null) return;
             if (!Directory.Exists(Path.GetDirectoryName(LogFile))) {
                 var dir = Path.GetDirectoryName(LogFile);
@@ -33,35 +33,6 @@ namespace PlexServiceCommon
             
             Log.Logger = lc.CreateLogger();
             _log = Log.Logger;
-        }
-       
-        public static void Debug(string line) {
-            SetLog();
-            Log.Debug(line);
-            Log.CloseAndFlush();
-        }
-
-        public static void Information(string line) {
-            SetLog();
-            Log.Information(line);
-            Log.CloseAndFlush();
-        }
-
-        public static void Warning(string line) {
-            SetLog();
-            Log.Warning(line);
-        }
-
-        public static void Error(string line) {
-            SetLog();
-            Log.Error(line);
-            Log.CloseAndFlush();
-        }
-
-        public static void Fatal(string line) {
-            SetLog();
-            Log.Fatal(line);
-            Log.CloseAndFlush();
         }
     }
 }

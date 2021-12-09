@@ -7,6 +7,8 @@ namespace PlexServiceCommon
     public class TrayInteractionClient:DuplexClientBase<ITrayInteraction>
     {
         public TrayInteractionClient(object callbackInstance, Binding binding, EndpointAddress remoteAddress)
-        : base(callbackInstance, binding, remoteAddress) { }
+            : base(callbackInstance, binding, remoteAddress) {
+            LogWriter.Init();
+        }
     }
 }

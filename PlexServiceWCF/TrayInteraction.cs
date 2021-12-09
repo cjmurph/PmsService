@@ -4,6 +4,7 @@ using System.ServiceModel;
 using System.Threading.Tasks;
 using PlexServiceCommon;
 using PlexServiceCommon.Interface;
+using Serilog;
 
 namespace PlexServiceWCF
 {
@@ -21,6 +22,7 @@ namespace PlexServiceWCF
         private readonly ITrayInteraction _trayInteractionImplementation;
 
         public TrayInteraction() {
+            LogWriter.Init();
             _trayInteractionImplementation = this;
             _pms = new PmsMonitor();
             _pms.PlexStatusChange += OnPlexEvent;
@@ -133,7 +135,7 @@ namespace PlexServiceWCF
         /// <param name="e"></param>
         private static void OnPlexEvent(object sender, StatusChangeEventArgs e)
         {
-            LogWriter.Information(e.Description);
+            Log.Information(e.Description);
         }
 
         /// <summary>

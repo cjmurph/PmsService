@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using Serilog;
 
 namespace PlexServiceCommon
 {
@@ -132,10 +133,10 @@ namespace PlexServiceCommon
             _auxProcess.StartInfo.RedirectStandardOutput = true;
             _auxProcess.Exited += auxProcess_Exited;
             if (_aux.LogOutput) {
-                LogWriter.Information("Enabling logging for " + _aux.Name);
+                Log.Information("Enabling logging for " + _aux.Name);
                 _auxProcess.OutputDataReceived += (_, e) => {
                     if (string.IsNullOrEmpty(e.Data)) return;
-                    LogWriter.Debug($"{_aux.Name}:{e.Data}");
+                    Log.Debug($"{_aux.Name}:{e.Data}");
                 };
             }
             try
@@ -149,7 +150,7 @@ namespace PlexServiceCommon
             {
                 OnStatusChange(new StatusChangeEventArgs(_aux.Name + " failed to start. " + ex.Message));
             }
-            LogWriter.Information("Done starting app.");
+            Log.Information("Done starting app.");
         }
 
 
@@ -170,7 +171,7 @@ namespace PlexServiceCommon
             {
                 _auxProcess.Kill();
             } catch (Exception ex) {
-                LogWriter.Warning($"Exception stopping auxProc {_aux.Name}: " + ex.Message);
+                Log.Warning($"Exception stopping auxProc {_aux.Name}: " + ex.Message);
             } finally
             {
                 _auxProcess.Dispose();

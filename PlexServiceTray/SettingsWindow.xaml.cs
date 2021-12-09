@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using ControlzEx.Theming;
 using PlexServiceCommon;
+using Serilog;
 
 namespace PlexServiceTray
 {
@@ -52,7 +53,7 @@ namespace PlexServiceTray
                 var svm = (SettingsWindowViewModel)DataContext;
                 svm.WorkingSettings.Theme = theme;
             } catch (Exception ex) {
-                LogWriter.Warning("Exception changing theme: " + ex.Message);
+                Log.Warning("Exception changing theme: " + ex.Message);
             }
         }
     }

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using PlexServiceCommon;
+using Serilog;
 
 namespace PlexServiceWCF
 {
@@ -217,14 +218,14 @@ namespace PlexServiceWCF
             }
 
             path = Path.Combine(path, "Plex Media Server", "Logs");
-            LogWriter.Debug("PMS Log Path: " + path);
+            Log.Debug("PMS Log Path: " + path);
             try {
                 var watcher = new FileSystemWatcher(path,"Plex Update Service Launcher.log");
                 watcher.NotifyFilter = NotifyFilters.LastWrite;
                 watcher.EnableRaisingEvents = true;
                 watcher.Changed += OnChanged;
             } catch (Exception e) {
-                LogWriter.Warning("Exception: " + e.Message);
+                Log.Warning("Exception: " + e.Message);
             }
         }
         
@@ -250,7 +251,7 @@ namespace PlexServiceWCF
             {
                 // Only set _updating once.
                 if (lastLine.Contains("Closing Plex Media Server Processes") && !_updating) {
-                    LogWriter.Information("PMS is updating itself, skipping auto-restart if enabled.");
+                    Log.Information("PMS is updating itself, skipping auto-restart if enabled.");
                     _updating = true;
                     return;
                 }
@@ -261,13 +262,13 @@ namespace PlexServiceWCF
                 }    
             }
             
-            LogWriter.Information("PMS update is complete, seizing process.");
+            Log.Information("PMS update is complete, seizing process.");
             _updating = false;
             var toKill = Process.GetProcessesByName(_plexName).FirstOrDefault();
             toKill?.Kill();
             EndPlex();
             var settings = SettingsHandler.Load();
-            LogWriter.Information("PMS killed, restarting.");
+            Log.Information("PMS killed, restarting.");
             OnPlexStatusChange(this, new StatusChangeEventArgs(
                 $"Waiting {settings.RestartDelay} seconds before re-starting the Plex process."));
             State = PlexState.Pending;
@@ -418,6 +419,7 @@ namespace PlexServiceWCF
                 
                 if (_plex == null)
                 {
+                    Log.Information("Starting plex.");
                     OnPlexStatusChange(this, new StatusChangeEventArgs("Attempting to start Plex"));
                     //plex process
                     _plex = new Process();
