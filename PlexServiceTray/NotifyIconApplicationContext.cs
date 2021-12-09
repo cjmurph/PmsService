@@ -53,11 +53,13 @@ namespace PlexServiceTray
         /// <summary>
         /// Setup our tray icon
         /// </summary>
-        private void InitializeContext()
-        {
+        private void InitializeContext() {
             _components = new System.ComponentModel.Container();
             _notifyIcon = new NotifyIcon(_components);
             _notifyIcon.ContextMenuStrip = new ContextMenuStrip();
+            _notifyIcon.ContextMenuStrip.ForeColor = Color.FromArgb(232, 234, 237);
+            _notifyIcon.ContextMenuStrip.BackColor = Color.FromArgb(41, 42, 45);
+            _notifyIcon.ContextMenuStrip.RenderMode = ToolStripRenderMode.System;
             _notifyIcon.Icon = new Icon( Properties.Resources.PlexService, SystemInformation.SmallIconSize);
             _notifyIcon.Text = "Manage Plex Media Server Service";
             _notifyIcon.Visible = true;
@@ -75,9 +77,9 @@ namespace PlexServiceTray
             //Create a NetTcp binding to the service and set some appropriate timeouts.
             //Use reliable connection so we know when we have been disconnected
             var plexServiceBinding = new NetTcpBinding {
-                OpenTimeout = TimeSpan.FromSeconds(2),
-                CloseTimeout = TimeSpan.FromSeconds(2),
-                SendTimeout = TimeSpan.FromSeconds(2),
+                OpenTimeout = TimeSpan.FromMilliseconds(500),
+                CloseTimeout = TimeSpan.FromMilliseconds(500),
+                SendTimeout = TimeSpan.FromMilliseconds(500),
                 ReliableSession = {
                     Enabled = true,
                     InactivityTimeout = TimeSpan.FromMinutes(1)
@@ -93,9 +95,8 @@ namespace PlexServiceTray
             //Make a channel factory so we can create the link to the service
             _plexService = null;
 
-            try
-            {
-                _plexService = client.ChannelFactory.CreateChannel(); //plexServiceChannelFactory.CreateChannel();
+            try {
+                _plexService = client.ChannelFactory.CreateChannel();
                 _plexService.Subscribe();
                 //If we lose connection to the service, set the object to null so we will know to reconnect the next time the tray icon is clicked
                 _plexService.Faulted += (_, _) => _plexService = null;
@@ -185,8 +186,9 @@ namespace PlexServiceTray
                     switch (state)
                     {
                         case PlexState.Running:
-                            _notifyIcon.ContextMenuStrip.Items.Add("Open Web Manager", null, OpenManager_Click);
                             _notifyIcon.ContextMenuStrip.Items.Add("Stop Plex", null, StopPlex_Click);
+                            _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+                            _notifyIcon.ContextMenuStrip.Items.Add("Open Plex...", null, OpenManager_Click);
                             break;
                         case PlexState.Stopped:
                             _notifyIcon.ContextMenuStrip.Items.Add("Start Plex", null, StartPlex_Click);
@@ -201,34 +203,6 @@ namespace PlexServiceTray
                             _notifyIcon.ContextMenuStrip.Items.Add("Plex state unknown");
                             break;
                     }
-                    _notifyIcon.ContextMenuStrip.Items.Add("PMS Data", null, PMSData_Click);
-                    _notifyIcon.ContextMenuStrip.Items.Add("View Logs", null, ViewLogs_Click);
-                    _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-                    var auxAppsToLink = settings.AuxiliaryApplications.Where(aux => !string.IsNullOrEmpty(aux.Url)).ToList();
-                    if(auxAppsToLink.Count > 0)
-                    {
-                        var auxAppsItem = new ToolStripMenuItem();
-                        auxAppsItem.Text = "Auxiliary Applications";
-                        auxAppsToLink.ForEach(aux =>
-                        {
-                            auxAppsItem.DropDownItems.Add(aux.Name, null, (_, _) => 
-                            {
-                                try {
-                                    Process.Start(aux.Url);
-                                } catch (Exception ex) {
-                                    LogWriter.WriteLine("Aux exception: " + ex.Message);
-                                    System.Windows.Forms.MessageBox.Show(ex.Message, "Whoops!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                }
-                            });
-                        });
-                        _notifyIcon.ContextMenuStrip.Items.Add(auxAppsItem);
-                        _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-                    }
-                    var settingsItem = _notifyIcon.ContextMenuStrip.Items.Add("Settings", null, SettingsCommand);
-                    if(_settingsWindow != null)
-                    {
-                        settingsItem.Enabled = false;
-                    }
                 }
                 catch (Exception ex)
                 {
@@ -236,24 +210,56 @@ namespace PlexServiceTray
                     Disconnect();
                     _notifyIcon.ContextMenuStrip.Items.Add("Unable to connect to service. Check settings");
                 }
+                _notifyIcon.ContextMenuStrip.Items.Add("PMS Data Folder", null, PMSData_Click);
+                _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+                var auxAppsToLink = settings.AuxiliaryApplications.Where(aux => !string.IsNullOrEmpty(aux.Url)).ToList();
+                if(auxAppsToLink.Count > 0)
+                {
+                    var auxAppsItem = new ToolStripMenuItem();
+                    auxAppsItem.Text = "Auxiliary Applications";
+                    auxAppsToLink.ForEach(aux =>
+                    {
+                        auxAppsItem.DropDownItems.Add(aux.Name, null, (_, _) => 
+                        {
+                            try {
+                                Process.Start(aux.Url);
+                            } catch (Exception ex) {
+                                LogWriter.Warning("Aux exception: " + ex.Message);
+                                System.Windows.Forms.MessageBox.Show(ex.Message, "Whoops!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        });
+                    });
+                    _notifyIcon.ContextMenuStrip.Items.Add(auxAppsItem);
+                    _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+                }
+                var settingsItem = _notifyIcon.ContextMenuStrip.Items.Add("Settings", null, SettingsCommand);
+                if(_settingsWindow != null)
+                {
+                    settingsItem.Enabled = false;
+                }
+                
             }
             else
             {
                 Disconnect();
                 _notifyIcon.ContextMenuStrip.Items.Add("Unable to connect to service. Check settings");
-
+                _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+                _notifyIcon.ContextMenuStrip.Items.Add("PMS Data", null, PMSData_Click);
             }
-            _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
             var connectionSettingsItem = _notifyIcon.ContextMenuStrip.Items.Add("Connection Settings", null, ConnectionSettingsCommand);
             if (_connectionSettingsWindow != null)
                 connectionSettingsItem.Enabled = false;
+
+            _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+            
+            _notifyIcon.ContextMenuStrip.Items.Add("View Log", null, ViewLogs_Click);
             var aboutItem = _notifyIcon.ContextMenuStrip.Items.Add("About", null, AboutCommand);
             if (AboutWindow.Shown)
                 aboutItem.Enabled = false;
             _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
             var exitItem = _notifyIcon.ContextMenuStrip.Items.Add("Exit", null, ExitCommand);
-            if (AboutWindow.Shown || _connectionSettingsWindow != null || _settingsWindow != null)
-                exitItem.Enabled = false;
+            //if (AboutWindow.Shown || _connectionSettingsWindow != null || _settingsWindow != null)
+                //exitItem.Enabled = false;
         }
 
         /// <summary>
