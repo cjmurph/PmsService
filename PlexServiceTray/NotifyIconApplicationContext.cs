@@ -449,10 +449,18 @@ namespace PlexServiceTray
         /// <param name="e"></param>
         private void ViewLogs_Click(object sender, EventArgs e)
         {
-            //Show the data from the server in notepad, but don't save it to disk locally.
+            // Use windows shell to open log file in whatever app the user uses...
             try
             {
-                NotepadHelper.ShowMessage(_plexService.GetLog(), "Plex Service Log");
+                var fileToOpen = LogWriter.LogFile;
+                var process = new Process();
+                process.StartInfo = new ProcessStartInfo {
+                    UseShellExecute = true,
+                    FileName = fileToOpen
+                };
+
+                process.Start();
+                //process.WaitForExit();
             }
             catch (Exception ex) {
                 LogWriter.Warning("Exception viewing logs: " + ex.Message);
