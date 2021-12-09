@@ -100,8 +100,8 @@ namespace PlexServiceTray
                 _plexService = client.ChannelFactory.CreateChannel(); //plexServiceChannelFactory.CreateChannel();
                 _plexService.Subscribe();
                 //If we lose connection to the service, set the object to null so we will know to reconnect the next time the tray icon is clicked
-                ((ICommunicationObject)_plexService).Faulted += (_, _) => _plexService = null;
-                ((ICommunicationObject)_plexService).Closed += (_, _) => _plexService = null;
+                _plexService.Faulted += (_, _) => _plexService = null;
+                _plexService.Closed += (_, _) => _plexService = null;
 
 
             }
@@ -128,7 +128,7 @@ namespace PlexServiceTray
                 try
                 {
                     _plexService.UnSubscribe();
-                    ((ICommunicationObject)_plexService).Close();
+                    _plexService.Close();
                 } catch {
                     LogWriter.Warning("Exception disconnecting: " + String.Empty.GetEnumerator());
                 }

@@ -18,9 +18,10 @@ namespace PlexServiceWCF
         private readonly PmsMonitor _pms;
 
         private static readonly List<ITrayCallback> CallbackChannels = new();
+        private readonly ITrayInteraction _trayInteractionImplementation;
 
-        public TrayInteraction()
-        {
+        public TrayInteraction() {
+            _trayInteractionImplementation = this;
             _pms = new PmsMonitor();
             _pms.PlexStatusChange += OnPlexEvent;
             _pms.StateChange += PlexStateChange;
@@ -171,6 +172,77 @@ namespace PlexServiceWCF
             {
                 CallbackChannels.Remove(channel);
             }
+        }
+
+        public void Abort() {
+            _trayInteractionImplementation.Abort();
+        }
+
+        public void Close() {
+            _trayInteractionImplementation.Close();
+        }
+
+        public void Close(TimeSpan timeout) {
+            _trayInteractionImplementation.Close(timeout);
+        }
+
+        public IAsyncResult BeginClose(AsyncCallback callback, object state) {
+            return _trayInteractionImplementation.BeginClose(callback, state);
+        }
+
+        public IAsyncResult BeginClose(TimeSpan timeout, AsyncCallback callback, object state) {
+            return _trayInteractionImplementation.BeginClose(timeout, callback, state);
+        }
+
+        public void EndClose(IAsyncResult result) {
+            _trayInteractionImplementation.EndClose(result);
+        }
+
+        public void Open() {
+            _trayInteractionImplementation.Open();
+        }
+
+        public void Open(TimeSpan timeout) {
+            _trayInteractionImplementation.Open(timeout);
+        }
+
+        public IAsyncResult BeginOpen(AsyncCallback callback, object state) {
+            return _trayInteractionImplementation.BeginOpen(callback, state);
+        }
+
+        public IAsyncResult BeginOpen(TimeSpan timeout, AsyncCallback callback, object state) {
+            return _trayInteractionImplementation.BeginOpen(timeout, callback, state);
+        }
+
+        public void EndOpen(IAsyncResult result) {
+            _trayInteractionImplementation.EndOpen(result);
+        }
+
+        public CommunicationState State => _trayInteractionImplementation.State;
+
+        public event EventHandler Closed {
+            add => _trayInteractionImplementation.Closed += value;
+            remove => _trayInteractionImplementation.Closed -= value;
+        }
+
+        public event EventHandler Closing {
+            add => _trayInteractionImplementation.Closing += value;
+            remove => _trayInteractionImplementation.Closing -= value;
+        }
+
+        public event EventHandler Faulted {
+            add => _trayInteractionImplementation.Faulted += value;
+            remove => _trayInteractionImplementation.Faulted -= value;
+        }
+
+        public event EventHandler Opened {
+            add => _trayInteractionImplementation.Opened += value;
+            remove => _trayInteractionImplementation.Opened -= value;
+        }
+
+        public event EventHandler Opening {
+            add => _trayInteractionImplementation.Opening += value;
+            remove => _trayInteractionImplementation.Opening -= value;
         }
     }
 }

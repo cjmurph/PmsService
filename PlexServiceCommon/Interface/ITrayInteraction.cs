@@ -6,7 +6,7 @@ namespace PlexServiceCommon.Interface
     /// WCF service contract
     /// </summary>
     [ServiceContract(SessionMode = SessionMode.Required, CallbackContract = typeof(ITrayCallback))]
-    public interface ITrayInteraction
+    public interface ITrayInteraction : ICommunicationObject
     {
         [OperationContract]
         void Start();
@@ -22,9 +22,6 @@ namespace PlexServiceCommon.Interface
 
         [OperationContract]
         string GetSettings();
-
-        [OperationContract]
-        string GetLog();
 
         [OperationContract]
         PlexState GetStatus();

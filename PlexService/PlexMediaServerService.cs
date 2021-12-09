@@ -183,8 +183,8 @@ namespace PlexService
                 
                 _plexService.Subscribe();
                 //If we lose connection to the service, set the object to null so we will know to reconnect the next time the tray icon is clicked
-                ((ICommunicationObject)_plexService).Faulted += (_, _) => _plexService = null;
-                ((ICommunicationObject)_plexService).Closed += (_, _) => _plexService = null;
+                _plexService.Faulted += (_, _) => _plexService = null;
+                _plexService.Closed += (_, _) => _plexService = null;
             }
             catch (Exception ex)
             {
@@ -203,7 +203,7 @@ namespace PlexService
             {
                 try
                 {
-                    ((ICommunicationObject)_plexService).Close();
+                    _plexService.Close();
                 } catch (Exception ex) {
                     LogWriter.Warning("Exception disconnecting PMS/WCF: " + ex.Message);
                 }
