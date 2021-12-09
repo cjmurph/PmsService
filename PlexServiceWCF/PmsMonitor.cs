@@ -162,7 +162,7 @@ namespace PlexServiceWCF
             _executableFileName = GetPlexExecutable();
             if (string.IsNullOrEmpty(_executableFileName))
             {
-                OnPlexStatusChange(this, new StatusChangeEventArgs("Plex Media Server does not appear to be installed!", EventLogEntryType.Error));
+                Log.Information("Plex Media Server does not appear to be installed!");
                 OnPlexStop(EventArgs.Empty);
                 State = PlexState.Stopped;
             }
@@ -171,22 +171,18 @@ namespace PlexServiceWCF
                 //load the settings
                 var settings = SettingsHandler.Load();
 
-                OnPlexStatusChange(this, new StatusChangeEventArgs("Plex executable found at " + _executableFileName));
+                Log.Information("Plex executable found at " + _executableFileName);
                 
                 //map network drives
                 var drivesMapped = true;
                 if (settings.DriveMaps.Count > 0) {
-                    OnPlexStatusChange(this, new StatusChangeEventArgs("Mapping Network Drives"));
+                    Log.Information("Mapping Network Drives");
                     foreach (var map in settings.DriveMaps) {
                         try {
                             map.MapDrive(true);
-                            OnPlexStatusChange(this,
-                                new StatusChangeEventArgs(
-                                    $"Map share {map.ShareName} to letter '{map.DriveLetter}' successful"));
+                            Log.Information($"Map share {map.ShareName} to letter '{map.DriveLetter}' successful");
                         } catch (Exception ex) {
-                            OnPlexStatusChange(this,
-                                new StatusChangeEventArgs(
-                                    $"Unable to map share {map.ShareName} to letter '{map.DriveLetter}': {ex.Message}", EventLogEntryType.Error));
+                            Log.Information($"Unable to map share {map.ShareName} to letter '{map.DriveLetter}': {ex.Message}", EventLogEntryType.Error);
                         }
 
                         foreach (var unused in settings.DriveMaps.Where(toMap => !TryMap(toMap, settings))) {
@@ -196,7 +192,7 @@ namespace PlexServiceWCF
                 }
 
                 if (!drivesMapped && !settings.StartPlexOnMountFail) {
-                    OnPlexStatusChange(this, new StatusChangeEventArgs("One or more drive mappings failed and settings are configured to *not* start Plex on mount failure. Please check your drives and try again."));
+                    Log.Warning("One or more drive mappings failed and settings are configured to *not* start Plex on mount failure. Please check your drives and try again.");
                 } else {
                     StartPlex();
                 }
@@ -206,7 +202,6 @@ namespace PlexServiceWCF
                 _auxAppMonitors.Clear();
                 settings.AuxiliaryApplications.ForEach(x => _auxAppMonitors.Add(new AuxiliaryApplicationMonitor(x)));
                 //hook up the state change event for all the applications
-                _auxAppMonitors.ForEach(x => x.StatusChange += OnPlexStatusChange);
                 _auxAppMonitors.AsParallel().ForAll(x => x.Start());
             }
         }
@@ -286,14 +281,12 @@ namespace PlexServiceWCF
                     try
                     {
                         map.MapDrive(true);
-                        OnPlexStatusChange(this, new StatusChangeEventArgs(
-                            $"Map share {map.ShareName} to letter '{map.DriveLetter}' successful"));
+                        Log.Information($"Map share {map.ShareName} to letter '{map.DriveLetter}' successful");
                         mapped = true;
                     }
                     catch(Exception ex)
                     {
-                        OnPlexStatusChange(this, new StatusChangeEventArgs(
-                            $"Unable to map share {map.ShareName} to letter '{map.DriveLetter}': {ex.Message}, {count - 1} more attempts remaining.", EventLogEntryType.Error));
+                        Log.Information($"Unable to map share {map.ShareName} to letter '{map.DriveLetter}': {ex.Message}, {count - 1} more attempts remaining.");
                     }
                     // Wait 5s
                     Thread.Sleep(settings.AutoRemountDelay * 1000);
@@ -303,14 +296,12 @@ namespace PlexServiceWCF
                 try
                 {
                     map.MapDrive(true);
-                    OnPlexStatusChange(this, new StatusChangeEventArgs(
-                        $"Map share {map.ShareName} to letter '{map.DriveLetter}' successful"));
+                    Log.Information($"Map share {map.ShareName} to letter '{map.DriveLetter}' successful");
                     mapped = true;
                 }
                 catch(Exception ex)
                 {
-                    OnPlexStatusChange(this, new StatusChangeEventArgs(
-                        $"Unable to map share {map.ShareName} to letter '{map.DriveLetter}': {ex.Message}", EventLogEntryType.Error));
+                    Log.Warning($"Unable to map share {map.ShareName} to letter '{map.DriveLetter}': {ex.Message}");
                 }
             }
 
@@ -361,7 +352,7 @@ namespace PlexServiceWCF
         /// <param name="e"></param>
         void Plex_Exited(object sender, EventArgs e)
         {
-            OnPlexStatusChange(this, new StatusChangeEventArgs("Plex Media Server has stopped!"));
+            Log.Information("Plex Media Server has stopped!");
             //unsubscribe
             _plex.Exited -= Plex_Exited;
 
@@ -380,11 +371,10 @@ namespace PlexServiceWCF
             {
                 if (_updating) {
                     State = PlexState.Stopped;
-                    OnPlexStatusChange(this,new StatusChangeEventArgs("Plex is updating, waiting for finish before re-starting."));
+                    Log.Information("Plex is updating, waiting for finish before re-starting.");
                     return;
                 }
-                OnPlexStatusChange(this, new StatusChangeEventArgs(
-                    $"Waiting {settings.RestartDelay} seconds before re-starting the Plex process."));
+                Log.Information($"Waiting {settings.RestartDelay} seconds before re-starting the Plex process.");
                 State = PlexState.Pending;
                 var autoEvent = new AutoResetEvent(false);
                 var t = new Timer(_ => { Start(); autoEvent.Set(); }, null, settings.RestartDelay * 1000, Timeout.Infinite);
@@ -411,16 +401,17 @@ namespace PlexServiceWCF
             //always try to get rid of the plex auto start registry entry
             PurgeAutoStartRegistryEntry();
             // make sure we don't spawn a browser
+            Log.Debug("Disabling first run.");
             DisableFirstRun(); 
             if (_plex == null)
             {
+                Log.Debug("No plex defined, checking for running process.");
                 //see if its running already
                 _plex = Process.GetProcessesByName(_plexName).FirstOrDefault();
                 
                 if (_plex == null)
                 {
-                    Log.Information("Starting plex.");
-                    OnPlexStatusChange(this, new StatusChangeEventArgs("Attempting to start Plex"));
+                    Log.Information("Attempting to start Plex.");
                     //plex process
                     _plex = new Process();
                     var plexStartInfo = new ProcessStartInfo(_executableFileName) {
@@ -433,13 +424,11 @@ namespace PlexServiceWCF
                     var minimumVersion = new Version("0.9.8.12");
                     if (v.CompareTo(minimumVersion) == -1)
                     {
-                        OnPlexStatusChange(this, new StatusChangeEventArgs(
-                            $"Plex Media Server version is {plexVersion}. Cannot use startup argument."));
+                        Log.Information($"Plex Media Server version is {plexVersion}. Cannot use startup argument.");
                     }
                     else
                     {
-                        OnPlexStatusChange(this, new StatusChangeEventArgs(
-                            $"Plex Media Server version is {plexVersion}. Can use startup argument."));
+                        Log.Information($"Plex Media Server version is {plexVersion}. Can use startup argument.");
                         plexStartInfo.Arguments = "-noninteractive";
                     }
                     _plex.StartInfo = plexStartInfo;
@@ -453,25 +442,7 @@ namespace PlexServiceWCF
                     }
                     catch(Exception ex)
                     {
-                        OnPlexStatusChange(this, new StatusChangeEventArgs("Plex Media Server failed to start. " + ex.Message));
-                    }
-                }
-                else
-                {
-                    //its running, most likely in the wrong session. monitor this instance and if it ends, start a new one
-                    //register to the exited event so we know when to start a new one
-                    OnPlexStatusChange(this, new StatusChangeEventArgs(
-                        $"Plex Media Server already running in session {_plex.SessionId}."));
-                    try
-                    {
-                        _plex.EnableRaisingEvents = true;
-                        _plex.Exited += Plex_Exited;
-                        State = PlexState.Running;
-                    }
-                    catch
-                    {
-                        OnPlexStatusChange(this, new StatusChangeEventArgs("Unable to attach to already running Plex Media Server instance. The existing instance will continue unmanaged. Please close all instances of Plex Media Server on this computer prior to starting the service"));
-                        OnPlexStop(EventArgs.Empty);
+                        Log.Warning("Plex Media Server failed to start. " + ex.Message);
                     }
                 }
             }
@@ -491,12 +462,12 @@ namespace PlexServiceWCF
         {
             if (_plex != null)
             {
-                OnPlexStatusChange(this, new StatusChangeEventArgs("Killing Plex."));
+                Log.Information("Killing Plex.");
                 try
                 {
                     _plex.Kill();
-                } catch {
-                    // ignored
+                } catch (Exception e) {
+                    Log.Warning("Exception killing Plex: " + e.Message);
                 }
             }
             //kill each auxiliary process
@@ -515,7 +486,7 @@ namespace PlexServiceWCF
         /// </summary>
         private void KillSupportingProcesses()
         {
-            OnPlexStatusChange(this, new StatusChangeEventArgs("Killing supporting processes."));
+            Log.Information("Killing supporting processes.");
             foreach (var name in SupportingProcesses)
             {
                 KillSupportingProcess(name);
@@ -529,29 +500,28 @@ namespace PlexServiceWCF
         private void KillSupportingProcess(string name)
         {
             //see if its running
-            OnPlexStatusChange(this, new StatusChangeEventArgs("Looking for " + name));
+            Log.Information("Looking for process: " + name);
             var supportProcesses = Process.GetProcessesByName(name);
-            OnPlexStatusChange(this, new StatusChangeEventArgs(supportProcesses.Length + " instances of " + name + " found"));
-            if (supportProcesses.Length > 0)
+            Log.Information(supportProcesses.Length + " instances of " + name + " found.");
+            if (supportProcesses.Length <= 0) {
+                return;
+            }
+
+            foreach (var supportProcess in supportProcesses)
             {
                 foreach (var supportProcess in supportProcesses)
                 {
-                    OnPlexStatusChange(this, new StatusChangeEventArgs("Stopping " + name + " with PID " + supportProcess.Id));
-                    try
-                    {
-                        supportProcess.Kill();
-                        OnPlexStatusChange(this, new StatusChangeEventArgs(name + " with PID stopped"));
-                    }
-                    catch
-                    {
-                        OnPlexStatusChange(this, new StatusChangeEventArgs("Unable to stop process " + supportProcess.Id));
-                    }
-                    finally
-                    {
-                        supportProcess.Dispose();
-                    }
+                    supportProcess.Kill();
+                    Log.Information(name + " with PID stopped");
                 }
-                //OnPlexStatusChange(this, new StatusChangeEventArgs(string.Format("{0} Stopped.", name)));
+                catch
+                {
+                    Log.Warning("Unable to stop process " + supportProcess.Id);
+                }
+                finally
+                {
+                    supportProcess.Dispose();
+                }
             }
         }
 
@@ -709,21 +679,7 @@ namespace PlexServiceWCF
             PlexStop?.Invoke(this, data);
         }
 
-        /// <summary>
-        /// Status change event
-        /// </summary>
-        internal event EventHandler<StatusChangeEventArgs> PlexStatusChange;
-
-        /// <summary>
-        /// Method to fire the status change event
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="data"></param>
-        private void OnPlexStatusChange(object sender, StatusChangeEventArgs data)
-        {
-            PlexStatusChange?.Invoke(this, data);
-        }
-
+        
         #region StateChange
 
         public event EventHandler StateChange;

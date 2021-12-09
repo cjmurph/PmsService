@@ -75,16 +75,15 @@ namespace PlexServiceCommon
         /// <param name="e"></param>
         void auxProcess_Exited(object sender, EventArgs e)
         {
-            if (_aux.KeepAlive)
-            {
-                OnStatusChange(new StatusChangeEventArgs(_aux.Name + " has stopped!"));
+            if (_aux.KeepAlive) {
+                Log.Information(_aux.Name + " has stopped!");
                 //unsubscribe
                 _auxProcess.Exited -= auxProcess_Exited;
                 End();
                 //restart as required
                 if (!_stopping)
                 {
-                    OnStatusChange(new StatusChangeEventArgs("Re-starting " + _aux.Name));
+                    Log.Information("Re-starting " + _aux.Name);
                     //wait some seconds first
                     var autoEvent = new System.Threading.AutoResetEvent(false);
                     var t = new System.Threading.Timer(_ => { ProcStart(); autoEvent.Set(); }, null, 5000, System.Threading.Timeout.Infinite);
@@ -93,13 +92,13 @@ namespace PlexServiceCommon
                 }
                 else
                 {
-                    OnStatusChange(new StatusChangeEventArgs(_aux.Name + " stopped"));
+                    Log.Information(_aux.Name + " stopped");
                     Running = false;
                 }
             }
             else
             {
-                OnStatusChange(new StatusChangeEventArgs(_aux.Name + " has completed"));
+                Log.Information(_aux.Name + " has completed");
                 //unsubscribe
                 _auxProcess.Exited -= auxProcess_Exited;
                 _auxProcess.Dispose();
@@ -116,7 +115,7 @@ namespace PlexServiceCommon
         /// </summary>
         private void ProcStart()
         {
-            OnStatusChange(new StatusChangeEventArgs("Attempting to start " + _aux.Name));
+            Log.Information("Attempting to start " + _aux.Name);
             if (_auxProcess != null) {
                 return;
             }
@@ -143,12 +142,12 @@ namespace PlexServiceCommon
             {
                 _auxProcess.Start();
                 _auxProcess.BeginOutputReadLine();
-                OnStatusChange(new StatusChangeEventArgs(_aux.Name + " Started."));
+                Log.Information(_aux.Name + " Started.");
                 Running = true;
             }
             catch (Exception ex)
             {
-                OnStatusChange(new StatusChangeEventArgs(_aux.Name + " failed to start. " + ex.Message));
+                Log.Information(_aux.Name + " failed to start. " + ex.Message);
             }
             Log.Information("Done starting app.");
         }
@@ -166,7 +165,7 @@ namespace PlexServiceCommon
                 return;
             }
 
-            OnStatusChange(new StatusChangeEventArgs("Killing " + _aux.Name));
+            Log.Information("Killing " + _aux.Name);
             try
             {
                 _auxProcess.Kill();
@@ -184,30 +183,6 @@ namespace PlexServiceCommon
 
         #endregion
 
-        #region Events
-
-        //status change
-        /// <summary>
-        /// Status change delegate
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="data"></param>
-        public delegate void StatusChangeHandler(object sender, StatusChangeEventArgs data);
-
-        /// <summary>
-        /// Status change event
-        /// </summary>
-        public event StatusChangeHandler StatusChange;
-
-        /// <summary>
-        /// Method to fire the status change event
-        /// </summary>
-        /// <param name="data"></param>
-        private void OnStatusChange(StatusChangeEventArgs data) {
-            //Check if event has been subscribed to
-            //call the event
-            StatusChange?.Invoke(this, data);
-        }
-        #endregion
+        
     }
 }

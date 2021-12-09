@@ -25,7 +25,6 @@ namespace PlexServiceWCF
             LogWriter.Init();
             _trayInteractionImplementation = this;
             _pms = new PmsMonitor();
-            _pms.PlexStatusChange += OnPlexEvent;
             _pms.StateChange += PlexStateChange;
             _pms.PlexStop += PlexStopped;
             //Start plex
@@ -44,8 +43,8 @@ namespace PlexServiceWCF
                     try
                     {
                         callback.OnPlexStopped();
-                    } catch {
-                        // ignored
+                    } catch (Exception ex) {
+                        Log.Warning("Exception running callback: " + ex.Message);
                     }
                 });
             }
@@ -63,8 +62,8 @@ namespace PlexServiceWCF
                     try
                     {
                         callback.OnPlexStateChange(_pms.State);
-                    } catch {
-                        // ignored
+                    } catch (Exception ex) {
+                        Log.Warning("Exception on plex state change callback: " + ex.Message);
                     }
                 });
             }
@@ -128,16 +127,7 @@ namespace PlexServiceWCF
             return PlexState.Stopped;
         }
 
-        /// <summary>
-        /// Plex status change event handler, forward any status changes to the clients
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private static void OnPlexEvent(object sender, StatusChangeEventArgs e)
-        {
-            Log.Information(e.Description);
-        }
-
+        
         /// <summary>
         /// A request from the client for the running status of a specific auxiliary application
         /// </summary>
