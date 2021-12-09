@@ -115,15 +115,6 @@ namespace PlexServiceWCF
         }
 
         /// <summary>
-        /// Returns the log file as a string
-        /// </summary>
-        /// <returns></returns>
-        public string GetLog()
-        {
-            return LogWriter.Read();
-        }
-
-        /// <summary>
         /// Returns Running or Stopped
         /// </summary>
         /// <returns></returns>
