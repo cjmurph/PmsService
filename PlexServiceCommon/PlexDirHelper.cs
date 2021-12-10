@@ -18,11 +18,7 @@ namespace PlexServiceCommon {
 			result = String.Empty;
 			var is64Bit = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"));
 
-			var architecture = RegistryView.Registry32;
-			if (is64Bit)
-			{
-				architecture = RegistryView.Registry64;
-			}
+			var architecture = is64Bit ? RegistryView.Registry64 : RegistryView.Registry32;
 
 			using var pmsDataKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, architecture)
 				.OpenSubKey(@"Software\Plex, Inc.\Plex Media Server");
