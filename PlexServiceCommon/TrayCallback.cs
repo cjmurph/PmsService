@@ -14,6 +14,9 @@ namespace PlexServiceCommon
                 case PlexState.Stopped:
                     OnStateChange($"Plex {state.ToString()}");
                     break;
+                case PlexState.Updating:
+                    OnStateChange($"Plex is {state.ToString()}");
+                    break;
                 case PlexState.Pending:
                     OnStateChange($"Plex Start {state.ToString()}");
                     break;

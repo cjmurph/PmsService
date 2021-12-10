@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Win32;
@@ -45,7 +46,7 @@ namespace PlexServiceWCF
         /// <summary>
         /// Plex process
         /// </summary>
-        private Process _plex;
+        private Process? _plex;
 
         /// <summary>
         /// Flag to determine if PMS is updating itself.
@@ -58,7 +59,7 @@ namespace PlexServiceWCF
 
         #region Properties
 
-        private PlexState _state;
+        private PlexState _state = PlexState.Stopped;
 
         public PlexState State
         {
@@ -79,12 +80,11 @@ namespace PlexServiceWCF
 
         internal PmsMonitor()
         {
+            LogWriter.Init();
             State = PlexState.Stopped;
             _auxAppMonitors = new List<AuxiliaryApplicationMonitor>();
             var settings = SettingsHandler.Load();
             settings.AuxiliaryApplications.ForEach(x => _auxAppMonitors.Add(new AuxiliaryApplicationMonitor(x)));
-            //hook up the state change event for all the applications
-            _auxAppMonitors.ForEach(x => x.StatusChange += OnPlexStatusChange);
             WatchLog();
         }
         #endregion
@@ -97,23 +97,20 @@ namespace PlexServiceWCF
         /// <returns></returns>
         private void PurgeAutoStartRegistryEntry()
         {
-            var keyName = @"Software\Microsoft\Windows\CurrentVersion\Run";
+            const string keyName = @"Software\Microsoft\Windows\CurrentVersion\Run";
             using var key = Registry.CurrentUser.OpenSubKey(keyName, true);
-            if (key != null)
+            if (key?.GetValue("Plex Media Server") == null) {
+                return;
+            }
+
+            try
             {
-                if (key.GetValue("Plex Media Server") != null)
-                {
-                    try
-                    {
-                        key.DeleteValue("Plex Media Server");
-                        OnPlexStatusChange(this, new StatusChangeEventArgs("Successfully removed auto start entry from registry"));
-                    }
-                    catch(Exception ex)
-                    {
-                        OnPlexStatusChange(this, new StatusChangeEventArgs(
-                            $"Unable to remove auto start registry value. Error: {ex.Message}"));
-                    }
-                }
+                key.DeleteValue("Plex Media Server");
+                Log.Information("Successfully removed auto start entry from registry");
+            }
+            catch(Exception ex)
+            {
+                Log.Warning($"Unable to remove auto start registry value. Error: {ex.Message}");
             }
         }
 
@@ -125,27 +122,42 @@ namespace PlexServiceWCF
         /// This method will set the "FirstRun" registry key to 0 to prevent PMS from spawning the default browser.
         /// </summary>
         /// <returns></returns>
-        private void DisableFirstRun()
-        {
-            var keyName = @"Software\Plex, Inc.\Plex Media Server";
+        private void DisableFirstRun() {
+            RegistryKey? pmsDataKey = null;
+            const string keyName = @"Software\Plex, Inc.\Plex Media Server";
+            var is64Bit = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"));
+
+            var architecture = is64Bit ? RegistryView.Registry64 : RegistryView.Registry32;
+            try {
+                pmsDataKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, architecture).OpenSubKey(keyName);
+                if (pmsDataKey != null) {
+                    var firstRun = (int) pmsDataKey.GetValue("FirstRun");
+                    Log.Debug("First run is: " + firstRun);
+                    if (firstRun == 0) return;
+                }
+            } catch (Exception e) {
+                Log.Warning("Exception getting pms key: " + e.Message);
+            }
+
             // CreateSubKey just in case it isn't already there for some reason.
             // The installer adds values under here during install, but this can't hurt.
-            using var key = Registry.CurrentUser.CreateSubKey(keyName, RegistryKeyPermissionCheck.ReadWriteSubTree);
-            if (key != null)
-            {
-                if (!Equals(key.GetValue("FirstRun") as string, "0"))
-                {
-                    try
-                    {
-                        key.SetValue("FirstRun", 0, RegistryValueKind.DWord);
-                        OnPlexStatusChange(this, new StatusChangeEventArgs("Successfully set the 'FirstRun' registry key to 0"));
-                    }
-                    catch(Exception ex)
-                    {
-                        OnPlexStatusChange(this, new StatusChangeEventArgs(
-                            $"Unable to set the 'FirstRun' registry key to 0. Error: {ex.Message}"));
-                    }
+            if (pmsDataKey == null) {
+                using var key = Registry.CurrentUser.CreateSubKey(keyName, RegistryKeyPermissionCheck.ReadWriteSubTree);
+                if (key == null) {
+                    return;
                 }
+
+                pmsDataKey = key;
+            }
+            
+            try
+            {
+                pmsDataKey.SetValue("FirstRun", 0, RegistryValueKind.DWord);
+                Log.Information("Successfully set the 'FirstRun' registry key to 0");
+            }
+            catch(Exception ex)
+            {
+                Log.Information($"Unable to set the 'FirstRun' registry key to 0. Error: {ex.Message}");
             }
         }
 
@@ -231,46 +243,32 @@ namespace PlexServiceWCF
                 return;
             }
             var read = false;
-            var lines = Array.Empty<string>();
+            var lastLine = string.Empty;
             // Ensure the file isn't in use when we try to read it.
             while (!read) {
                 try {
-                    lines = File.ReadLines(e.FullPath).ToArray();
+                    lastLine = File.ReadLines(e.FullPath).ToArray().Last();
                     read = true;
                 } catch (Exception) {
                     // Ignored, we know what the problem is
                 }
             }
-            // Loop through each line in file, looking to see if Update has started or completed
-            foreach(var lastLine in lines)
-            {
-                // Only set _updating once.
-                if (lastLine.Contains("Closing Plex Media Server Processes") && !_updating) {
-                    Log.Information("PMS is updating itself, skipping auto-restart if enabled.");
-                    _updating = true;
-                    return;
-                }
-
-                // And only unset it if it's already been set.
-                if (!lastLine.Contains("Install: Success") || !_updating) {
-                    return;
-                }    
+            // Only set _updating once.
+            if (lastLine != null && lastLine.Contains("Closing Plex Media Server Processes") && !_updating) {
+                Log.Debug("MATCH");
+                State = PlexState.Updating;
+                Log.Information("Plex update started.");
+                _updating = true;
+                return;
             }
-            
-            Log.Information("PMS update is complete, seizing process.");
+
+            // And only unset it if it's already been set.
+            if (lastLine != null && (!lastLine.Contains("Install: Success") || !_updating)) {
+                return;
+            }
             _updating = false;
-            var toKill = Process.GetProcessesByName(_plexName).FirstOrDefault();
-            toKill?.Kill();
-            EndPlex();
-            var settings = SettingsHandler.Load();
-            Log.Information("PMS killed, restarting.");
-            OnPlexStatusChange(this, new StatusChangeEventArgs(
-                $"Waiting {settings.RestartDelay} seconds before re-starting the Plex process."));
-            State = PlexState.Pending;
-            var autoEvent = new AutoResetEvent(false);
-            var t = new Timer(_ => { Start(); autoEvent.Set(); }, null, settings.RestartDelay * 1000, Timeout.Infinite);
-            autoEvent.WaitOne();
-            t.Dispose();
+            Log.Information("PMS update is complete, killing and restarting process.");
+            Start();
         }
 
         private bool TryMap(DriveMap map, Settings settings) {
@@ -350,11 +348,11 @@ namespace PlexServiceWCF
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void Plex_Exited(object sender, EventArgs e)
+        private void Plex_Exited(object sender, EventArgs e)
         {
             Log.Information("Plex Media Server has stopped!");
             //unsubscribe
-            _plex.Exited -= Plex_Exited;
+            if (_plex != null) _plex.Exited -= Plex_Exited;
 
             //kill the supporting processes.
             KillSupportingProcesses();
@@ -408,6 +406,12 @@ namespace PlexServiceWCF
                 Log.Debug("No plex defined, checking for running process.");
                 //see if its running already
                 _plex = Process.GetProcessesByName(_plexName).FirstOrDefault();
+                if (_plex != null) {
+                    Log.Information("Killing existing Plex service.");
+                    _plex.Kill();
+                    KillSupportingProcesses();
+                    _plex = null;
+                }
                 
                 if (_plex == null)
                 {
@@ -436,9 +440,10 @@ namespace PlexServiceWCF
                     _plex.Exited += Plex_Exited;
                     try
                     {
-                        _plex.Start();
-                        State = PlexState.Running;
-                        OnPlexStatusChange(this, new StatusChangeEventArgs("Plex Media Server Started."));
+                        if (_plex.Start()) {
+                            State = PlexState.Running;
+                            Log.Information("Plex Media Server Started.");    
+                        }
                     }
                     catch(Exception ex)
                     {
@@ -474,8 +479,6 @@ namespace PlexServiceWCF
             _auxAppMonitors.ForEach(appMonitor =>
             {
                 appMonitor.Stop();
-                //remove event hook
-                appMonitor.StatusChange -= OnPlexStatusChange;
             });
 
             OnPlexStop(EventArgs.Empty);
@@ -484,7 +487,7 @@ namespace PlexServiceWCF
         /// <summary>
         /// Kill all processes with the specified names
         /// </summary>
-        private void KillSupportingProcesses()
+        private static void KillSupportingProcesses()
         {
             Log.Information("Killing supporting processes.");
             foreach (var name in SupportingProcesses)
@@ -497,7 +500,7 @@ namespace PlexServiceWCF
         /// Kill all instances of the specified process.
         /// </summary>
         /// <param name="name">The name of the process to kill</param>
-        private void KillSupportingProcess(string name)
+        private static void KillSupportingProcess(string name)
         {
             //see if its running
             Log.Information("Looking for process: " + name);
@@ -509,7 +512,8 @@ namespace PlexServiceWCF
 
             foreach (var supportProcess in supportProcesses)
             {
-                foreach (var supportProcess in supportProcesses)
+                Log.Information($"Stopping {name} with PID of {supportProcess.Id}.");
+                try
                 {
                     supportProcess.Kill();
                     Log.Information(name + " with PID stopped");
@@ -571,7 +575,7 @@ namespace PlexServiceWCF
                     string userSpecified;
                     using (var sr = new StreamReader(location))
                     {
-                        userSpecified = sr.ReadLine();
+                        userSpecified = sr.ReadLine() ?? string.Empty;
                     }
                     if (File.Exists(userSpecified))
                     {
@@ -668,7 +672,7 @@ namespace PlexServiceWCF
         /// <summary>
         /// Stop Event
         /// </summary>
-        internal event EventHandler PlexStop;
+        internal event EventHandler? PlexStop;
 
         /// <summary>
         /// Method to stop the monitor
@@ -682,7 +686,7 @@ namespace PlexServiceWCF
         
         #region StateChange
 
-        public event EventHandler StateChange;
+        public event EventHandler? StateChange;
 
         private void OnStateChange()
         {

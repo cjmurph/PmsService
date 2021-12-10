@@ -197,6 +197,9 @@ namespace PlexServiceTray
                         case PlexState.Pending:
                             _notifyIcon.ContextMenuStrip.Items.Add("Restart Pending");
                             break;
+                        case PlexState.Updating:
+                            _notifyIcon.ContextMenuStrip.Items.Add("Plex updating");
+                            break;
                         case PlexState.Stopping:
                             _notifyIcon.ContextMenuStrip.Items.Add("Stopping");
                             break;
