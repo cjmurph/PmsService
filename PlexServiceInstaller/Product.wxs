@@ -34,7 +34,7 @@
         <Condition Message='This setup requires the .NET Framework 4.7.2 (or greater) to be installed.'>
             <![CDATA[Installed OR WIX_IS_NETFRAMEWORK_472_OR_LATER_INSTALLED]]>
         </Condition>
-        <Feature Id="PlexServiceFeature" Title="Plex Service" Description="Plex Service 1.1.8" Level="1"
+        <Feature Id="PlexServiceFeature" Title="Plex Service" Description="Plex Service 1.1.9" Level="1"
                  ConfigurableDirectory='INSTALLDIR'>
             <ComponentRef Id="PlexServiceComponent"/>
             <ComponentRef Id="PlexServiceWCFComponent"/>
