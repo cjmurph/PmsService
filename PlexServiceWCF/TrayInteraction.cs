@@ -16,7 +16,7 @@ namespace PlexServiceWCF
     [ServiceBehavior(ConfigurationName = "PlexServiceWCF:PlexServiceWCF.TrayInteraction", InstanceContextMode = InstanceContextMode.Single)]
     public class TrayInteraction : ITrayInteraction
     {
-        public static readonly string AppDataPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Plex Service\");
+        public static readonly string AppDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Plex Service\");
 
         private readonly PmsMonitor _pms;
 
@@ -126,6 +126,9 @@ namespace PlexServiceWCF
         public string GetLogPath() {
             return LogWriter.LogFile;
         }
+
+        public string GetPmsDataPath() {
+            return PlexDirHelper.GetPlexDataDir();
         }
 
         /// <summary>
