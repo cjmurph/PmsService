@@ -1,4 +1,5 @@
 ﻿using System;
+using Serilog;
 
 namespace PlexServiceCommon
 {
@@ -36,6 +37,17 @@ namespace PlexServiceCommon
         }
 
         #endregion
+        
+        #region SettingChange
+
+        public event EventHandler<SettingChangeEventArgs> SettingChange;
+
+        public void OnSettingChange(Settings settings) {
+            Log.Debug("Setting change...");
+            SettingChange?.Invoke(this, new SettingChangeEventArgs(settings));
+        }
+
+        #endregion
 
         public void OnPlexStopped()
         {
@@ -53,5 +65,12 @@ namespace PlexServiceCommon
 
         #endregion
 
+    }
+
+    public class SettingChangeEventArgs {
+        public Settings Settings;
+        public SettingChangeEventArgs(Settings settings) {
+            Settings = settings;
+        }
     }
 }

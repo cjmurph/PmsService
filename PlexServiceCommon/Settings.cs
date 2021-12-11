@@ -83,26 +83,6 @@ namespace PlexServiceCommon
             DriveMaps = new List<DriveMap>();
         }
 
-        /// <summary>
-        /// Serialise the settings into a json formatted string
-        /// </summary>
-        /// <returns></returns>
-        public string Serialize()
-        {
-            return JsonConvert.SerializeObject(this);
-        }
-
-        /// <summary>
-        /// Deserialize from a json formatted string to a Settings object
-        /// </summary>
-        /// <param name="settings"></param>
-        /// <returns></returns>
-        public static Settings Deserialize(string settings)
-        {            
-            return JsonConvert.DeserializeObject<Settings>(settings);
-        }
-
-      
     }
 }
 

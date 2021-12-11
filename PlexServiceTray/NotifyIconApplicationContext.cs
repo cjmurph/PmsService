@@ -29,6 +29,7 @@ namespace PlexServiceTray
 
         private SettingsWindow _settingsWindow;
         private ConnectionSettingsWindow _connectionSettingsWindow;
+        private Settings? _settings;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -67,6 +68,7 @@ namespace PlexServiceTray
             _notifyIcon.MouseClick += NotifyIcon_Click;
             _notifyIcon.MouseDoubleClick += NotifyIcon_DoubleClick;
             _notifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
+            if (_plexService != null) _settings = _plexService.GetSettings();
         }
 
         /// <summary>
@@ -74,7 +76,6 @@ namespace PlexServiceTray
         /// </summary>
         private void Connect()
         {
-            var localSettings = ConnectionSettings.Load();
             //Create a NetTcp binding to the service and set some appropriate timeouts.
             //Use reliable connection so we know when we have been disconnected
             var plexServiceBinding = new NetTcpBinding {
@@ -118,6 +119,11 @@ namespace PlexServiceTray
         private void Callback_StateChange(object sender, StatusChangeEventArgs e)
         {
             _notifyIcon.ShowBalloonTip(2000, "Plex Service", e.Description, ToolTipIcon.Info);
+        }
+
+        private void Callback_SettingChange(object sender, SettingChangeEventArgs e) {
+            Logger("Settings updated...");
+            _settings = e.Settings;
         }
 
         /// <summary>
@@ -180,10 +186,11 @@ namespace PlexServiceTray
             {
                 Connect();
             }
+            
+            if (_plexService != null) _settings = _plexService.GetSettings();
 
-            if (_plexService != null)// && ((ICommunicationObject)_plexService).State == CommunicationState.Opened)
+            if (_plexService is { State: CommunicationState.Opened })
             {
-                var settings = Settings.Deserialize(_plexService.GetSettings());
                 try
                 {
                     var state = _plexService.GetStatus();
@@ -217,34 +224,34 @@ namespace PlexServiceTray
                     Disconnect();
                     _notifyIcon.ContextMenuStrip.Items.Add("Unable to connect to service. Check settings");
                 }
-                _notifyIcon.ContextMenuStrip.Items.Add("PMS Data Folder", null, PMSData_Click);
-                _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-                var auxAppsToLink = settings.AuxiliaryApplications.Where(aux => !string.IsNullOrEmpty(aux.Url)).ToList();
-                if(auxAppsToLink.Count > 0)
-                {
-                    var auxAppsItem = new ToolStripMenuItem();
-                    auxAppsItem.Text = "Auxiliary Applications";
-                    auxAppsToLink.ForEach(aux =>
-                    {
-                        auxAppsItem.DropDownItems.Add(aux.Name, null, (_, _) => 
-                        {
-                            try {
-                                Process.Start(aux.Url);
-                            } catch (Exception ex) {
-                                Log.Warning("Aux exception: " + ex.Message);
-                                System.Windows.Forms.MessageBox.Show(ex.Message, "Whoops!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            }
-                        });
-                    });
-                    _notifyIcon.ContextMenuStrip.Items.Add(auxAppsItem);
+                if (!string.IsNullOrEmpty(GetDataDir())) _notifyIcon.ContextMenuStrip.Items.Add("PMS Data Folder", null, PMSData_Click);
+                if (_settings != null) {
                     _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+                    var auxAppsToLink = _settings.AuxiliaryApplications.Where(aux => !string.IsNullOrEmpty(aux.Url))
+                        .ToList();
+                    if (auxAppsToLink.Count > 0) {
+                        var auxAppsItem = new ToolStripMenuItem();
+                        auxAppsItem.Text = "Auxiliary Applications";
+                        auxAppsToLink.ForEach(aux => {
+                            auxAppsItem.DropDownItems.Add(aux.Name, null, (_, _) => {
+                                try {
+                                    Process.Start(aux.Url);
+                                } catch (Exception ex) {
+                                    Logger("Aux exception: " + ex.Message, LogEventLevel.Warning);
+                                    System.Windows.Forms.MessageBox.Show(ex.Message, "Whoops!", MessageBoxButtons.OK,
+                                        MessageBoxIcon.Error);
+                                }
+                            });
+                        });
+                        _notifyIcon.ContextMenuStrip.Items.Add(auxAppsItem);
+                        _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+                    }
+
+                    var settingsItem = _notifyIcon.ContextMenuStrip.Items.Add("Settings", null, SettingsCommand);
+                    if (_settingsWindow != null) {
+                        settingsItem.Enabled = false;
+                    }
                 }
-                var settingsItem = _notifyIcon.ContextMenuStrip.Items.Add("Settings", null, SettingsCommand);
-                if(_settingsWindow != null)
-                {
-                    settingsItem.Enabled = false;
-                }
-                
             }
             else
             {
@@ -274,23 +281,15 @@ namespace PlexServiceTray
         /// <param name="e"></param>
         private void SettingsCommand(object sender, EventArgs e)
         {
-            Settings settings = null;
-            try
-            {
-                settings = Settings.Deserialize(_plexService.GetSettings());
+            if (_plexService == null) {
+                return;
             }
-            catch (Exception ex)
-            {
-                Log.Warning("Exception with settings command: " + ex.Message);
-                Disconnect();
-            }
-
-            if (settings == null) {
+            
+            if (_settings == null) {
                 return;
             }
 
-            //Save the current server port setting for reference
-            var viewModel = new SettingsWindowViewModel(settings);
+            var viewModel = new SettingsWindowViewModel(_settings);
             viewModel.AuxAppStartRequest += (s, _) => {
                 if (s is not AuxiliaryApplicationViewModel requester) {
                     return;
@@ -312,16 +311,13 @@ namespace PlexServiceTray
                     requester.Running = _plexService.IsAuxAppRunning(requester.Name);
                 }
             };
-            if (_plexService == null) {
-                return;
-            }
-
-            _settingsWindow = new SettingsWindow(viewModel);
+            
+            _settingsWindow = new SettingsWindow(viewModel, _plexService);
             if (_settingsWindow.ShowDialog() == true)
             {
                 try
                 {
-                    _plexService.SetSettings(viewModel.WorkingSettings.Serialize());
+                    _plexService.SetSettings(viewModel.WorkingSettings);
                     _plexService.GetStatus();
                 }
                 catch(Exception ex)
@@ -353,16 +349,12 @@ namespace PlexServiceTray
             }
         }
         private string GetTheme() {
-            if (_plexService == null) {
+            if (_plexService == null || _settings == null) {
                 return "Dark.Amber";
             }
 
-            var settingsString = _plexService.GetSettings();
-            if (string.IsNullOrEmpty(settingsString)) {
-                return "Dark.Amber";
-            }
-            var settings = Settings.Deserialize(settingsString);
-            return settings.Theme;
+            
+            return _settings.Theme;
         }
         
         /// <summary>

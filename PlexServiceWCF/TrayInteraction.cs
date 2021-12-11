@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.ServiceModel;
 using System.Threading.Tasks;
 using PlexServiceCommon;
 using PlexServiceCommon.Interface;
 using Serilog;
+using Serilog.Events;
 
 namespace PlexServiceWCF
 {
@@ -101,9 +103,11 @@ namespace PlexServiceWCF
         /// Write the settings to the server
         /// </summary>
         /// <param name="settings">Json serialised Settings instance</param>
-        public void SetSettings(string settings)
+        public void SetSettings(Settings settings)
         {
-            SettingsHandler.Save(Settings.Deserialize(settings));
+            SettingsHandler.Save(settings);
+        }
+
         public void LogMessage(string message, LogEventLevel level=LogEventLevel.Debug) {
             Log.Write(level,message);
         }
@@ -128,9 +132,9 @@ namespace PlexServiceWCF
         /// Returns the settings file from the server as a json string
         /// </summary>
         /// <returns></returns>
-        public string GetSettings()
+        public Settings GetSettings()
         {
-            return SettingsHandler.Load().Serialize();
+            return SettingsHandler.Load();
         }
 
         /// <summary>

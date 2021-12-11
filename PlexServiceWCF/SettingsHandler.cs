@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Newtonsoft.Json;
 using PlexServiceCommon;
 
 namespace PlexServiceWCF
@@ -30,8 +31,9 @@ namespace PlexServiceWCF
             }
 
             using var sw = new StreamWriter(filePath, false);
-            var rawSettings = settings.Serialize();
-            sw.Write(rawSettings);
+            sw.Write(JsonConvert.SerializeObject(settings, Formatting.Indented));
+            var tc = new TrayCallback();
+            tc.OnSettingChange(settings);
         }
 
 
@@ -46,7 +48,7 @@ namespace PlexServiceWCF
             if (File.Exists(filePath)) {
                 using var sr = new StreamReader(filePath);
                 var rawSettings = sr.ReadToEnd();
-                settings = Settings.Deserialize(rawSettings);
+                settings = JsonConvert.DeserializeObject<Settings>(rawSettings);
             }
             else
             {
