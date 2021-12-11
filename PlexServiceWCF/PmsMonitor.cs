@@ -270,10 +270,9 @@ namespace PlexServiceWCF
             Start();
         }
 
-        private bool TryMap(DriveMap map, Settings settings) {
+        private static bool TryMap(DriveMap map, Settings settings) {
             var mapped = false;
-            if (settings.AutoRemount) {
-                var count = settings.AutoRemountCount;
+            var count = settings.AutoRemount ? settings.AutoRemountCount : 1;
                 while (count > 0 && !mapped) {
                     try
                     {
@@ -286,23 +285,11 @@ namespace PlexServiceWCF
                         Log.Information($"Unable to map share {map.ShareName} to letter '{map.DriveLetter}': {ex.Message}, {count - 1} more attempts remaining.");
                     }
                     // Wait 5s
-                    Thread.Sleep(settings.AutoRemountDelay * 1000);
+                    if (settings.AutoRemount) Thread.Sleep(settings.AutoRemountDelay * 1000);
                     count--;
                 }
-            } else {
-                try
-                {
-                    map.MapDrive(true);
-                    Log.Information($"Map share {map.ShareName} to letter '{map.DriveLetter}' successful");
-                    mapped = true;
-                }
-                catch(Exception ex)
-                {
-                    Log.Warning($"Unable to map share {map.ShareName} to letter '{map.DriveLetter}': {ex.Message}");
-                }
-            }
-
-            return mapped;
+                
+                return mapped;
         }
 
         #endregion
