@@ -23,6 +23,9 @@ namespace PlexServiceTray
         /// </summary>
         [JsonProperty]
         public int ServerPort { get; set; }
+        
+        [JsonProperty]
+        public bool IsLocal => ServerAddress is "127.0.0.1" or "localhost" or "0.0.0.0";
 
         #endregion
 
