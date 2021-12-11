@@ -15,7 +15,7 @@ namespace PlexServiceCommon {
 			if (Directory.Exists(path)) {
 				return path;
 			}
-			result = String.Empty;
+			result = string.Empty;
 			var is64Bit = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"));
 
 			var architecture = is64Bit ? RegistryView.Registry64 : RegistryView.Registry32;

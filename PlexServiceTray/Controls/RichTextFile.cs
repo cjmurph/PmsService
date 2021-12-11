@@ -37,7 +37,7 @@ namespace PlexServiceTray.Controls
         }
 
         public static readonly DependencyProperty FileProperty =
-            DependencyProperty.Register("File", typeof(String), typeof(RichTextFile),
+            DependencyProperty.Register("File", typeof(string), typeof(RichTextFile),
             new PropertyMetadata(OnFileChanged));
 
         private static void OnFileChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
