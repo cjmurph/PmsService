@@ -1,35 +1,35 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Linq;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Diagnostics;
+using System.IO;
 using PlexServiceCommon;
 using System.ServiceModel;
 using System.Windows;
 using Serilog;
+using Serilog.Events;
 
 namespace PlexServiceTray
 {
     /// <summary>
     /// Tray icon context
     /// </summary>
-    class NotifyIconApplicationContext : ApplicationContext
+    internal class NotifyIconApplicationContext : ApplicationContext
     {
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer _components;
+        private readonly System.ComponentModel.IContainer _components;
+        private readonly NotifyIcon _notifyIcon;
 
-        private NotifyIcon _notifyIcon;
+        private PlexServiceCommon.Interface.ITrayInteraction? _plexService;
 
-        //private readonly static TimeSpan _timeOut = TimeSpan.FromSeconds(2);
-
-        private PlexServiceCommon.Interface.ITrayInteraction _plexService;
-
-
-        private SettingsWindow _settingsWindow;
-        private ConnectionSettingsWindow _connectionSettingsWindow;
+        private SettingsWindow? _settingsWindow;
+        private ConnectionSettingsWindow? _connectionSettingsWindow;
         private Settings? _settings;
+        private readonly ConnectionSettings _connectionSettings;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -48,14 +48,7 @@ namespace PlexServiceTray
 
         public NotifyIconApplicationContext()
         {
-            InitializeContext();
-            Connect();
-        }
-
-        /// <summary>
-        /// Setup our tray icon
-        /// </summary>
-        private void InitializeContext() {
+            // Moved directly to constructor to suppress nullable warnings.
             _components = new System.ComponentModel.Container();
             _notifyIcon = new NotifyIcon(_components);
             _notifyIcon.ContextMenuStrip = new ContextMenuStrip();
@@ -68,13 +61,17 @@ namespace PlexServiceTray
             _notifyIcon.MouseClick += NotifyIcon_Click;
             _notifyIcon.MouseDoubleClick += NotifyIcon_DoubleClick;
             _notifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
+            _connectionSettings = ConnectionSettings.Load();
+            Connect();
+            // Load settings and store them, versus retrieving them. If updated, we'll listen for an event and re-cache them.
             if (_plexService != null) _settings = _plexService.GetSettings();
         }
 
+        
         /// <summary>
         /// Connect to WCF service
         /// </summary>
-        private void Connect()
+        public void Connect()
         {
             //Create a NetTcp binding to the service and set some appropriate timeouts.
             //Use reliable connection so we know when we have been disconnected
@@ -91,13 +88,11 @@ namespace PlexServiceTray
                 }
             };
             //Generate the endpoint from the local settings
-            var plexServiceEndpoint = new EndpointAddress(localSettings.GetServiceAddress());
-
+            var plexServiceEndpoint = new EndpointAddress(_connectionSettings.GetServiceAddress());
             var callback = new TrayCallback();
             callback.StateChange += Callback_StateChange;
+            callback.SettingChange += Callback_SettingChange;
             var client = new TrayInteractionClient(callback, plexServiceBinding, plexServiceEndpoint);
-
-            //Make a channel factory so we can create the link to the service
             _plexService = null;
 
             try {
@@ -106,8 +101,6 @@ namespace PlexServiceTray
                 //If we lose connection to the service, set the object to null so we will know to reconnect the next time the tray icon is clicked
                 _plexService.Faulted += (_, _) => _plexService = null;
                 _plexService.Closed += (_, _) => _plexService = null;
-
-
             }
             catch (Exception e)
             {
@@ -131,17 +124,16 @@ namespace PlexServiceTray
         /// </summary>
         private void Disconnect()
         {
-            //try and be nice...
-            if (_plexService != null)
+            try
             {
-                try
-                {
+                if (_plexService is { State: CommunicationState.Opened }) {
                     _plexService.UnSubscribe();
                     _plexService.Close();
                 }
             } catch {
                 //
             }
+            
             _plexService = null;
         }
 
@@ -405,10 +397,13 @@ namespace PlexServiceTray
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void StartPlex_Click(object sender, EventArgs e)
-        {
+        private void StartPlex_Click(object sender, EventArgs e) {
             //start it
-            if (_plexService != null)
+            if (_plexService == null) {
+                return;
+            }
+
+            try
             {
                 _plexService.Start();
             }
@@ -449,7 +444,7 @@ namespace PlexServiceTray
         private void OpenManager_Click(object sender, EventArgs e)
         {
             //The web manager should be located at the server address in the connection settings
-            Process.Start("http://" + ConnectionSettings.Load().ServerAddress + ":32400/web");
+            Process.Start("http://" + _connectionSettings.ServerAddress + ":32400/web");
         }
 
         /// <summary>
@@ -497,19 +492,35 @@ namespace PlexServiceTray
             }
         }
         
-        private void PMSData_Click(object sender, EventArgs e)
-        {
+        private void PMSData_Click(object sender, EventArgs e) {
             //Open a windows explorer window to PMS data
+            var dir = GetDataDir();
             try {
-                var path = PlexDirHelper.GetPlexDataDir();
-                if (string.IsNullOrEmpty(path)) return;
-                Process.Start($@"{path}");
+                
+                if (dir != string.Empty) Process.Start($@"{dir}");
             }
             catch (Exception ex)
             {
                 Logger($"Error opening PMS Data folder at {dir}: " + ex.Message, LogEventLevel.Warning);
                 Disconnect();
             }
+        }
+
+        private string GetDataDir() {
+            var dir = string.Empty;
+            var path = _plexService?.GetPmsDataPath() ?? string.Empty;
+            if (string.IsNullOrEmpty(path)) return dir;
+            // If we're not local, see if we can access PMS data dir over UNC
+            if (!_connectionSettings.IsLocal) {
+                var drive = path.Substring(0, 1);
+                var ext = path.Substring(3);
+                var unc = Path.Combine("\\\\" + _connectionSettings.ServerAddress, drive + "$", ext);
+                if (Directory.Exists(unc)) dir = unc;
+            } else {
+                dir = path;
+            }
+
+            return dir;
         }
 
     }
