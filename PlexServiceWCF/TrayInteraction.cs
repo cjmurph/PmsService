@@ -22,7 +22,6 @@ namespace PlexServiceWCF
         private readonly ITrayInteraction _trayInteractionImplementation;
 
         public TrayInteraction() {
-            LogWriter.Init();
             _trayInteractionImplementation = this;
             _pms = new PmsMonitor();
             _pms.StateChange += PlexStateChange;
@@ -105,6 +104,24 @@ namespace PlexServiceWCF
         public void SetSettings(string settings)
         {
             SettingsHandler.Save(Settings.Deserialize(settings));
+        public void LogMessage(string message, LogEventLevel level=LogEventLevel.Debug) {
+            Log.Write(level,message);
+        }
+
+        /// <summary>
+        /// Returns the log file as a string
+        /// </summary>
+        /// <returns></returns>
+        public string GetLog()
+        {
+            var res = LogWriter.Read().Result;
+            Log.Debug("Res is " + res.Length);
+            return res;
+        }
+
+        public string GetLogPath() {
+            return LogWriter.LogFile;
+        }
         }
 
         /// <summary>

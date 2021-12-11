@@ -80,7 +80,6 @@ namespace PlexServiceWCF
 
         internal PmsMonitor()
         {
-            LogWriter.Init();
             State = PlexState.Stopped;
             _auxAppMonitors = new List<AuxiliaryApplicationMonitor>();
             var settings = SettingsHandler.Load();

@@ -1,10 +1,11 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using ControlzEx.Theming;
-using PlexServiceCommon;
-using Serilog;
+using PlexServiceCommon.Interface;
+using Serilog.Events;
 
 namespace PlexServiceTray
 {
@@ -13,10 +14,12 @@ namespace PlexServiceTray
     /// </summary>
     public partial class SettingsWindow {
         private bool _maximiseRequired;
+        private readonly ITrayInteraction? _plexService;
         
-        public SettingsWindow(SettingsWindowViewModel settingsViewModel)
+        public SettingsWindow(SettingsWindowViewModel settingsViewModel, ITrayInteraction plexService)
         {
             InitializeComponent();
+            _plexService = plexService;
             DataContext = settingsViewModel;
             var theme = settingsViewModel.WorkingSettings.Theme;
             if (theme != null) ThemeManager.Current.ChangeTheme(this, theme);
@@ -53,7 +56,7 @@ namespace PlexServiceTray
                 var svm = (SettingsWindowViewModel)DataContext;
                 svm.WorkingSettings.Theme = theme;
             } catch (Exception ex) {
-                Log.Warning("Exception changing theme: " + ex.Message);
+                _plexService?.LogMessage("Exception changing theme: " + ex.Message, LogEventLevel.Warning);
             }
         }
     }

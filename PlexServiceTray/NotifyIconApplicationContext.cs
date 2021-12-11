@@ -81,6 +81,9 @@ namespace PlexServiceTray
                 OpenTimeout = TimeSpan.FromMilliseconds(500),
                 CloseTimeout = TimeSpan.FromMilliseconds(500),
                 SendTimeout = TimeSpan.FromMilliseconds(500),
+                MaxReceivedMessageSize = 2147483647,
+                MaxBufferSize = 2147483647,
+                MaxBufferPoolSize =  2147483647,
                 ReliableSession = {
                     Enabled = true,
                     InactivityTimeout = TimeSpan.FromMinutes(1)
@@ -107,7 +110,7 @@ namespace PlexServiceTray
             }
             catch (Exception e)
             {
-                Log.Warning("Exception connecting: " + e.Message);
+                Logger("Exception connecting: " + e.Message, LogEventLevel.Warning);
                 _plexService = null;
             }
         }
@@ -129,9 +132,9 @@ namespace PlexServiceTray
                 {
                     _plexService.UnSubscribe();
                     _plexService.Close();
-                } catch {
-                    Log.Warning("Exception disconnecting: " + String.Empty.GetEnumerator());
                 }
+            } catch {
+                //
             }
             _plexService = null;
         }
@@ -210,7 +213,7 @@ namespace PlexServiceTray
                 }
                 catch (Exception ex)
                 {
-                    Log.Warning("Exception with strip: " + ex.Message);
+                    Log.Warning("Exception with strip: " + ex.Message, LogEventLevel.Warning);
                     Disconnect();
                     _notifyIcon.ContextMenuStrip.Items.Add("Unable to connect to service. Check settings");
                 }
@@ -323,7 +326,7 @@ namespace PlexServiceTray
                 }
                 catch(Exception ex)
                 {
-                    Log.Warning("Exception saving settings: " + ex.Message);
+                    Logger("Exception saving settings: " + ex.Message, LogEventLevel.Warning);
                     Disconnect();
                     System.Windows.MessageBox.Show("Unable to save settings" + Environment.NewLine + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 }     
@@ -339,6 +342,16 @@ namespace PlexServiceTray
             _settingsWindow = null;
         }
 
+        private void Logger(string message, LogEventLevel level = LogEventLevel.Debug) {
+            if (_plexService == null) return;
+            try {
+                if (_plexService.State == CommunicationState.Opened) {
+                    _plexService.LogMessage(message, level);
+                }
+            } catch {
+                // Ignored
+            }
+        }
         private string GetTheme() {
             if (_plexService == null) {
                 return "Dark.Amber";
@@ -368,7 +381,7 @@ namespace PlexServiceTray
                     Disconnect();
                     Connect();
                 } catch (Exception ex){
-                    Log.Warning("Exception on connection setting command" + ex.Message);
+                    Logger("Exception on connection setting command" + ex.Message, LogEventLevel.Warning);
                 }
             }
             _connectionSettingsWindow = null;
@@ -405,15 +418,12 @@ namespace PlexServiceTray
             //start it
             if (_plexService != null)
             {
-                try
-                {
-                    _plexService.Start();
-                }
-                catch (Exception ex) 
-                {
-                    Log.Warning("Exception on startPlex click: " + ex);
-                    Disconnect();
-                }
+                _plexService.Start();
+            }
+            catch (Exception ex) 
+            {
+                Logger("Exception on startPlex click: " + ex, LogEventLevel.Warning);
+                Disconnect();
             }
         }
 
@@ -422,20 +432,20 @@ namespace PlexServiceTray
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void StopPlex_Click(object sender, EventArgs e)
-        {
+        private void StopPlex_Click(object sender, EventArgs e) {
             //stop it
-            if (_plexService != null)
+            if (_plexService == null) {
+                return;
+            }
+
+            try
             {
-                try
-                {
-                    _plexService.Stop();
-                }
-                catch (Exception ex)
-                {
-                    Log.Warning("Exception stopping Plex..." + ex.Message);
-                    Disconnect();
-                }
+                _plexService.Stop();
+            }
+            catch (Exception ex)
+            {
+                Logger("Exception stopping Plex..." + ex.Message);
+                Disconnect();
             }
         }
 
@@ -455,23 +465,42 @@ namespace PlexServiceTray
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ViewLogs_Click(object sender, EventArgs e)
-        {
+        private void ViewLogs_Click(object sender, EventArgs e) {
+            var sa = _connectionSettings.ServerAddress;
             // Use windows shell to open log file in whatever app the user uses...
+            var fileToOpen = string.Empty;
             try
             {
-                var fileToOpen = LogWriter.LogFile;
+                // If we're local to the service, just open the file.
+                if (sa is "127.0.0.1" or "0.0.0.0" or "localhost") {
+                    fileToOpen = _plexService?.GetLogPath() ?? LogWriter.LogFile;
+                } else {
+                    Logger("Requesting log.");
+                    // Otherwise, request the log data from the server, save it to a temp file, and open that.
+                    var logData = _plexService?.GetLog();
+                    if (logData == null) {
+                        Logger("No log data received.", LogEventLevel.Warning);
+                        return;
+                    }
+                    Logger("Data received: " + logData);
+                    var tmpPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                    var tmpFile = Path.Combine(tmpPath, "pmss.log");
+                    Logger("Writing to " + tmpFile);
+                    File.WriteAllText(tmpFile, logData);
+                    if (File.Exists(tmpFile)) fileToOpen = tmpFile;
+                }
+
+                if (fileToOpen == string.Empty) return;
+                
                 var process = new Process();
                 process.StartInfo = new ProcessStartInfo {
                     UseShellExecute = true,
                     FileName = fileToOpen
                 };
-
                 process.Start();
-                //process.WaitForExit();
             }
             catch (Exception ex) {
-                Log.Warning("Exception viewing logs: " + ex.Message);
+                Logger("Exception viewing logs: " + ex.Message);
                 Disconnect();
             }
         }
@@ -486,7 +515,7 @@ namespace PlexServiceTray
             }
             catch (Exception ex)
             {
-                Log.Warning("Error opening PMS Data folder: " + ex.Message);
+                Logger($"Error opening PMS Data folder at {dir}: " + ex.Message, LogEventLevel.Warning);
                 Disconnect();
             }
         }

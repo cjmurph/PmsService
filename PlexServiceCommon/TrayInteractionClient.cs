@@ -8,7 +8,6 @@ namespace PlexServiceCommon
     {
         public TrayInteractionClient(object callbackInstance, Binding binding, EndpointAddress remoteAddress)
             : base(callbackInstance, binding, remoteAddress) {
-            LogWriter.Init();
         }
     }
 }

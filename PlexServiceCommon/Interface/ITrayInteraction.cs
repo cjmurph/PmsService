@@ -1,4 +1,5 @@
 ﻿using System.ServiceModel;
+using Serilog.Events;
 
 namespace PlexServiceCommon.Interface
 {
@@ -18,10 +19,22 @@ namespace PlexServiceCommon.Interface
         void Restart();
 
         [OperationContract]
-        void SetSettings(string settings);
+        void SetSettings(Settings settings);
 
         [OperationContract]
-        string GetSettings();
+        void LogMessage(string message, LogEventLevel level = LogEventLevel.Debug);
+
+        [OperationContract]
+        public string GetLog();
+
+        [OperationContract]
+        public string GetLogPath();
+
+        [OperationContract]
+        string GetPmsDataPath();
+
+        [OperationContract]
+        Settings GetSettings();
 
         [OperationContract]
         PlexState GetStatus();
