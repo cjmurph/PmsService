@@ -16,13 +16,12 @@ namespace PlexServiceTray
         public string Name
         {
             get => _auxApplication.Name;
-            set {
-                if (_auxApplication.Name == value) {
-                    return;
-                }
+            set 
+            {
+                if (_auxApplication.Name == value) return;
 
                 _auxApplication.Name = value;
-                OnPropertyChanged("Name");
+                OnPropertyChanged(nameof(Name));
             }
         }
 
@@ -30,39 +29,36 @@ namespace PlexServiceTray
         public string FilePath
         {
             get => _auxApplication.FilePath;
-            set {
-                if (_auxApplication.FilePath == value) {
-                    return;
-                }
+            set 
+            {
+                if (_auxApplication.FilePath == value) return;
 
                 _auxApplication.FilePath = value;
-                OnPropertyChanged("FilePath");
+                OnPropertyChanged(nameof(FilePath));
             }
         }
 
         public string WorkingFolder
         {
             get => _auxApplication.WorkingFolder;
-            set {
-                if (_auxApplication.WorkingFolder == value) {
-                    return;
-                }
+            set 
+            {
+                if (_auxApplication.WorkingFolder == value) return;
 
                 _auxApplication.WorkingFolder = value;
-                OnPropertyChanged("WorkingFolder");
+                OnPropertyChanged(nameof(WorkingFolder));
             }
         }
 
         public string Argument
         {
             get => _auxApplication.Argument;
-            set {
-                if (_auxApplication.Argument == value) {
-                    return;
-                }
+            set 
+            {
+                if (_auxApplication.Argument == value) return;
 
                 _auxApplication.Argument = value;
-                OnPropertyChanged("Argument");
+                OnPropertyChanged(nameof(Argument));
             }
         }
 
@@ -71,11 +67,10 @@ namespace PlexServiceTray
             get => _auxApplication.KeepAlive;
             set
             {
-                if (_auxApplication.KeepAlive != value)
-                {
-                    _auxApplication.KeepAlive = value;
-                    OnPropertyChanged("KeepAlive");
-                }
+                if (_auxApplication.KeepAlive == value) return;
+
+                _auxApplication.KeepAlive = value;
+                OnPropertyChanged(nameof(KeepAlive));
             }
         }
         
@@ -84,11 +79,10 @@ namespace PlexServiceTray
             get => _auxApplication.LogOutput;
             set
             {
-                if (_auxApplication.LogOutput != value)
-                {
-                    _auxApplication.LogOutput = value;
-                    OnPropertyChanged("LogOutput");
-                }
+                if (_auxApplication.LogOutput == value) return;
+
+                _auxApplication.LogOutput = value;
+                OnPropertyChanged(nameof(LogOutput));
             }
         }
 
@@ -97,26 +91,39 @@ namespace PlexServiceTray
         public bool Running
         {
             get => _running;
-            set {
-                if (_running == value) {
-                    return;
-                }
+            set 
+            {
+                if (_running == value) return;
 
                 _running = value;
-                OnPropertyChanged("Running");
+                OnPropertyChanged(nameof(Running));
             }
         }
 
         public string Url
         {
             get => _auxApplication.Url;
-            set {
-                if (_auxApplication.Url == value) {
-                    return;
-                }
+            set 
+            {
+                if (_auxApplication.Url == value) return;
 
                 _auxApplication.Url = value;
-                OnPropertyChanged("Url");
+                OnPropertyChanged(nameof(Url));
+            }
+        }
+
+        public override bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected == value) return;
+
+                _isSelected = value;
+                OnPropertyChanged(nameof(IsSelected));
+
+                if (value)
+                    OnCheckRunningRequest();
             }
         }
 
@@ -138,17 +145,9 @@ namespace PlexServiceTray
 
         #region BrowseCommand
         RelayCommand _browseCommand;
-        public ICommand BrowseCommand
-        {
-            get { return _browseCommand ??= new RelayCommand(_ => OnBrowse(), _ => CanBrowse()); }
-        }
+        public RelayCommand BrowseCommand => _browseCommand ??= new RelayCommand(OnBrowse);
 
-        private static bool CanBrowse()
-        {
-            return true;
-        }
-
-        private void OnBrowse()
+        private void OnBrowse(object parameter)
         {
             var ofd = new OpenFileDialog {
                 FileName = FilePath
@@ -168,17 +167,7 @@ namespace PlexServiceTray
 
         #region BrowseFolderCommand
         RelayCommand _browseFolderCommand;
-        public ICommand BrowseFolderCommand
-        {
-            get {
-                return _browseFolderCommand ??= new RelayCommand(OnBrowseFolder, CanBrowseFolder);
-            }
-        }
-
-        private static bool CanBrowseFolder(object parameter)
-        {
-            return true;
-        }
+        public RelayCommand BrowseFolderCommand=> _browseFolderCommand ??= new RelayCommand(OnBrowseFolder);
 
         private void OnBrowseFolder(object parameter)
         {
@@ -200,10 +189,7 @@ namespace PlexServiceTray
 
         #region StartCommand
         RelayCommand _startCommand;
-        public ICommand StartCommand
-        {
-            get { return _startCommand ??= new RelayCommand(OnStart, CanStart); }
-        }
+        public RelayCommand StartCommand => _startCommand ??= new RelayCommand(OnStart, CanStart); 
 
         private bool CanStart(object parameter)
         {
@@ -221,10 +207,7 @@ namespace PlexServiceTray
 
         #region StopCommand
         RelayCommand _stopCommand;
-        public ICommand StopCommand
-        {
-            get { return _stopCommand ??= new RelayCommand(OnStop, CanStop); }
-        }
+        public RelayCommand StopCommand => _stopCommand ??= new RelayCommand(OnStop, CanStop);
 
         private bool CanStop(object parameter)
         {
@@ -242,12 +225,7 @@ namespace PlexServiceTray
 
         #region GoToUrlCommand
         RelayCommand _goToUrlCommand;
-        public ICommand GoToUrlCommand
-        {
-            get {
-                return _goToUrlCommand ??= new RelayCommand(OnGoToUrl, CanGoToUrl);
-            }
-        }
+        public RelayCommand GoToUrlCommand => _goToUrlCommand ??= new RelayCommand(OnGoToUrl, CanGoToUrl);
 
         private bool CanGoToUrl(object parameter)
         {
@@ -270,22 +248,6 @@ namespace PlexServiceTray
             CheckRunningRequest?.Invoke(this, EventArgs.Empty);
         }
 
-        #endregion
-
-        public override bool IsSelected
-        {
-            get => _isSelected;
-            set
-            {
-                if (_isSelected != value)
-                {
-                    _isSelected = value;
-                    OnPropertyChanged("IsSelected");
-                    if (value)
-                        OnCheckRunningRequest();
-                }
-            }
-        }
-        
+        #endregion        
     }
 }

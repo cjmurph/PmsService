@@ -6,18 +6,17 @@ namespace PlexServiceTray
     /// <summary>
     /// View model class for connection settings window
     /// </summary>
-    public class ConnectionSettingsViewModel:INotifyPropertyChanged
+    public class ConnectionSettingsViewModel:ObservableObject
     {
         public string ServerAddress
         {
             get => _settings.ServerAddress;
             set
             {
-                if (_settings.ServerAddress != value)
-                {
-                    _settings.ServerAddress = value;
-                    OnPropertyChanged("ServerAddress");
-                }
+                if (_settings.ServerAddress == value) return;
+
+                _settings.ServerAddress = value;
+                OnPropertyChanged(nameof(ServerAddress));
             }
         }
 
@@ -26,11 +25,10 @@ namespace PlexServiceTray
             get => _settings.ServerPort;
             set
             {
-                if (_settings.ServerPort != value)
-                {
-                    _settings.ServerPort = value;
-                    OnPropertyChanged("ServerPort");
-                }
+                if (_settings.ServerPort == value) return;
+
+                _settings.ServerPort = value;
+                OnPropertyChanged(nameof(ServerPort));
             }
         }
 
@@ -41,11 +39,9 @@ namespace PlexServiceTray
             get => _dialogResult;
             set
             {
-                if (_dialogResult != value)
-                {
-                    _dialogResult = value;
-                    OnPropertyChanged("DialogResult");
-                }
+                if (_dialogResult == value) return;
+                _dialogResult = value;
+                OnPropertyChanged(nameof(DialogResult));
             }
         }
 
@@ -58,37 +54,13 @@ namespace PlexServiceTray
 
         #region CancelCommand
         RelayCommand _cancelCommand;
-        public ICommand CancelCommand
-        {
-            get
-            {
-                if (_cancelCommand == null)
-                {
-                    _cancelCommand = new RelayCommand(OnCancel, CanCancel);
-                }
-
-                return _cancelCommand;
-            }
-        }
-
-        private static bool CanCancel(object parameter)
-        {
-            return true;
-        }
-
-        private void OnCancel(object parameter)
-        {
-            DialogResult = false;
-        }
+        public RelayCommand CancelCommand => _cancelCommand ??= new RelayCommand((p) => DialogResult = true);
 
         #endregion CancelCommand
 
         #region SaveCommand
         RelayCommand _saveCommand;
-        public ICommand SaveCommand
-        {
-            get { return _saveCommand ?? (_saveCommand = new RelayCommand(p => OnSave(p), p => CanSave(p))); }
-        }
+        public RelayCommand SaveCommand => _saveCommand ??= new RelayCommand(OnSave, CanSave);
 
         private bool CanSave(object parameter)
         {
@@ -102,23 +74,5 @@ namespace PlexServiceTray
         }
 
         #endregion SaveCommand
-
-
-        #region PropertyChanged
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        /// <summary>
-        /// This is required to create on property changed events
-        /// </summary>
-        /// <param name="name">What property of this object has changed</param>
-        protected void OnPropertyChanged(string name)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(name));
-            }
-        }
-
-        #endregion
     }
 }

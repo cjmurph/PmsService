@@ -10,13 +10,12 @@ namespace PlexServiceTray
         public string ShareName
         {
             get => _driveMap.ShareName;
-            set {
-                if (_driveMap.ShareName == value) {
-                    return;
-                }
+            set 
+            {
+                if (_driveMap.ShareName == value) return;
 
                 _driveMap.ShareName = value;
-                OnPropertyChanged("ShareName");
+                OnPropertyChanged(nameof(ShareName));
             }
         }
 
@@ -25,13 +24,12 @@ namespace PlexServiceTray
         public string DriveLetter
         {
             get => _driveMap.DriveLetter;
-            set {
-                if (_driveMap.DriveLetter == value) {
-                    return;
-                }
+            set 
+            {
+                if (_driveMap.DriveLetter == value) return;
 
                 _driveMap.DriveLetter = value;
-                OnPropertyChanged("DriveLetter");
+                OnPropertyChanged(nameof(DriveLetter));
             }
         }
 

@@ -14,13 +14,12 @@ namespace PlexServiceTray
         public int ServerPort
         {
             get => WorkingSettings.ServerPort;
-            set {
-                if (WorkingSettings.ServerPort == value) {
-                    return;
-                }
+            set 
+            {
+                if (WorkingSettings.ServerPort == value) return;
 
                 WorkingSettings.ServerPort = value;
-                OnPropertyChanged("ServerPort");
+                OnPropertyChanged(nameof(ServerPort));
             }
         }
 
@@ -30,90 +29,83 @@ namespace PlexServiceTray
         public int RestartDelay
         {
             get => WorkingSettings.RestartDelay;
-            set {
-                if (WorkingSettings.RestartDelay == value) {
-                    return;
-                }
+            set 
+            {
+                if (WorkingSettings.RestartDelay == value) return;
 
                 WorkingSettings.RestartDelay = value;
-                OnPropertyChanged("RestartDelay");
+                OnPropertyChanged(nameof(RestartDelay));
             }
         }
 
         public bool AutoRestart
         {
             get => WorkingSettings.AutoRestart;
-            set {
-                if (WorkingSettings.AutoRestart == value) {
-                    return;
-                }
+            set 
+            {
+                if (WorkingSettings.AutoRestart == value) return;
 
                 WorkingSettings.AutoRestart = value;
-                OnPropertyChanged("AutoRestart");
+                OnPropertyChanged(nameof(AutoRestart));
             }
         }
         
         public bool AutoRemount
         {
             get => WorkingSettings.AutoRemount;
-            set {
-                if (WorkingSettings.AutoRemount == value) {
-                    return;
-                }
+            set 
+            {
+                if (WorkingSettings.AutoRemount == value) return;
 
                 WorkingSettings.AutoRemount = value;
-                OnPropertyChanged("AutoRemount");
+                OnPropertyChanged(nameof(AutoRemount));
             }
         }
         
         public int AutoRemountCount
         {
             get => WorkingSettings.AutoRemountCount;
-            set {
-                if (WorkingSettings.AutoRemountCount == value) {
-                    return;
-                }
+            set 
+            {
+                if (WorkingSettings.AutoRemountCount == value) return;
 
                 WorkingSettings.AutoRemountCount = value;
-                OnPropertyChanged("AutoRemountCount");
+                OnPropertyChanged(nameof(AutoRemountCount));
             }
         }
         
         public int AutoRemountDelay
         {
             get => WorkingSettings.AutoRemountDelay;
-            set {
-                if (WorkingSettings.AutoRemountDelay == value) {
-                    return;
-                }
+            set 
+            {
+                if (WorkingSettings.AutoRemountDelay == value) return;
 
                 WorkingSettings.AutoRemountDelay = value;
-                OnPropertyChanged("AutoRemountDelay");
+                OnPropertyChanged(nameof(AutoRemountDelay));
             }
         }
         
         public string Theme
         {
             get => WorkingSettings.Theme.Replace("."," ");
-            set {
-                if (WorkingSettings.Theme.Replace(" ", ".") == value) {
-                    return;
-                }
+            set 
+            {
+                if (WorkingSettings.Theme.Replace(" ", ".") == value) return;
                 WorkingSettings.Theme = value.Replace(" ", ".");
-                OnPropertyChanged("Theme");
+                OnPropertyChanged(nameof(Theme));
             }
         }
 
         public bool StartPlexOnMountFail
         {
             get => WorkingSettings.StartPlexOnMountFail;
-            set {
-                if (WorkingSettings.StartPlexOnMountFail == value) {
-                    return;
-                }
+            set 
+            {
+                if (WorkingSettings.StartPlexOnMountFail == value) return;
 
                 WorkingSettings.StartPlexOnMountFail = value;
-                OnPropertyChanged("StartPlexOnMountFail");
+                OnPropertyChanged(nameof(StartPlexOnMountFail));
             }
         }
         
@@ -122,15 +114,14 @@ namespace PlexServiceTray
         public int SelectedTab
         {
             get => _selectedTab;
-            set {
-                if (_selectedTab == value) {
-                    return;
-                }
+            set 
+            {
+                if (_selectedTab == value) return;
 
                 _selectedTab = value;
-                OnPropertyChanged("SelectedTab");
-                OnPropertyChanged("RemoveToolTip");
-                OnPropertyChanged("AddToolTip");
+                OnPropertyChanged(nameof(SelectedTab));
+                OnPropertyChanged(nameof(RemoveToolTip));
+                OnPropertyChanged(nameof(AddToolTip));
             }
         }
 
@@ -148,7 +139,7 @@ namespace PlexServiceTray
                 }
 
                 _auxilaryApplications = value;
-                OnPropertyChanged("AuxiliaryApplications");
+                OnPropertyChanged(nameof(AuxiliaryApplications));
             }
         }
 
@@ -162,8 +153,8 @@ namespace PlexServiceTray
                 if (_selectedAuxApplication != value)
                 {
                     _selectedAuxApplication = value;
-                    OnPropertyChanged("SelectedAuxApplication");
-                    OnPropertyChanged("RemoveToolTip");
+                    OnPropertyChanged(nameof(SelectedAuxApplication));
+                    OnPropertyChanged(nameof(RemoveToolTip));
                 }
             }
         }
@@ -178,7 +169,7 @@ namespace PlexServiceTray
                 if (_driveMaps != value)
                 {
                     _driveMaps = value;
-                    OnPropertyChanged("DriveMaps");
+                    OnPropertyChanged(nameof(DriveMaps));
                 }
             }
         }
@@ -194,8 +185,8 @@ namespace PlexServiceTray
                 }
 
                 _selectedDriveMap = value;
-                OnPropertyChanged("SelectedDriveMap");
-                OnPropertyChanged("RemoveToolTip");
+                OnPropertyChanged(nameof(SelectedDriveMap));
+                OnPropertyChanged(nameof(RemoveToolTip));
             }
         }
 
@@ -243,7 +234,7 @@ namespace PlexServiceTray
                 if (_dialogResult != value)
                 {
                     _dialogResult = value;
-                    OnPropertyChanged("DialogResult");
+                    OnPropertyChanged(nameof(DialogResult));
                 }
             }
         }
@@ -281,15 +272,7 @@ namespace PlexServiceTray
         /// </summary>
         #region AddCommand
         RelayCommand _addCommand;
-        public ICommand AddCommand
-        {
-            get { return _addCommand ??= new RelayCommand(OnAdd, CanAdd); }
-        }
-
-        private bool CanAdd(object parameter)
-        {
-            return true;
-        }
+        public RelayCommand AddCommand => _addCommand ??= new RelayCommand(OnAdd);
 
         private void OnAdd(object parameter)
         {
@@ -321,10 +304,7 @@ namespace PlexServiceTray
         /// </summary>
         #region RemoveCommand
         RelayCommand _removeCommand;
-        public ICommand RemoveCommand
-        {
-            get { return _removeCommand ??= new RelayCommand(OnRemove, CanRemove); }
-        }
+        public RelayCommand RemoveCommand => _removeCommand ??= new RelayCommand(OnRemove, CanRemove); 
 
         private bool CanRemove(object parameter)
         {
@@ -363,10 +343,7 @@ namespace PlexServiceTray
         /// </summary>
         #region SaveCommand
         RelayCommand _saveCommand;
-        public ICommand SaveCommand
-        {
-            get { return _saveCommand ??= new RelayCommand(OnSave, CanSave); }
-        }
+        public RelayCommand SaveCommand => _saveCommand ??= new RelayCommand(OnSave, CanSave);
 
         private bool CanSave(object parameter)
         {
@@ -395,15 +372,7 @@ namespace PlexServiceTray
         /// </summary>
         #region CancelCommand
         RelayCommand _cancelCommand;
-        public ICommand CancelCommand
-        {
-            get { return _cancelCommand ??= new RelayCommand(OnCancel, CanCancel); }
-        }
-
-        private bool CanCancel(object parameter)
-        {
-            return true;
-        }
+        public RelayCommand CancelCommand => _cancelCommand ??= new RelayCommand(OnCancel);
 
         private void OnCancel(object parameter)
         {

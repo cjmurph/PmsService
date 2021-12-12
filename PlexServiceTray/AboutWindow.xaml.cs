@@ -93,7 +93,7 @@ namespace PlexServiceTray
 
         #region OkCommand
         RelayCommand _okCommand;
-        public ICommand OkCommand
+        public RelayCommand OkCommand
         {
             get
             {

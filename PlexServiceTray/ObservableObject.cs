@@ -16,13 +16,12 @@ namespace PlexServiceTray
         public virtual bool IsSelected
         {
             get => _isSelected;
-            set {
-                if (_isSelected == value) {
-                    return;
-                }
+            set 
+            {
+                if (_isSelected == value) return;
 
                 _isSelected = value;
-                OnPropertyChanged("IsSelected");
+                OnPropertyChanged(nameof(IsSelected));
             }
         }
 
@@ -30,13 +29,12 @@ namespace PlexServiceTray
 
         public bool IsExpanded
         {
-            set {
-                if (_isExpanded == value) {
-                    return;
-                }
+            set 
+            {
+                if (_isExpanded == value) return;
 
                 _isExpanded = value;
-                OnPropertyChanged("IsExpanded");
+                OnPropertyChanged(nameof(IsExpanded));
             }
         }
 
@@ -97,7 +95,7 @@ namespace PlexServiceTray
                          where !Validate(v, PropertyGetters[i.Key])
                          select v.ErrorMessage;
             _error = string.Join(Environment.NewLine, errors.ToArray());
-            OnPropertyChanged("Error");
+            OnPropertyChanged(nameof(Error));
         }
 
         public string this[string columnName]
@@ -109,11 +107,11 @@ namespace PlexServiceTray
                     var value = PropertyGetters[columnName];
                     var errors = Validators[columnName].Where(v => !Validate(v, value))
                         .Select(v => v.ErrorMessage).ToArray();
-                    OnPropertyChanged("Error");
+                    OnPropertyChanged(nameof(Error));
                     return string.Join(Environment.NewLine, errors);
                 }
 
-                OnPropertyChanged("Error");
+                OnPropertyChanged(nameof(Error));
                 return string.Empty;
             }
         }

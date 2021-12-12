@@ -14,11 +14,15 @@ namespace PlexServiceTray
 
         #region Constructors
 
+        public RelayCommand(Action<object> execute)
+            : this(execute, null) { }
+
         public RelayCommand(Action<object> execute, Predicate<object> canExecute)
         {
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
         }
+
         #endregion // Constructors
 
         #region ICommand Members
@@ -39,6 +43,6 @@ namespace PlexServiceTray
             _execute(parameter);
         }
 
-        #endregion // ICommand Members
+        #endregion // RelayCommand Members
     }
 }
