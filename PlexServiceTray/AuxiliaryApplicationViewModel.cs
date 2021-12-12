@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel;
 using PlexServiceCommon;
 using System.Windows.Input;
 using Microsoft.Win32;
@@ -19,75 +15,60 @@ namespace PlexServiceTray
         [UniqueAuxAppName]
         public string Name
         {
-            get
-            {
-                return _auxApplication.Name;
-            }
-            set
-            {
-                if (_auxApplication.Name != value)
-                {
-                    _auxApplication.Name = value;
-                    OnPropertyChanged("Name");
+            get => _auxApplication.Name;
+            set {
+                if (_auxApplication.Name == value) {
+                    return;
                 }
+
+                _auxApplication.Name = value;
+                OnPropertyChanged("Name");
             }
         }
 
         [Required(ErrorMessage ="A path to execute must be specified")]
         public string FilePath
         {
-            get
-            {
-                return _auxApplication.FilePath;
-            }
-            set
-            {
-                if (_auxApplication.FilePath != value)
-                {
-                    _auxApplication.FilePath = value;
-                    OnPropertyChanged("FilePath");
+            get => _auxApplication.FilePath;
+            set {
+                if (_auxApplication.FilePath == value) {
+                    return;
                 }
+
+                _auxApplication.FilePath = value;
+                OnPropertyChanged("FilePath");
             }
         }
 
         public string WorkingFolder
         {
-            get
-            {
-                return _auxApplication.WorkingFolder;
-            }
-            set
-            {
-                if (_auxApplication.WorkingFolder != value)
-                {
-                    _auxApplication.WorkingFolder = value;
-                    OnPropertyChanged("WorkingFolder");
+            get => _auxApplication.WorkingFolder;
+            set {
+                if (_auxApplication.WorkingFolder == value) {
+                    return;
                 }
+
+                _auxApplication.WorkingFolder = value;
+                OnPropertyChanged("WorkingFolder");
             }
         }
 
         public string Argument
         {
-            get
-            {
-                return _auxApplication.Argument;
-            }
-            set
-            {
-                if (_auxApplication.Argument != value)
-                {
-                    _auxApplication.Argument = value;
-                    OnPropertyChanged("Argument");
+            get => _auxApplication.Argument;
+            set {
+                if (_auxApplication.Argument == value) {
+                    return;
                 }
+
+                _auxApplication.Argument = value;
+                OnPropertyChanged("Argument");
             }
         }
 
         public bool KeepAlive
         {
-            get
-            {
-                return _auxApplication.KeepAlive;
-            }
+            get => _auxApplication.KeepAlive;
             set
             {
                 if (_auxApplication.KeepAlive != value)
@@ -97,49 +78,54 @@ namespace PlexServiceTray
                 }
             }
         }
+        
+        public bool LogOutput
+        {
+            get => _auxApplication.LogOutput;
+            set
+            {
+                if (_auxApplication.LogOutput != value)
+                {
+                    _auxApplication.LogOutput = value;
+                    OnPropertyChanged("LogOutput");
+                }
+            }
+        }
 
         private bool _running;
 
         public bool Running
         {
-            get
-            {
-                return _running;
-            }
-            set
-            {
-                if (_running != value)
-                {
-                    _running = value;
-                    OnPropertyChanged("Running");
+            get => _running;
+            set {
+                if (_running == value) {
+                    return;
                 }
+
+                _running = value;
+                OnPropertyChanged("Running");
             }
         }
 
         public string Url
         {
-            get
-            {
-                return _auxApplication.Url;
-            }
-            set
-            {
-                if (_auxApplication.Url != value)
-                {
-                    _auxApplication.Url = value;
-                    OnPropertyChanged("Url");
+            get => _auxApplication.Url;
+            set {
+                if (_auxApplication.Url == value) {
+                    return;
                 }
+
+                _auxApplication.Url = value;
+                OnPropertyChanged("Url");
             }
         }
 
         #endregion Properties
 
-        private AuxiliaryApplication _auxApplication;
-        private SettingsWindowViewModel _context;
+        private readonly AuxiliaryApplication _auxApplication;
 
         public AuxiliaryApplicationViewModel(AuxiliaryApplication auxApplication, SettingsWindowViewModel context)
         {
-            _context = context;
             ValidationContext = context;
             _auxApplication = auxApplication;
             IsExpanded = false;
@@ -151,66 +137,55 @@ namespace PlexServiceTray
         }
 
         #region BrowseCommand
-        RelayCommand _browseCommand = null;
+        RelayCommand _browseCommand;
         public ICommand BrowseCommand
         {
-            get
-            {
-                if (_browseCommand == null)
-                {
-                    _browseCommand = new RelayCommand((p) => OnBrowse(p), (p) => CanBrowse(p));
-                }
-
-                return _browseCommand;
-            }
+            get { return _browseCommand ??= new RelayCommand(_ => OnBrowse(), _ => CanBrowse()); }
         }
 
-        private bool CanBrowse(object parameter)
+        private static bool CanBrowse()
         {
             return true;
         }
 
-        private void OnBrowse(object parameter)
+        private void OnBrowse()
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.FileName = FilePath;
-            if (ofd.ShowDialog() == true)
+            var ofd = new OpenFileDialog {
+                FileName = FilePath
+            };
+            if (ofd.ShowDialog() != true) {
+                return;
+            }
+
+            FilePath = ofd.FileName;
+            if(string.IsNullOrEmpty(WorkingFolder))
             {
-                FilePath = ofd.FileName;
-                if(string.IsNullOrEmpty(WorkingFolder))
-                {
-                    WorkingFolder = System.IO.Path.GetDirectoryName(FilePath);
-                }
+                WorkingFolder = System.IO.Path.GetDirectoryName(FilePath);
             }
         }
 
         #endregion BrowseCommand
 
         #region BrowseFolderCommand
-        RelayCommand _browseFolderCommand = null;
+        RelayCommand _browseFolderCommand;
         public ICommand BrowseFolderCommand
         {
-            get
-            {
-                if (_browseFolderCommand == null)
-                {
-                    _browseFolderCommand = new RelayCommand((p) => OnBrowseFolder(p), (p) => CanBrowseFolder(p));
-                }
-
-                return _browseFolderCommand;
+            get {
+                return _browseFolderCommand ??= new RelayCommand(OnBrowseFolder, CanBrowseFolder);
             }
         }
 
-        private bool CanBrowseFolder(object parameter)
+        private static bool CanBrowseFolder(object parameter)
         {
             return true;
         }
 
         private void OnBrowseFolder(object parameter)
         {
-            VistaFolderBrowserDialog fbd = new VistaFolderBrowserDialog();
-            fbd.Description = "Please select working directory";
-            fbd.UseDescriptionForTitle = true;
+            var fbd = new VistaFolderBrowserDialog {
+                Description = "Please select working directory",
+                UseDescriptionForTitle = true
+            };
             if (!string.IsNullOrEmpty(WorkingFolder))
             {
                 fbd.SelectedPath = WorkingFolder;
@@ -224,18 +199,10 @@ namespace PlexServiceTray
         #endregion BrowseFolderCommand
 
         #region StartCommand
-        RelayCommand _startCommand = null;
+        RelayCommand _startCommand;
         public ICommand StartCommand
         {
-            get
-            {
-                if (_startCommand == null)
-                {
-                    _startCommand = new RelayCommand((p) => OnStart(p), (p) => CanStart(p));
-                }
-
-                return _startCommand;
-            }
+            get { return _startCommand ??= new RelayCommand(OnStart, CanStart); }
         }
 
         private bool CanStart(object parameter)
@@ -245,7 +212,7 @@ namespace PlexServiceTray
 
         private void OnStart(object parameter)
         {
-            StartRequest?.Invoke(this, new EventArgs());
+            StartRequest?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler StartRequest;
@@ -253,18 +220,10 @@ namespace PlexServiceTray
         #endregion StartCommand
 
         #region StopCommand
-        RelayCommand _stopCommand = null;
+        RelayCommand _stopCommand;
         public ICommand StopCommand
         {
-            get
-            {
-                if (_stopCommand == null)
-                {
-                    _stopCommand = new RelayCommand((p) => OnStop(p), (p) => CanStop(p));
-                }
-
-                return _stopCommand;
-            }
+            get { return _stopCommand ??= new RelayCommand(OnStop, CanStop); }
         }
 
         private bool CanStop(object parameter)
@@ -274,7 +233,7 @@ namespace PlexServiceTray
 
         private void OnStop(object parameter)
         {
-            StopRequest?.Invoke(this, new EventArgs());
+            StopRequest?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler StopRequest;
@@ -282,17 +241,11 @@ namespace PlexServiceTray
         #endregion StopCommand
 
         #region GoToUrlCommand
-        RelayCommand _goToUrlCommand = null;
+        RelayCommand _goToUrlCommand;
         public ICommand GoToUrlCommand
         {
-            get
-            {
-                if (_goToUrlCommand == null)
-                {
-                    _goToUrlCommand = new RelayCommand((p) => OnGoToUrl(p), (p) => CanGoToUrl(p));
-                }
-
-                return _goToUrlCommand;
+            get {
+                return _goToUrlCommand ??= new RelayCommand(OnGoToUrl, CanGoToUrl);
             }
         }
 
@@ -312,19 +265,16 @@ namespace PlexServiceTray
 
         public event EventHandler CheckRunningRequest;
 
-        protected void OnCheckRunningRequest()
+        private void OnCheckRunningRequest()
         {
-            CheckRunningRequest?.Invoke(this, new EventArgs());
+            CheckRunningRequest?.Invoke(this, EventArgs.Empty);
         }
 
         #endregion
 
         public override bool IsSelected
         {
-            get
-            {
-                return _isSelected;
-            }
+            get => _isSelected;
             set
             {
                 if (_isSelected != value)

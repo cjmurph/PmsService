@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
+using System.IO;
 using System.ServiceModel;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using PlexServiceCommon;
 using PlexServiceCommon.Interface;
+using Serilog;
+using Serilog.Events;
 
 namespace PlexServiceWCF
 {
@@ -18,19 +16,19 @@ namespace PlexServiceWCF
     [ServiceBehavior(ConfigurationName = "PlexServiceWCF:PlexServiceWCF.TrayInteraction", InstanceContextMode = InstanceContextMode.Single)]
     public class TrayInteraction : ITrayInteraction
     {
-        public static string APP_DATA_PATH = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Plex Service\");
+        public static readonly string AppDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Plex Service\");
 
-        private PmsMonitor _pms;
+        private readonly PmsMonitor _pms;
 
-        private static readonly List<ITrayCallback> CallbackChannels = new List<ITrayCallback>();
+        private static readonly List<ITrayCallback> CallbackChannels = new();
+        private readonly ITrayInteraction _trayInteractionImplementation;
 
-        public TrayInteraction()
-        {
+        public TrayInteraction() {
+            _trayInteractionImplementation = this;
             _pms = new PmsMonitor();
-            _pms.PlexStatusChange += OnPlexEvent;
             _pms.StateChange += PlexStateChange;
             _pms.PlexStop += PlexStopped;
-            ///Start plex
+            //Start plex
             Start();
         }
 
@@ -38,15 +36,16 @@ namespace PlexServiceWCF
         {
             if (_pms != null)
             {
-                CallbackChannels.ForEach(callback =>
-                {
-                    if (callback != null)
+                CallbackChannels.ForEach(callback => {
+                    if (callback == null) {
+                        return;
+                    }
+
+                    try
                     {
-                        try
-                        {
-                            callback.OnPlexStopped();
-                        }
-                        catch { }
+                        callback.OnPlexStopped();
+                    } catch (Exception ex) {
+                        Log.Warning("Exception running callback: " + ex.Message);
                     }
                 });
             }
@@ -56,15 +55,16 @@ namespace PlexServiceWCF
         {
             if (_pms != null)
             {
-                CallbackChannels.ForEach(callback =>
-                {
-                    if (callback != null)
+                CallbackChannels.ForEach(callback => {
+                    if (callback == null) {
+                        return;
+                    }
+
+                    try
                     {
-                        try
-                        {
-                            callback.OnPlexStateChange(_pms.State);
-                        }
-                        catch { }
+                        callback.OnPlexStateChange(_pms.State);
+                    } catch (Exception ex) {
+                        Log.Warning("Exception on plex state change callback: " + ex.Message);
                     }
                 });
             }
@@ -92,7 +92,7 @@ namespace PlexServiceWCF
         /// </summary>
         public void Restart()
         {
-            //stop and restart plex and the auxilliary apps
+            //stop and restart plex and the auxiliary apps
             Task.Factory.StartNew(() =>
                 {
                     _pms.Restart(5000);
@@ -103,18 +103,13 @@ namespace PlexServiceWCF
         /// Write the settings to the server
         /// </summary>
         /// <param name="settings">Json serialised Settings instance</param>
-        public void SetSettings(string settings)
+        public void SetSettings(Settings settings)
         {
-            SettingsHandler.Save(Settings.Deserialize(settings));
+            SettingsHandler.Save(settings);
         }
 
-        /// <summary>
-        /// Returns the settings file from the server as a json string
-        /// </summary>
-        /// <returns></returns>
-        public string GetSettings()
-        {
-            return SettingsHandler.Load().Serialize();
+        public void LogMessage(string message, LogEventLevel level=LogEventLevel.Debug) {
+            Log.Write(level,message);
         }
 
         /// <summary>
@@ -123,7 +118,26 @@ namespace PlexServiceWCF
         /// <returns></returns>
         public string GetLog()
         {
-            return LogWriter.Read();
+            var res = LogWriter.Read().Result;
+            Log.Debug("Res is " + res.Length);
+            return res;
+        }
+
+        public string GetLogPath() {
+            return LogWriter.LogFile;
+        }
+
+        public string GetPmsDataPath() {
+            return PlexDirHelper.GetPlexDataDir();
+        }
+
+        /// <summary>
+        /// Returns the settings file from the server as a json string
+        /// </summary>
+        /// <returns></returns>
+        public Settings GetSettings()
+        {
+            return SettingsHandler.Load();
         }
 
         /// <summary>
@@ -137,36 +151,11 @@ namespace PlexServiceWCF
             return PlexState.Stopped;
         }
 
+        
         /// <summary>
-        /// Write the passed string to the logfile
+        /// A request from the client for the running status of a specific auxiliary application
         /// </summary>
-        /// <param name="data"></param>
-        public static void WriteToLog(string data)
-        {
-            try
-            {
-                LogWriter.WriteLine(data);
-            }
-            catch (System.IO.IOException ex)
-            {
-                System.Diagnostics.EventLog.WriteEntry("PlexService", "Log file could not be written to" + Environment.NewLine + ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Plex status change event handler, forward any status changes to the clients
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnPlexEvent(object sender, StatusChangeEventArgs e)
-        {
-            WriteToLog(e.Description);
-        }
-
-        /// <summary>
-        /// A request from the client for the running status of a specific auxilliary application
-        /// </summary>
-        /// <param name="name">the name of the auxilliary application to check</param>
+        /// <param name="name">the name of the auxiliary application to check</param>
         /// <returns></returns>
         public bool IsAuxAppRunning(string name)
         {
@@ -199,6 +188,77 @@ namespace PlexServiceWCF
             {
                 CallbackChannels.Remove(channel);
             }
+        }
+
+        public void Abort() {
+            _trayInteractionImplementation.Abort();
+        }
+
+        public void Close() {
+            _trayInteractionImplementation.Close();
+        }
+
+        public void Close(TimeSpan timeout) {
+            _trayInteractionImplementation.Close(timeout);
+        }
+
+        public IAsyncResult BeginClose(AsyncCallback callback, object state) {
+            return _trayInteractionImplementation.BeginClose(callback, state);
+        }
+
+        public IAsyncResult BeginClose(TimeSpan timeout, AsyncCallback callback, object state) {
+            return _trayInteractionImplementation.BeginClose(timeout, callback, state);
+        }
+
+        public void EndClose(IAsyncResult result) {
+            _trayInteractionImplementation.EndClose(result);
+        }
+
+        public void Open() {
+            _trayInteractionImplementation.Open();
+        }
+
+        public void Open(TimeSpan timeout) {
+            _trayInteractionImplementation.Open(timeout);
+        }
+
+        public IAsyncResult BeginOpen(AsyncCallback callback, object state) {
+            return _trayInteractionImplementation.BeginOpen(callback, state);
+        }
+
+        public IAsyncResult BeginOpen(TimeSpan timeout, AsyncCallback callback, object state) {
+            return _trayInteractionImplementation.BeginOpen(timeout, callback, state);
+        }
+
+        public void EndOpen(IAsyncResult result) {
+            _trayInteractionImplementation.EndOpen(result);
+        }
+
+        public CommunicationState State => _trayInteractionImplementation.State;
+
+        public event EventHandler Closed {
+            add => _trayInteractionImplementation.Closed += value;
+            remove => _trayInteractionImplementation.Closed -= value;
+        }
+
+        public event EventHandler Closing {
+            add => _trayInteractionImplementation.Closing += value;
+            remove => _trayInteractionImplementation.Closing -= value;
+        }
+
+        public event EventHandler Faulted {
+            add => _trayInteractionImplementation.Faulted += value;
+            remove => _trayInteractionImplementation.Faulted -= value;
+        }
+
+        public event EventHandler Opened {
+            add => _trayInteractionImplementation.Opened += value;
+            remove => _trayInteractionImplementation.Opened -= value;
+        }
+
+        public event EventHandler Opening {
+            add => _trayInteractionImplementation.Opening += value;
+            remove => _trayInteractionImplementation.Opening -= value;
         }
     }
 }

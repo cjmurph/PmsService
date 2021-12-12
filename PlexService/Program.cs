@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.ServiceProcess;
-using System.Text;
+﻿using System.ServiceProcess;
+using PlexServiceCommon;
 
 namespace PlexService
 {
@@ -11,18 +8,18 @@ namespace PlexService
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        static void Main(string[] args)
-        {
+        static void Main(string[] args) {
+            LogWriter.Init();
             if (args.Length > 0 && args[0].ToUpper() == "DEBUG")
             {
                 System.Diagnostics.Debugger.Launch();
             }
-            ServiceBase[] ServicesToRun;
-            ServicesToRun = new ServiceBase[] 
-			{ 
-				new PlexMediaServerService() 
-			};
-            ServiceBase.Run(ServicesToRun);
+
+            var servicesToRun = new ServiceBase[] 
+            { 
+                new PlexMediaServerService() 
+            };
+            ServiceBase.Run(servicesToRun);
         }
     }
 }

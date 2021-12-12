@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
+﻿using System.ComponentModel;
 using System.Windows.Input;
 
 namespace PlexServiceTray
@@ -14,10 +10,7 @@ namespace PlexServiceTray
     {
         public string ServerAddress
         {
-            get
-            {
-                return _settings.ServerAddress;
-            }
+            get => _settings.ServerAddress;
             set
             {
                 if (_settings.ServerAddress != value)
@@ -30,10 +23,7 @@ namespace PlexServiceTray
 
         public int ServerPort
         {
-            get
-            {
-                return _settings.ServerPort;
-            }
+            get => _settings.ServerPort;
             set
             {
                 if (_settings.ServerPort != value)
@@ -48,10 +38,7 @@ namespace PlexServiceTray
 
         public bool? DialogResult
         {
-            get
-            {
-                return _dialogResult;
-            }
+            get => _dialogResult;
             set
             {
                 if (_dialogResult != value)
@@ -62,7 +49,7 @@ namespace PlexServiceTray
             }
         }
 
-        ConnectionSettings _settings;
+        readonly ConnectionSettings _settings;
 
         internal ConnectionSettingsViewModel()
         {
@@ -70,21 +57,21 @@ namespace PlexServiceTray
         }
 
         #region CancelCommand
-        RelayCommand _cancelCommand = null;
+        RelayCommand _cancelCommand;
         public ICommand CancelCommand
         {
             get
             {
                 if (_cancelCommand == null)
                 {
-                    _cancelCommand = new RelayCommand((p) => OnCancel(p), (p) => CanCancel(p));
+                    _cancelCommand = new RelayCommand(OnCancel, CanCancel);
                 }
 
                 return _cancelCommand;
             }
         }
 
-        private bool CanCancel(object parameter)
+        private static bool CanCancel(object parameter)
         {
             return true;
         }
@@ -97,18 +84,10 @@ namespace PlexServiceTray
         #endregion CancelCommand
 
         #region SaveCommand
-        RelayCommand _saveCommand = null;
+        RelayCommand _saveCommand;
         public ICommand SaveCommand
         {
-            get
-            {
-                if (_saveCommand == null)
-                {
-                    _saveCommand = new RelayCommand((p) => OnSave(p), (p) => CanSave(p));
-                }
-
-                return _saveCommand;
-            }
+            get { return _saveCommand ?? (_saveCommand = new RelayCommand(p => OnSave(p), p => CanSave(p))); }
         }
 
         private bool CanSave(object parameter)

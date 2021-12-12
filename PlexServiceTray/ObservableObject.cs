@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace PlexServiceTray
 {
@@ -12,39 +11,32 @@ namespace PlexServiceTray
     {
         protected object ValidationContext { get; set; }
 
-        protected bool _isSelected;
+        internal bool _isSelected;
 
         public virtual bool IsSelected
         {
-            get
-            {
-                return _isSelected;
-            }
-            set
-            {
-                if (_isSelected != value)
-                {
-                    _isSelected = value;
-                    OnPropertyChanged("IsSelected");
+            get => _isSelected;
+            set {
+                if (_isSelected == value) {
+                    return;
                 }
+
+                _isSelected = value;
+                OnPropertyChanged("IsSelected");
             }
         }
 
-        protected bool _isExpanded;
+        private bool _isExpanded;
 
-        public virtual bool IsExpanded
+        public bool IsExpanded
         {
-            get
-            {
-                return _isExpanded;
-            }
-            set
-            {
-                if (_isExpanded != value)
-                {
-                    _isExpanded = value;
-                    OnPropertyChanged("IsExpanded");
+            set {
+                if (_isExpanded == value) {
+                    return;
                 }
+
+                _isExpanded = value;
+                OnPropertyChanged("IsExpanded");
             }
         }
 
@@ -60,7 +52,7 @@ namespace PlexServiceTray
             var handler = PropertyChanged;
             if(handler != null)
                 handler(this, new PropertyChangedEventArgs(name));
-            if (validators.ContainsKey(name))
+            if (Validators.ContainsKey(name))
                 UpdateError();
         }
 
@@ -68,47 +60,41 @@ namespace PlexServiceTray
 
         #region Data Validation
 
-        private Dictionary<string, object> propertyGetters
+        private Dictionary<string, object> PropertyGetters
         {
             get
             {
-                return this.GetType().GetProperties().Where(p => getValidations(p).Length != 0).ToDictionary(p => p.Name, p => getValueGetter(p));
+                return GetType().GetProperties().Where(p => GetValidations(p).Length != 0).ToDictionary(p => p.Name, p => GetValueGetter(p));
             }
         }
 
-        private Dictionary<string, ValidationAttribute[]> validators
+        private Dictionary<string, ValidationAttribute[]> Validators
         {
             get
             {
-                return this.GetType().GetProperties().Where(p => getValidations(p).Length != 0).ToDictionary(p => p.Name, p => getValidations(p));
+                return GetType().GetProperties().Where(p => GetValidations(p).Length != 0).ToDictionary(p => p.Name, p => GetValidations(p));
             }
         }
 
-        private ValidationAttribute[] getValidations(PropertyInfo property)
+        private ValidationAttribute[] GetValidations(PropertyInfo property)
         {
             return (ValidationAttribute[])property.GetCustomAttributes(typeof(ValidationAttribute), true);
         }
 
-        private object getValueGetter(PropertyInfo property)
+        private object GetValueGetter(PropertyInfo property)
         {
             return property.GetValue(this, null);
         }
 
         private string _error;
 
-        public string Error
-        {
-            get
-            {
-                return _error;
-            }
-        }
+        public string Error => _error;
 
         private void UpdateError()
         {
-            var errors = from i in validators
+            var errors = from i in Validators
                          from v in i.Value
-                         where !validate(v, propertyGetters[i.Key])
+                         where !Validate(v, PropertyGetters[i.Key])
                          select v.ErrorMessage;
             _error = string.Join(Environment.NewLine, errors.ToArray());
             OnPropertyChanged("Error");
@@ -118,10 +104,10 @@ namespace PlexServiceTray
         {
             get
             {
-                if (propertyGetters.ContainsKey(columnName))
+                if (PropertyGetters.ContainsKey(columnName))
                 {
-                    var value = propertyGetters[columnName];
-                    var errors = validators[columnName].Where(v => !validate(v, value))
+                    var value = PropertyGetters[columnName];
+                    var errors = Validators[columnName].Where(v => !Validate(v, value))
                         .Select(v => v.ErrorMessage).ToArray();
                     OnPropertyChanged("Error");
                     return string.Join(Environment.NewLine, errors);
@@ -132,7 +118,7 @@ namespace PlexServiceTray
             }
         }
 
-        private bool validate(ValidationAttribute v, object value)
+        private bool Validate(ValidationAttribute v, object value)
         {
             return v.GetValidationResult(value, new ValidationContext(ValidationContext, null, null)) == ValidationResult.Success;
         }

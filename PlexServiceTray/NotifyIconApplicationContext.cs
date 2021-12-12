@@ -1,38 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#nullable enable
+using System;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.Drawing;
-using System.ServiceProcess;
 using System.Diagnostics;
-using System.Reflection;
 using System.IO;
 using PlexServiceCommon;
 using System.ServiceModel;
 using System.Windows;
+using Serilog;
+using Serilog.Events;
 
 namespace PlexServiceTray
 {
     /// <summary>
     /// Tray icon context
     /// </summary>
-    class NotifyIconApplicationContext : ApplicationContext
+    internal class NotifyIconApplicationContext : ApplicationContext
     {
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer _components = null;
+        private readonly System.ComponentModel.IContainer _components;
+        private readonly NotifyIcon _notifyIcon;
 
-        private System.Windows.Forms.NotifyIcon _notifyIcon;
+        private PlexServiceCommon.Interface.ITrayInteraction? _plexService;
 
-        //private readonly static TimeSpan _timeOut = TimeSpan.FromSeconds(2);
-
-        private PlexServiceCommon.Interface.ITrayInteraction _plexService;
-
-
-        private SettingsWindow _settingsWindow;
-        private ConnectionSettingsWindow _connectionSettingsWindow;
+        private SettingsWindow? _settingsWindow;
+        private ConnectionSettingsWindow? _connectionSettingsWindow;
+        private Settings? _settings;
+        private readonly ConnectionSettings _connectionSettings;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -40,7 +37,7 @@ namespace PlexServiceTray
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (_components != null))
+            if (disposing && _components != null)
             {
                 Disconnect();
                 _components.Dispose();
@@ -51,68 +48,64 @@ namespace PlexServiceTray
 
         public NotifyIconApplicationContext()
         {
-            InitializeContext();
-            Connect();
-        }
-
-        /// <summary>
-        /// Setup our tray icon
-        /// </summary>
-        private void InitializeContext()
-        {
+            // Moved directly to constructor to suppress nullable warnings.
             _components = new System.ComponentModel.Container();
             _notifyIcon = new NotifyIcon(_components);
             _notifyIcon.ContextMenuStrip = new ContextMenuStrip();
+            _notifyIcon.ContextMenuStrip.ForeColor = Color.FromArgb(232, 234, 237);
+            _notifyIcon.ContextMenuStrip.BackColor = Color.FromArgb(41, 42, 45);
+            _notifyIcon.ContextMenuStrip.RenderMode = ToolStripRenderMode.System;
             _notifyIcon.Icon = new Icon( Properties.Resources.PlexService, SystemInformation.SmallIconSize);
             _notifyIcon.Text = "Manage Plex Media Server Service";
             _notifyIcon.Visible = true;
             _notifyIcon.MouseClick += NotifyIcon_Click;
             _notifyIcon.MouseDoubleClick += NotifyIcon_DoubleClick;
             _notifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
+            _connectionSettings = ConnectionSettings.Load();
+            Connect();
+            // Load settings and store them, versus retrieving them. If updated, we'll listen for an event and re-cache them.
+            if (_plexService != null) _settings = _plexService.GetSettings();
         }
 
+        
         /// <summary>
         /// Connect to WCF service
         /// </summary>
-        private void Connect()
+        public void Connect()
         {
-            var localSettings = ConnectionSettings.Load();
             //Create a NetTcp binding to the service and set some appropriate timeouts.
             //Use reliable connection so we know when we have been disconnected
-            var plexServiceBinding = new NetTcpBinding();
-            plexServiceBinding.OpenTimeout = TimeSpan.FromSeconds(2); 
-            plexServiceBinding.CloseTimeout = TimeSpan.FromSeconds(2);
-            plexServiceBinding.SendTimeout = TimeSpan.FromSeconds(2);
-            plexServiceBinding.ReliableSession.Enabled = true;
-            plexServiceBinding.ReliableSession.InactivityTimeout = TimeSpan.FromMinutes(1);
+            var plexServiceBinding = new NetTcpBinding {
+                OpenTimeout = TimeSpan.FromMilliseconds(500),
+                CloseTimeout = TimeSpan.FromMilliseconds(500),
+                SendTimeout = TimeSpan.FromMilliseconds(500),
+                MaxReceivedMessageSize = 2147483647,
+                MaxBufferSize = 2147483647,
+                MaxBufferPoolSize =  2147483647,
+                ReliableSession = {
+                    Enabled = true,
+                    InactivityTimeout = TimeSpan.FromMinutes(1)
+                }
+            };
             //Generate the endpoint from the local settings
-            var plexServiceEndpoint = new EndpointAddress(localSettings.getServiceAddress());
-
-            TrayCallback callback = new TrayCallback();
+            var plexServiceEndpoint = new EndpointAddress(_connectionSettings.GetServiceAddress());
+            var callback = new TrayCallback();
             callback.StateChange += Callback_StateChange;
+            callback.SettingChange += Callback_SettingChange;
             var client = new TrayInteractionClient(callback, plexServiceBinding, plexServiceEndpoint);
-
-            //Make a channel factory so we can create the link to the service
-            //var plexServiceChannelFactory = new ChannelFactory<PlexServiceCommon.Interface.ITrayInteraction>(plexServiceBinding, plexServiceEndpoint);
-
             _plexService = null;
 
-            try
-            {
-                _plexService = client.ChannelFactory.CreateChannel(); //plexServiceChannelFactory.CreateChannel();
+            try {
+                _plexService = client.ChannelFactory.CreateChannel();
                 _plexService.Subscribe();
                 //If we lose connection to the service, set the object to null so we will know to reconnect the next time the tray icon is clicked
-                ((ICommunicationObject)_plexService).Faulted += (s, e) => _plexService = null;
-                ((ICommunicationObject)_plexService).Closed += (s, e) => _plexService = null;
-
-
+                _plexService.Faulted += (_, _) => _plexService = null;
+                _plexService.Closed += (_, _) => _plexService = null;
             }
-            catch
+            catch (Exception e)
             {
-                if (_plexService != null)
-                {
-                    _plexService = null;
-                }
+                Logger("Exception connecting: " + e.Message, LogEventLevel.Warning);
+                _plexService = null;
             }
         }
 
@@ -121,21 +114,26 @@ namespace PlexServiceTray
             _notifyIcon.ShowBalloonTip(2000, "Plex Service", e.Description, ToolTipIcon.Info);
         }
 
+        private void Callback_SettingChange(object sender, SettingChangeEventArgs e) {
+            Logger("Settings updated...");
+            _settings = e.Settings;
+        }
+
         /// <summary>
         /// Disconnect from WCF service
         /// </summary>
         private void Disconnect()
         {
-            //try and be nice...
-            if (_plexService != null)
+            try
             {
-                try
-                {
+                if (_plexService is { State: CommunicationState.Opened }) {
                     _plexService.UnSubscribe();
-                    ((ICommunicationObject)_plexService).Close();
+                    _plexService.Close();
                 }
-                catch { }
+            } catch {
+                //
             }
+            
             _plexService = null;
         }
 
@@ -144,7 +142,7 @@ namespace PlexServiceTray
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void NotifyIcon_Click(object sender, MouseEventArgs e)
+        private void NotifyIcon_Click(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
             {
@@ -170,7 +168,7 @@ namespace PlexServiceTray
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        private void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = false;
             _notifyIcon.ContextMenuStrip.Items.Clear();
@@ -180,24 +178,29 @@ namespace PlexServiceTray
             {
                 Connect();
             }
+            
+            if (_plexService != null) _settings = _plexService.GetSettings();
 
-            if (_plexService != null)// && ((ICommunicationObject)_plexService).State == CommunicationState.Opened)
+            if (_plexService is { State: CommunicationState.Opened })
             {
-                var settings = Settings.Deserialize(_plexService.GetSettings());
                 try
                 {
                     var state = _plexService.GetStatus();
                     switch (state)
                     {
                         case PlexState.Running:
-                            _notifyIcon.ContextMenuStrip.Items.Add("Open Web Manager", null, OpenManager_Click);
                             _notifyIcon.ContextMenuStrip.Items.Add("Stop Plex", null, StopPlex_Click);
+                            _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+                            _notifyIcon.ContextMenuStrip.Items.Add("Open Plex...", null, OpenManager_Click);
                             break;
                         case PlexState.Stopped:
                             _notifyIcon.ContextMenuStrip.Items.Add("Start Plex", null, StartPlex_Click);
                             break;
                         case PlexState.Pending:
                             _notifyIcon.ContextMenuStrip.Items.Add("Restart Pending");
+                            break;
+                        case PlexState.Updating:
+                            _notifyIcon.ContextMenuStrip.Items.Add("Plex updating");
                             break;
                         case PlexState.Stopping:
                             _notifyIcon.ContextMenuStrip.Items.Add("Stopping");
@@ -206,56 +209,61 @@ namespace PlexServiceTray
                             _notifyIcon.ContextMenuStrip.Items.Add("Plex state unknown");
                             break;
                     }
-                    _notifyIcon.ContextMenuStrip.Items.Add("View Logs", null, ViewLogs_Click);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning("Exception with strip: " + ex.Message, LogEventLevel.Warning);
+                    Disconnect();
+                    _notifyIcon.ContextMenuStrip.Items.Add("Unable to connect to service. Check settings");
+                }
+                if (!string.IsNullOrEmpty(GetDataDir())) _notifyIcon.ContextMenuStrip.Items.Add("PMS Data Folder", null, PMSData_Click);
+                if (_settings != null) {
                     _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-                    var auxAppsToLink = settings.AuxiliaryApplications.Where(aux => !string.IsNullOrEmpty(aux.Url)).ToList();
-                    if(auxAppsToLink.Count > 0)
-                    {
+                    var auxAppsToLink = _settings.AuxiliaryApplications.Where(aux => !string.IsNullOrEmpty(aux.Url))
+                        .ToList();
+                    if (auxAppsToLink.Count > 0) {
                         var auxAppsItem = new ToolStripMenuItem();
                         auxAppsItem.Text = "Auxiliary Applications";
-                        auxAppsToLink.ForEach(aux =>
-                        {
-                            auxAppsItem.DropDownItems.Add(aux.Name, null, (s, a) => 
-                            {
-                                try
-                                {
-                                    System.Diagnostics.Process.Start(aux.Url);
+                        auxAppsToLink.ForEach(aux => {
+                            auxAppsItem.DropDownItems.Add(aux.Name, null, (_, _) => {
+                                try {
+                                    Process.Start(aux.Url);
+                                } catch (Exception ex) {
+                                    Logger("Aux exception: " + ex.Message, LogEventLevel.Warning);
+                                    System.Windows.Forms.MessageBox.Show(ex.Message, "Whoops!", MessageBoxButtons.OK,
+                                        MessageBoxIcon.Error);
                                 }
-                                catch(Exception ex) { System.Windows.Forms.MessageBox.Show(ex.Message, "Woops!", MessageBoxButtons.OK, MessageBoxIcon.Error); }
                             });
                         });
                         _notifyIcon.ContextMenuStrip.Items.Add(auxAppsItem);
                         _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
                     }
+
                     var settingsItem = _notifyIcon.ContextMenuStrip.Items.Add("Settings", null, SettingsCommand);
-                    if(_settingsWindow != null)
-                    {
+                    if (_settingsWindow != null) {
                         settingsItem.Enabled = false;
                     }
-                }
-                catch
-                {
-                    Disconnect();
-                    _notifyIcon.ContextMenuStrip.Items.Add("Unable to connect to service. Check settings");
                 }
             }
             else
             {
                 Disconnect();
                 _notifyIcon.ContextMenuStrip.Items.Add("Unable to connect to service. Check settings");
-
+                _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+                _notifyIcon.ContextMenuStrip.Items.Add("PMS Data", null, PMSData_Click);
             }
-            _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
             var connectionSettingsItem = _notifyIcon.ContextMenuStrip.Items.Add("Connection Settings", null, ConnectionSettingsCommand);
             if (_connectionSettingsWindow != null)
                 connectionSettingsItem.Enabled = false;
+
+            _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+            
+            _notifyIcon.ContextMenuStrip.Items.Add("View Log", null, ViewLogs_Click);
             var aboutItem = _notifyIcon.ContextMenuStrip.Items.Add("About", null, AboutCommand);
             if (AboutWindow.Shown)
                 aboutItem.Enabled = false;
             _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-            var exitItem = _notifyIcon.ContextMenuStrip.Items.Add("Exit", null, ExitCommand);
-            if (AboutWindow.Shown || _connectionSettingsWindow != null || _settingsWindow != null)
-                exitItem.Enabled = false;
+            _notifyIcon.ContextMenuStrip.Items.Add("Exit", null, ExitCommand);
         }
 
         /// <summary>
@@ -265,83 +273,90 @@ namespace PlexServiceTray
         /// <param name="e"></param>
         private void SettingsCommand(object sender, EventArgs e)
         {
-            if (_plexService != null)
+            if (_plexService == null) {
+                return;
+            }
+            
+            if (_settings == null) {
+                return;
+            }
+
+            var viewModel = new SettingsWindowViewModel(_settings);
+            viewModel.AuxAppStartRequest += (s, _) => {
+                if (s is not AuxiliaryApplicationViewModel requester) {
+                    return;
+                }
+
+                _plexService.StartAuxApp(requester.Name);
+                requester.Running = _plexService.IsAuxAppRunning(requester.Name);
+            };
+            viewModel.AuxAppStopRequest += (s, _) => {
+                if (s is not AuxiliaryApplicationViewModel requester) {
+                    return;
+                }
+
+                _plexService.StopAuxApp(requester.Name);
+                requester.Running = _plexService.IsAuxAppRunning(requester.Name);
+            };
+            viewModel.AuxAppCheckRunRequest += (s, _) => {
+                if (s is AuxiliaryApplicationViewModel requester) {
+                    requester.Running = _plexService.IsAuxAppRunning(requester.Name);
+                }
+            };
+            
+            _settingsWindow = new SettingsWindow(viewModel, _plexService);
+            if (_settingsWindow.ShowDialog() == true)
             {
-                Settings settings = null;
                 try
                 {
-                    settings = Settings.Deserialize(_plexService.GetSettings());
+                    _plexService.SetSettings(viewModel.WorkingSettings);
+                    _plexService.GetStatus();
                 }
-                catch 
+                catch(Exception ex)
                 {
+                    Logger("Exception saving settings: " + ex.Message, LogEventLevel.Warning);
                     Disconnect();
-                }
+                    System.Windows.MessageBox.Show("Unable to save settings" + Environment.NewLine + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                }     
+                var oldPort = viewModel.WorkingSettings.ServerPort;
 
-                if (settings != null)
+                //The only setting that would require a restart of the service is the listening port.
+                //If that gets changed notify the user to restart the service from the service snap in
+                if (viewModel.WorkingSettings.ServerPort != oldPort)
                 {
-                    //Save the current server port setting for reference
-                    int oldPort = settings.ServerPort;
-                    SettingsWindowViewModel settingsViewModel = new SettingsWindowViewModel(settings);
-                    settingsViewModel.AuxAppStartRequest += (s, args) =>
-                    {
-                        var requester = s as AuxiliaryApplicationViewModel;
-                        if (requester != null)
-                        {
-                            _plexService.StartAuxApp(requester.Name);
-                            requester.Running = _plexService.IsAuxAppRunning(requester.Name);
-                        }
-                    };
-                    settingsViewModel.AuxAppStopRequest += (s, args) =>
-                    {
-                        var requester = s as AuxiliaryApplicationViewModel;
-                        if(requester != null)
-                        {
-                            _plexService.StopAuxApp(requester.Name);
-                            requester.Running = _plexService.IsAuxAppRunning(requester.Name);
-                        }
-                    };
-                    settingsViewModel.AuxAppCheckRunRequest += (s, args) =>
-                    {
-                        var requester = s as AuxiliaryApplicationViewModel;
-                        if (requester != null)
-                        {
-                            requester.Running = _plexService.IsAuxAppRunning(requester.Name);
-                        }
-                    };
-                    _settingsWindow = new SettingsWindow(settingsViewModel);
-                    if (_settingsWindow.ShowDialog() == true)
-                    {
-                        PlexState status = PlexState.Pending;
-                        try
-                        {
-                            _plexService.SetSettings(settingsViewModel.WorkingSettings.Serialize());
-                            status = _plexService.GetStatus();
-                        }
-                        catch(Exception ex)
-                        {
-                            Disconnect();
-                            System.Windows.MessageBox.Show("Unable to save settings" + Environment.NewLine + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                        }     
-                        //The only setting that would require a restart of the service is the listening port.
-                        //If that gets changed notify the user to restart the service from the service snap in
-                        if (settingsViewModel.WorkingSettings.ServerPort != oldPort)
-                        {
-                            System.Windows.MessageBox.Show("Server port changed! You will need to restart the service from the services snap in for the change to be applied", "Settings changed!", MessageBoxButton.OK, MessageBoxImage.Information);
-                        }
-                    }
-                    _settingsWindow = null;
+                    System.Windows.MessageBox.Show("Server port changed! You will need to restart the service from the services snap in for the change to be applied", "Settings changed!", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
+            _settingsWindow = null;
         }
 
+        private void Logger(string message, LogEventLevel level = LogEventLevel.Debug) {
+            if (_plexService == null) return;
+            try {
+                if (_plexService.State == CommunicationState.Opened) {
+                    _plexService.LogMessage(message, level);
+                }
+            } catch {
+                // Ignored
+            }
+        }
+        private string GetTheme() {
+            if (_plexService == null || _settings == null) {
+                return "Dark.Amber";
+            }
+
+            
+            return _settings.Theme;
+        }
+        
         /// <summary>
         /// Show the connection settings dialogue
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ConnectionSettingsCommand(object sender, EventArgs e)
-        {
-            _connectionSettingsWindow = new ConnectionSettingsWindow();
+        private void ConnectionSettingsCommand(object sender, EventArgs e) {
+            var theme = GetTheme();
+            _connectionSettingsWindow = new ConnectionSettingsWindow(theme);
             if (_connectionSettingsWindow.ShowDialog() == true)
             {
                 //if the user saved the settings, then reconnect using the new values
@@ -349,8 +364,9 @@ namespace PlexServiceTray
                 {
                     Disconnect();
                     Connect();
+                } catch (Exception ex){
+                    Logger("Exception on connection setting command" + ex.Message, LogEventLevel.Warning);
                 }
-                catch { }
             }
             _connectionSettingsWindow = null;
         }
@@ -362,7 +378,7 @@ namespace PlexServiceTray
         /// <param name="e"></param>
         private void AboutCommand(object sender, EventArgs e)
         {
-            AboutWindow.ShowAboutDialog();
+            AboutWindow.ShowAboutDialog(GetTheme());
         }
 
         /// <summary>
@@ -381,19 +397,20 @@ namespace PlexServiceTray
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void StartPlex_Click(object sender, EventArgs e)
-        {
+        private void StartPlex_Click(object sender, EventArgs e) {
             //start it
-            if (_plexService != null)
+            if (_plexService == null) {
+                return;
+            }
+
+            try
             {
-                try
-                {
-                    _plexService.Start();
-                }
-                catch 
-                {
-                    Disconnect();
-                }
+                _plexService.Start();
+            }
+            catch (Exception ex) 
+            {
+                Logger("Exception on startPlex click: " + ex, LogEventLevel.Warning);
+                Disconnect();
             }
         }
 
@@ -402,19 +419,20 @@ namespace PlexServiceTray
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void StopPlex_Click(object sender, EventArgs e)
-        {
+        private void StopPlex_Click(object sender, EventArgs e) {
             //stop it
-            if (_plexService != null)
+            if (_plexService == null) {
+                return;
+            }
+
+            try
             {
-                try
-                {
-                    _plexService.Stop();
-                }
-                catch 
-                {
-                    Disconnect();
-                }
+                _plexService.Stop();
+            }
+            catch (Exception ex)
+            {
+                Logger("Exception stopping Plex..." + ex.Message);
+                Disconnect();
             }
         }
 
@@ -426,7 +444,7 @@ namespace PlexServiceTray
         private void OpenManager_Click(object sender, EventArgs e)
         {
             //The web manager should be located at the server address in the connection settings
-            Process.Start("http://" + ConnectionSettings.Load().ServerAddress + ":32400/web");
+            Process.Start("http://" + _connectionSettings.ServerAddress + ":32400/web");
         }
 
         /// <summary>
@@ -434,17 +452,75 @@ namespace PlexServiceTray
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ViewLogs_Click(object sender, EventArgs e)
-        {
-            //Show the data from the server in notepad, but don't save it to disk locally.
+        private void ViewLogs_Click(object sender, EventArgs e) {
+            var sa = _connectionSettings.ServerAddress;
+            // Use windows shell to open log file in whatever app the user uses...
+            var fileToOpen = string.Empty;
             try
             {
-                NotepadHelper.ShowMessage(_plexService.GetLog(), "Plex Service Log");
+                // If we're local to the service, just open the file.
+                if (sa is "127.0.0.1" or "0.0.0.0" or "localhost") {
+                    fileToOpen = _plexService?.GetLogPath() ?? LogWriter.LogFile;
+                } else {
+                    Logger("Requesting log.");
+                    // Otherwise, request the log data from the server, save it to a temp file, and open that.
+                    var logData = _plexService?.GetLog();
+                    if (logData == null) {
+                        Logger("No log data received.", LogEventLevel.Warning);
+                        return;
+                    }
+                    Logger("Data received: " + logData);
+                    var tmpPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                    var tmpFile = Path.Combine(tmpPath, "pmss.log");
+                    Logger("Writing to " + tmpFile);
+                    File.WriteAllText(tmpFile, logData);
+                    if (File.Exists(tmpFile)) fileToOpen = tmpFile;
+                }
+
+                if (fileToOpen == string.Empty) return;
+                
+                var process = new Process();
+                process.StartInfo = new ProcessStartInfo {
+                    UseShellExecute = true,
+                    FileName = fileToOpen
+                };
+                process.Start();
             }
-            catch
-            {
+            catch (Exception ex) {
+                Logger("Exception viewing logs: " + ex.Message);
                 Disconnect();
             }
+        }
+        
+        private void PMSData_Click(object sender, EventArgs e) {
+            //Open a windows explorer window to PMS data
+            var dir = GetDataDir();
+            try {
+                
+                if (dir != string.Empty) Process.Start($@"{dir}");
+            }
+            catch (Exception ex)
+            {
+                Logger($"Error opening PMS Data folder at {dir}: " + ex.Message, LogEventLevel.Warning);
+                Disconnect();
+            }
+        }
+
+        private string GetDataDir() {
+            var dir = string.Empty;
+            var path = _plexService?.GetPmsDataPath() ?? string.Empty;
+            if (string.IsNullOrEmpty(path)) return dir;
+            // If we're not local, see if we can access PMS data dir over UNC
+            if (!_connectionSettings.IsLocal) {
+                var drive = path.Substring(0, 1);
+                var ext = path.Substring(3);
+                var unc = Path.Combine("\\\\" + _connectionSettings.ServerAddress, drive + "$", ext);
+                if (Directory.Exists(unc)) dir = unc;
+            } else {
+                dir = path;
+            }
+
+            return dir;
         }
 
     }

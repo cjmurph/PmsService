@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace PlexServiceCommon
 {
     /// <summary>
-    /// Auxilliary application class.
-    /// This class represenets an application that should be run when plex runs
+    /// Auxiliary application class.
+    /// This class represents an application that should be run when plex runs
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
     public class AuxiliaryApplication
@@ -40,9 +36,15 @@ namespace PlexServiceCommon
         /// </summary>
         [JsonProperty]
         public bool KeepAlive { get; set; }
+        
+        /// <summary>
+        /// A flag to determine if the application's std. output should be redirected to the Plex Service log.
+        /// </summary>
+        [JsonProperty]
+        public bool LogOutput { get; set; }
 
         /// <summary>
-        /// A url link to the auxilliary application interface.
+        /// A url link to the auxiliary application interface.
         /// </summary>
         [JsonProperty]
         public string Url { get; set; }
@@ -54,6 +56,7 @@ namespace PlexServiceCommon
             WorkingFolder = string.Empty;
             Argument = string.Empty;
             KeepAlive = true;
+            LogOutput = true;
         }
     }
 }

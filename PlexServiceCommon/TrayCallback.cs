@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using PlexServiceCommon;
+using Serilog;
 
 namespace PlexServiceCommon
 {
@@ -13,18 +10,19 @@ namespace PlexServiceCommon
             switch (state)
             {
                 case PlexState.Running:
-                    OnStateChange(string.Format("Plex {0}", state.ToString()));
+                    OnStateChange($"Plex {state.ToString()}");
                     break;
                 case PlexState.Stopped:
-                    OnStateChange(string.Format("Plex {0}", state.ToString()));
+                    OnStateChange($"Plex {state.ToString()}");
+                    break;
+                case PlexState.Updating:
+                    OnStateChange($"Plex is {state.ToString()}");
                     break;
                 case PlexState.Pending:
-                    OnStateChange(string.Format("Plex Start {0}", state.ToString()));
+                    OnStateChange($"Plex Start {state.ToString()}");
                     break;
                 case PlexState.Stopping:
-                    OnStateChange(string.Format("Plex {0}", state.ToString()));
-                    break;
-                default:
+                    OnStateChange($"Plex {state.ToString()}");
                     break;
             }
         }
@@ -33,9 +31,20 @@ namespace PlexServiceCommon
 
         public event EventHandler<StatusChangeEventArgs> StateChange;
 
-        protected void OnStateChange(string message)
+        private void OnStateChange(string message)
         {
             StateChange?.Invoke(this, new StatusChangeEventArgs(message));
+        }
+
+        #endregion
+        
+        #region SettingChange
+
+        public event EventHandler<SettingChangeEventArgs> SettingChange;
+
+        public void OnSettingChange(Settings settings) {
+            Log.Debug("Setting change...");
+            SettingChange?.Invoke(this, new SettingChangeEventArgs(settings));
         }
 
         #endregion
@@ -49,12 +58,19 @@ namespace PlexServiceCommon
 
         public event EventHandler<EventArgs> Stopped;
 
-        protected void OnStopped()
+        private void OnStopped()
         {
-            Stopped?.Invoke(this, new EventArgs());
+            Stopped?.Invoke(this, EventArgs.Empty);
         }
 
         #endregion
 
+    }
+
+    public class SettingChangeEventArgs {
+        public Settings Settings;
+        public SettingChangeEventArgs(Settings settings) {
+            Settings = settings;
+        }
     }
 }

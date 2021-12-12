@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using Newtonsoft.Json;
-using System.IO;
 
 namespace PlexServiceCommon
 {
@@ -14,7 +11,7 @@ namespace PlexServiceCommon
     public class Settings
     {
         /// <summary>
-        /// User defined auxilliary applications
+        /// User defined auxiliary applications
         /// </summary>
         [JsonProperty]
         public List<AuxiliaryApplication> AuxiliaryApplications { get; set; }
@@ -28,64 +25,64 @@ namespace PlexServiceCommon
         /// <summary>
         /// port the WCF service should listen on (endpoint port)
         /// </summary>
-        [JsonProperty]
+        [DefaultValue(8787)]            
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
         public int ServerPort { get; set; }
 
         /// <summary>
         /// The plex restart delay
         /// </summary>
-        [JsonProperty]
+        [DefaultValue(5)]            
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
         public int RestartDelay { get; set; }
 
         /// <summary>
         /// Choose whether plex restarts if it stops
         /// </summary>
-        [JsonProperty]
+        [DefaultValue(false)]            
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
         public bool AutoRestart { get; set; }
 
+        /// <summary>
+        /// Choose whether to try auto-remounting shares if failed
+        /// </summary>
+        [DefaultValue(true)]            
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
+        public bool AutoRemount { get; set; }
+
+        /// <summary>
+        /// How many times to try re-mounting shares before giving up
+        /// </summary>
+        [DefaultValue(5)]            
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
+        public int AutoRemountCount { get; set; }
+        
+        /// <summary>
+        /// Delay (in seconds) to wait before attempting to re-mount
+        /// </summary>
+        [DefaultValue(5)]            
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
+        public int AutoRemountDelay { get; set; }
+        
+        /// <summary>
+        /// Should plex be started if mounting fails? Defaults to true (original behavior)
+        /// </summary>
+        [DefaultValue(true)]            
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
+        public bool StartPlexOnMountFail { get; set; }
+        
+        /// <summary>
+        /// Our application theme.
+        /// </summary>
+        [DefaultValue("Dark.Red")]            
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
+        public string Theme { get; set; }
         public Settings()
         {
             AuxiliaryApplications = new List<AuxiliaryApplication>();
             DriveMaps = new List<DriveMap>();
-            ServerPort = 8787;
-            RestartDelay = 300;
         }
 
-        /// <summary>
-        /// Serialise the settings into a json formatted string
-        /// </summary>
-        /// <returns></returns>
-        public string Serialize()
-        {
-            return JsonConvert.SerializeObject(this, GetSettingsSerializerSettings());
-        }
-
-        /// <summary>
-        /// Deserialise from a json formatted string to a Settings object
-        /// </summary>
-        /// <param name="settings"></param>
-        /// <returns></returns>
-        public static Settings Deserialize(string settings)
-        {            
-            return (Settings)JsonConvert.DeserializeObject(settings, typeof(Settings), GetSettingsSerializerSettings());
-        }
-
-        /// <summary>
-        /// Default settings serialisation options
-        /// </summary>
-        /// <returns></returns>
-        public static JsonSerializerSettings GetSettingsSerializerSettings()
-        {
-            JsonSerializerSettings serializerSettings = new JsonSerializerSettings()
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                PreserveReferencesHandling = PreserveReferencesHandling.Objects,
-                TypeNameHandling = TypeNameHandling.Auto,
-                Formatting = Formatting.Indented,
-                ReferenceLoopHandling = ReferenceLoopHandling.Serialize
-            };
-            return serializerSettings;
-        }
     }
 }
 

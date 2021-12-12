@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.Text;
+﻿using System.ServiceModel;
+using Serilog.Events;
 
 namespace PlexServiceCommon.Interface
 {
@@ -11,7 +7,7 @@ namespace PlexServiceCommon.Interface
     /// WCF service contract
     /// </summary>
     [ServiceContract(SessionMode = SessionMode.Required, CallbackContract = typeof(ITrayCallback))]
-    public interface ITrayInteraction
+    public interface ITrayInteraction : ICommunicationObject
     {
         [OperationContract]
         void Start();
@@ -23,13 +19,22 @@ namespace PlexServiceCommon.Interface
         void Restart();
 
         [OperationContract]
-        void SetSettings(string settings);
+        void SetSettings(Settings settings);
 
         [OperationContract]
-        string GetSettings();
+        void LogMessage(string message, LogEventLevel level = LogEventLevel.Debug);
 
         [OperationContract]
-        string GetLog();
+        public string GetLog();
+
+        [OperationContract]
+        public string GetLogPath();
+
+        [OperationContract]
+        string GetPmsDataPath();
+
+        [OperationContract]
+        Settings GetSettings();
 
         [OperationContract]
         PlexState GetStatus();

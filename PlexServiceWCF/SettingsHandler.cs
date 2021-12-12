@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 using Newtonsoft.Json;
 using PlexServiceCommon;
 
@@ -11,15 +7,15 @@ namespace PlexServiceWCF
     /// <summary>
     /// Class for loading and saving settings on the server
     /// Code is here rather than in the settings class as it should only ever be save on the server.
-    /// settings are retrieved remotely by calling the wcf service getsettings and setsettings methods
+    /// settings are retrieved remotely by calling the wcf service GetSettings and SetSettings methods
     /// </summary>
     public static class SettingsHandler
     {
         #region Load/Save
 
-        internal static string GetSettingsFile()
+        private static string GetSettingsFile()
         {
-            return Path.Combine(TrayInteraction.APP_DATA_PATH, "Settings.json");
+            return Path.Combine(TrayInteraction.AppDataPath, "Settings.json");
         }
 
         /// <summary>
@@ -27,17 +23,17 @@ namespace PlexServiceWCF
         /// </summary>
         internal static void Save(Settings settings)
         {
-            string filePath = GetSettingsFile();
+            var filePath = GetSettingsFile();
 
-            if (!Directory.Exists(Path.GetDirectoryName(filePath)))
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+            if (!Directory.Exists(Path.GetDirectoryName(filePath))) {
+                var dir = Path.GetDirectoryName(filePath);
+                if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
             }
-            using (StreamWriter sw = new StreamWriter(filePath, false))
-            {
-                string rawSettings = settings.Serialize();
-                sw.Write(rawSettings);
-            }
+
+            using var sw = new StreamWriter(filePath, false);
+            sw.Write(JsonConvert.SerializeObject(settings, Formatting.Indented));
+            var tc = new TrayCallback();
+            tc.OnSettingChange(settings);
         }
 
 
@@ -47,15 +43,12 @@ namespace PlexServiceWCF
         /// <returns></returns>
         public static Settings Load()
         {
-            string filePath = GetSettingsFile();
-            Settings settings = null;
-            if (File.Exists(filePath))
-            {
-                using (StreamReader sr = new StreamReader(filePath))
-                {
-                    string rawSettings = sr.ReadToEnd();
-                    settings = Settings.Deserialize(rawSettings);
-                }
+            var filePath = GetSettingsFile();
+            Settings settings;
+            if (File.Exists(filePath)) {
+                using var sr = new StreamReader(filePath);
+                var rawSettings = sr.ReadToEnd();
+                settings = JsonConvert.DeserializeObject<Settings>(rawSettings);
             }
             else
             {

@@ -1,24 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
 using System.IO;
+using Serilog;
 
 namespace PlexServiceCommon
 {
     /// <summary>
-    /// Class that runs up and monitors the life of auxilliary applications
+    /// Class that runs up and monitors the life of auxiliary applications
     /// </summary>
     public class AuxiliaryApplicationMonitor
     {
-        public string Name
-        {
-            get
-            {
-                return _aux.Name;
-            }
-        }
+        public string Name => _aux.Name;
 
         public bool Running { get; private set; }
 
@@ -35,7 +27,7 @@ namespace PlexServiceCommon
         /// <summary>
         /// Auxiliary Application to monitor
         /// </summary>
-        private AuxiliaryApplication _aux;
+        private readonly AuxiliaryApplication _aux;
 
         public AuxiliaryApplicationMonitor(AuxiliaryApplication aux)
         {
@@ -53,7 +45,7 @@ namespace PlexServiceCommon
 
             if(!string.IsNullOrEmpty(_aux.FilePath) && File.Exists(_aux.FilePath))
             {
-                start();
+                ProcStart();
             }
         }
 
@@ -67,7 +59,7 @@ namespace PlexServiceCommon
         public void Stop()
         {
             _stopping = true;
-            end();
+            End();
         }
 
         #endregion
@@ -77,39 +69,38 @@ namespace PlexServiceCommon
         #region Exit events
 
         /// <summary>
-        /// This event fires when the process we have a refrence to exits
+        /// This event fires when the process we have a reference to exits
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         void auxProcess_Exited(object sender, EventArgs e)
         {
-            if (_aux.KeepAlive)
-            {
-                OnStatusChange(this, new StatusChangeEventArgs(_aux.Name + " has stopped!"));
+            if (_aux.KeepAlive) {
+                Log.Information(_aux.Name + " has stopped!");
                 //unsubscribe
                 _auxProcess.Exited -= auxProcess_Exited;
-                end();
+                End();
                 //restart as required
                 if (!_stopping)
                 {
-                    OnStatusChange(this, new StatusChangeEventArgs("Re-starting " + _aux.Name));
+                    Log.Information("Re-starting " + _aux.Name);
                     //wait some seconds first
-                    System.Threading.AutoResetEvent autoEvent = new System.Threading.AutoResetEvent(false);
-                    System.Threading.Timer t = new System.Threading.Timer((x) => { start(); autoEvent.Set(); }, null, 5000, System.Threading.Timeout.Infinite);
+                    var autoEvent = new System.Threading.AutoResetEvent(false);
+                    var t = new System.Threading.Timer(_ => { ProcStart(); autoEvent.Set(); }, null, 5000, System.Threading.Timeout.Infinite);
                     autoEvent.WaitOne();
                     t.Dispose();
                 }
                 else
                 {
-                    OnStatusChange(this, new StatusChangeEventArgs(_aux.Name + " stopped"));
+                    Log.Information(_aux.Name + " stopped");
                     Running = false;
                 }
             }
             else
             {
-                OnStatusChange(this, new StatusChangeEventArgs(_aux.Name + " has completed"));
+                Log.Information(_aux.Name + " has completed");
                 //unsubscribe
-                _auxProcess.Exited -= this.auxProcess_Exited;
+                _auxProcess.Exited -= auxProcess_Exited;
                 _auxProcess.Dispose();
                 Running = false;
             }
@@ -122,33 +113,45 @@ namespace PlexServiceCommon
         /// <summary>
         /// Start a new/get a handle on existing process
         /// </summary>
-        private void start()
+        private void ProcStart()
         {
-            OnStatusChange(this, new StatusChangeEventArgs("Attempting to start " + _aux.Name));
-            if (_auxProcess == null)
-            {
-                //we dont care if this is already running, depending on the application, this could cause lots of issues but hey... 
-                
-                //Auxiliary process
-                _auxProcess = new Process();
-                _auxProcess.StartInfo.FileName = _aux.FilePath;
-                _auxProcess.StartInfo.WorkingDirectory = _aux.WorkingFolder;
-                _auxProcess.StartInfo.UseShellExecute = false;
-                _auxProcess.StartInfo.Arguments = _aux.Argument;
-                _auxProcess.EnableRaisingEvents = true;
-                _auxProcess.Exited += new EventHandler(auxProcess_Exited);
-                try
-                {
-                    _auxProcess.Start();
-                    OnStatusChange(this, new StatusChangeEventArgs(_aux.Name + " Started."));
-                    Running = true;
-                }
-                catch (Exception ex)
-                {
-                    OnStatusChange(this, new StatusChangeEventArgs(_aux.Name + " failed to start. " + ex.Message));
-                }
+            Log.Information("Attempting to start " + _aux.Name);
+            if (_auxProcess != null) {
+                return;
             }
+            //we dont care if this is already running, depending on the application, this could cause lots of issues but hey... 
+                
+            //Auxiliary process
+            _auxProcess = new Process();
+            _auxProcess.StartInfo.FileName = _aux.FilePath;
+            _auxProcess.StartInfo.WorkingDirectory = _aux.WorkingFolder;
+            _auxProcess.StartInfo.UseShellExecute = false;
+            _auxProcess.StartInfo.Arguments = _aux.Argument;
+            _auxProcess.EnableRaisingEvents = true;
+            _auxProcess.StartInfo.RedirectStandardError = true;
+            _auxProcess.StartInfo.RedirectStandardOutput = true;
+            _auxProcess.Exited += auxProcess_Exited;
+            if (_aux.LogOutput) {
+                Log.Information("Enabling logging for " + _aux.Name);
+                _auxProcess.OutputDataReceived += (_, e) => {
+                    if (string.IsNullOrEmpty(e.Data)) return;
+                    Log.Debug($"{_aux.Name}:{e.Data}");
+                };
+            }
+            try
+            {
+                _auxProcess.Start();
+                _auxProcess.BeginOutputReadLine();
+                Log.Information(_aux.Name + " Started.");
+                Running = true;
+            }
+            catch (Exception ex)
+            {
+                Log.Information(_aux.Name + " failed to start. " + ex.Message);
+            }
+            Log.Information("Done starting app.");
         }
+
 
         #endregion
 
@@ -157,23 +160,22 @@ namespace PlexServiceCommon
         /// <summary>
         /// Kill the plex process
         /// </summary>
-        private void end()
-        {
+        private void End() {
+            if (_auxProcess == null) {
+                return;
+            }
 
-            if (_auxProcess != null)
+            Log.Information("Killing " + _aux.Name);
+            try
             {
-                OnStatusChange(this, new StatusChangeEventArgs("Killing " + _aux.Name));
-                try
-                {
-                    _auxProcess.Kill();
-                }
-                catch { }
-                finally
-                {
-                    _auxProcess.Dispose();
-                    _auxProcess = null;
-                    Running = false;
-                }
+                _auxProcess.Kill();
+            } catch (Exception ex) {
+                Log.Warning($"Exception stopping auxProc {_aux.Name}: " + ex.Message);
+            } finally
+            {
+                _auxProcess.Dispose();
+                _auxProcess = null;
+                Running = false;
             }
         }
 
@@ -181,35 +183,6 @@ namespace PlexServiceCommon
 
         #endregion
 
-        #region Events
-
-        //status change
-        /// <summary>
-        /// Status change delegate
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="data"></param>
-        public delegate void StatusChangeHandler(object sender, StatusChangeEventArgs data);
-
-        /// <summary>
-        /// Status change event
-        /// </summary>
-        public event StatusChangeHandler StatusChange;
-
-        /// <summary>
-        /// Method to fire the status change event
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="data"></param>
-        protected void OnStatusChange(object sender, StatusChangeEventArgs data)
-        {
-            //Check if event has been subscribed to
-            if (StatusChange != null)
-            {
-                //call the event
-                StatusChange(this, data);
-            }
-        }
-        #endregion
+        
     }
 }

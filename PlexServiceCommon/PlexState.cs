@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace PlexServiceCommon
+﻿namespace PlexServiceCommon
 {
     public enum PlexState
     {
         Running,
+        Updating,
         Stopped,
         Pending,
         Stopping
