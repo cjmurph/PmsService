@@ -49,6 +49,10 @@ namespace PlexServiceWCF
                 using var sr = new StreamReader(filePath);
                 var rawSettings = sr.ReadToEnd();
                 settings = JsonConvert.DeserializeObject<Settings>(rawSettings);
+                //this new setting may not be in the settings file for users of the old app who have a settings file already.
+                //we need a value or bang...
+                if (string.IsNullOrEmpty(settings.Theme))
+                    settings.Theme = "Dark.Red";
             }
             else
             {

@@ -188,23 +188,16 @@ namespace PlexServiceWCF
                 var drivesMapped = true;
                 if (settings.DriveMaps.Count > 0) {
                     Log.Information("Mapping Network Drives");
-                    foreach (var map in settings.DriveMaps) {
-                        try {
-                            map.MapDrive(true);
-                            Log.Information($"Map share {map.ShareName} to letter '{map.DriveLetter}' successful");
-                        } catch (Exception ex) {
-                            Log.Information($"Unable to map share {map.ShareName} to letter '{map.DriveLetter}': {ex.Message}", EventLogEntryType.Error);
-                        }
 
-                        foreach (var unused in settings.DriveMaps.Where(toMap => !TryMap(toMap, settings))) {
-                            drivesMapped = false;
-                        }
-                    }
+                    drivesMapped = settings.DriveMaps.All(toMap => TryMap(toMap, settings));
                 }
 
-                if (!drivesMapped && !settings.StartPlexOnMountFail) {
+                if (!drivesMapped && !settings.StartPlexOnMountFail) 
+                {
                     Log.Warning("One or more drive mappings failed and settings are configured to *not* start Plex on mount failure. Please check your drives and try again.");
-                } else {
+                } 
+                else 
+                {
                     StartPlex();
                 }
                 
@@ -219,18 +212,20 @@ namespace PlexServiceWCF
 
         private void WatchLog() {
             var path = PlexDirHelper.GetPlexDataDir();
-            if (string.IsNullOrEmpty(path)) {
-                return;
-            }
+            
+            if (string.IsNullOrEmpty(path)) return;
 
-            path = Path.Combine(path, "Plex Media Server", "Logs");
+            path = Path.Combine(path, "Logs");
             Log.Debug("PMS Log Path: " + path);
-            try {
+            try 
+            {
                 var watcher = new FileSystemWatcher(path,"Plex Update Service Launcher.log");
                 watcher.NotifyFilter = NotifyFilters.LastWrite;
                 watcher.EnableRaisingEvents = true;
                 watcher.Changed += OnChanged;
-            } catch (Exception e) {
+            }
+            catch (Exception e) 
+            {
                 Log.Warning("Exception: " + e.Message);
             }
         }
@@ -244,16 +239,21 @@ namespace PlexServiceWCF
             var read = false;
             var lastLine = string.Empty;
             // Ensure the file isn't in use when we try to read it.
-            while (!read) {
-                try {
+            while (!read) 
+            {
+                try 
+                {
                     lastLine = File.ReadLines(e.FullPath).ToArray().Last();
                     read = true;
-                } catch (Exception) {
+                } 
+                catch (Exception) 
+                {
                     // Ignored, we know what the problem is
                 }
             }
             // Only set _updating once.
-            if (lastLine != null && lastLine.Contains("Closing Plex Media Server Processes") && !_updating) {
+            if (lastLine != null && lastLine.Contains("Closing Plex Media Server Processes") && !_updating) 
+            {
                 Log.Debug("MATCH");
                 State = PlexState.Updating;
                 Log.Information("Plex update started.");
@@ -262,7 +262,8 @@ namespace PlexServiceWCF
             }
 
             // And only unset it if it's already been set.
-            if (lastLine != null && (!lastLine.Contains("Install: Success") || !_updating)) {
+            if (lastLine != null && (!lastLine.Contains("Install: Success") || !_updating)) 
+            {
                 return;
             }
             _updating = false;
@@ -270,26 +271,28 @@ namespace PlexServiceWCF
             Start();
         }
 
-        private static bool TryMap(DriveMap map, Settings settings) {
-            var mapped = false;
+        private static bool TryMap(DriveMap map, Settings settings)
+        {
             var count = settings.AutoRemount ? settings.AutoRemountCount : 1;
-                while (count > 0 && !mapped) {
-                    try
-                    {
-                        map.MapDrive(true);
-                        Log.Information($"Map share {map.ShareName} to letter '{map.DriveLetter}' successful");
-                        mapped = true;
-                    }
-                    catch(Exception ex)
-                    {
-                        Log.Information($"Unable to map share {map.ShareName} to letter '{map.DriveLetter}': {ex.Message}, {count - 1} more attempts remaining.");
-                    }
-                    // Wait 5s
-                    if (settings.AutoRemount) Thread.Sleep(settings.AutoRemountDelay * 1000);
-                    count--;
+
+            while (count > 0)
+            {
+                try
+                {
+                    map.MapDrive(true);
+                    Log.Information($"Map share {map.ShareName} to letter '{map.DriveLetter}' successful");
+                    return true;
                 }
-                
-                return mapped;
+                catch (Exception ex)
+                {
+                    Log.Information($"Unable to map share {map.ShareName} to letter '{map.DriveLetter}': {ex.Message}, {count - 1} more attempts remaining.");
+                }
+                // Wait 5s
+                Thread.Sleep(settings.AutoRemountDelay * 1000);
+                count--;
+            }
+
+            return false;
         }
 
         #endregion

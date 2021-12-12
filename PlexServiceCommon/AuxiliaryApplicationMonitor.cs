@@ -73,12 +73,12 @@ namespace PlexServiceCommon
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void auxProcess_Exited(object sender, EventArgs e)
+        void AuxProcess_Exited(object sender, EventArgs e)
         {
             if (_aux.KeepAlive) {
                 Log.Information(_aux.Name + " has stopped!");
                 //unsubscribe
-                _auxProcess.Exited -= auxProcess_Exited;
+                _auxProcess.Exited -= AuxProcess_Exited;
                 End();
                 //restart as required
                 if (!_stopping)
@@ -100,7 +100,7 @@ namespace PlexServiceCommon
             {
                 Log.Information(_aux.Name + " has completed");
                 //unsubscribe
-                _auxProcess.Exited -= auxProcess_Exited;
+                _auxProcess.Exited -= AuxProcess_Exited;
                 _auxProcess.Dispose();
                 Running = false;
             }
@@ -130,7 +130,7 @@ namespace PlexServiceCommon
             _auxProcess.EnableRaisingEvents = true;
             _auxProcess.StartInfo.RedirectStandardError = true;
             _auxProcess.StartInfo.RedirectStandardOutput = true;
-            _auxProcess.Exited += auxProcess_Exited;
+            _auxProcess.Exited += AuxProcess_Exited;
             if (_aux.LogOutput) {
                 Log.Information("Enabling logging for " + _aux.Name);
                 _auxProcess.OutputDataReceived += (_, e) => {

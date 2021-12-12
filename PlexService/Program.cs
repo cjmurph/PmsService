@@ -10,16 +10,29 @@ namespace PlexService
         /// </summary>
         static void Main(string[] args) {
             LogWriter.Init();
-            if (args.Length > 0 && args[0].ToUpper() == "DEBUG")
-            {
-                System.Diagnostics.Debugger.Launch();
-            }
 
+#if (!DEBUG)
             var servicesToRun = new ServiceBase[] 
             { 
                 new PlexMediaServerService() 
             };
             ServiceBase.Run(servicesToRun);
+#else
+            PlexMediaServerService serviceCall = new();
+            serviceCall.OnDebug(args);
+            System.Console.ReadLine();
+#endif
+
+            //if (args.Length > 0 && args[0].ToUpper() == "DEBUG")
+            //{
+            //    System.Diagnostics.Debugger.Launch();
+            //}
+
+            //var servicesToRun = new ServiceBase[]
+            //{
+            //    new PlexMediaServerService()
+            //};
+            //ServiceBase.Run(servicesToRun);
         }
     }
 }

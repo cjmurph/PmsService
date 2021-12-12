@@ -308,16 +308,12 @@ namespace PlexServiceTray
 
         private bool CanRemove(object parameter)
         {
-            switch (SelectedTab)
+            return SelectedTab switch
             {
-                case 0:
-                    return SelectedAuxApplication != null;
-                case 1:
-                    return SelectedDriveMap != null;
-                default:
-                    return false;
-            }
-            
+                0 => SelectedAuxApplication != null,
+                1 => SelectedDriveMap != null,
+                _ => false,
+            };
         }
 
         private void OnRemove(object parameter)

@@ -36,6 +36,14 @@ namespace PlexService
             CanPauseAndContinue = false;
         }
 
+        public void OnDebug(string[] args)
+        {
+            OnStart(args);
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadLine();
+            OnStop();
+        }
+
         /// <summary>
         /// Fires when the service is started
         /// </summary>
