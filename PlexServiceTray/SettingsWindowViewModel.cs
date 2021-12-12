@@ -88,10 +88,10 @@ namespace PlexServiceTray
         
         public string Theme
         {
-            get => WorkingSettings.Theme.Replace("."," ");
+            get => WorkingSettings.Theme?.Replace("."," ") ?? "Dark Red";
             set 
             {
-                if (WorkingSettings.Theme.Replace(" ", ".") == value) return;
+                if (WorkingSettings.Theme?.Replace(" ", ".") == value) return;
                 WorkingSettings.Theme = value.Replace(" ", ".");
                 OnPropertyChanged(nameof(Theme));
             }
