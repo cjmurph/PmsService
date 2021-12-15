@@ -124,7 +124,7 @@ namespace PlexServiceWCF
         }
 
         public string GetLogPath() {
-            return LogWriter.LogFile;
+            return LogWriter.GetLatestLog();
         }
 
         public string GetPmsDataPath() {
