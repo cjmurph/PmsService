@@ -45,7 +45,7 @@ namespace PlexServiceCommon
         public static async Task<string> Read() {
             var log = string.Empty;
             var target = GetLatestLog();
-            if (target == string.Empty) return log;
+            if (string.IsNullOrEmpty(target)) return log;
             var count = 0;
             Log.Debug("Reading log to client...");
             while (count < 10) {
