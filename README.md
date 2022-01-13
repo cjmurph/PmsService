@@ -28,7 +28,7 @@ https://forums.plex.tv/discussion/93994/pms-as-a-service
 
 #Installation
 
-Simply download the [latest release](https://github.com/d8ahazard/PmsService/releases/latest), run the installer, and enter the user information when prompted.
+Simply download the [latest release](https://github.com/cjmurph/PmsService/releases/latest), run the installer, and enter the user information when prompted.
 
 You can also silently install the package using the following syntax:
 
