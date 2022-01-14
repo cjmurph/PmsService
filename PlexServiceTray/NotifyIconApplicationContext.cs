@@ -473,7 +473,7 @@ namespace PlexServiceTray
             {
                 // If we're local to the service, just open the file.
                 if (sa is "127.0.0.1" or "0.0.0.0" or "localhost") {
-                    fileToOpen = _plexService?.GetLogPath() ?? LogWriter.LogFile;
+                    fileToOpen = _plexService?.GetLogPath();
                 } else {
                     Logger("Requesting log.");
                     // Otherwise, request the log data from the server, save it to a temp file, and open that.
