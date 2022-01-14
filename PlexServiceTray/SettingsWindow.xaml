@@ -10,8 +10,7 @@
                  MinHeight="620" Height="620" MinWidth="500" Width="500"
                  WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip" AllowsTransparency="True" 
                  TextOptions.TextFormattingMode="Display" UseLayoutRounding="True" WindowStyle="None" 
-                 local:DialogCloser.DialogResult="{Binding DialogResult}" Icon="PlexService_Bar.ico"
-                 d:DataContext="{d:DesignInstance }">
+                 local:DialogCloser.DialogResult="{Binding DialogResult}" Icon="PlexService_Bar.ico">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
