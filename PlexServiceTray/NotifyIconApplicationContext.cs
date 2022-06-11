@@ -31,7 +31,8 @@ namespace PlexServiceTray
         private SettingsWindow? _settingsWindow;
         private TrayApplicationSettingsWindow? _traySettingsWindow;
         private Settings? _settings;
-        private readonly TrayApplicationSettings _traySettings;
+        private TrayApplicationSettings _traySettings;
+        private AboutWindow _aboutWindow;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -258,17 +259,19 @@ namespace PlexServiceTray
                 Disconnect();
                 _notifyIcon.ContextMenuStrip.Items.Add("Unable to connect to service. Check settings");
                 _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-                _notifyIcon.ContextMenuStrip.Items.Add("PMS Data", null, PMSData_Click);
+                if (!string.IsNullOrEmpty(GetDataDir())) _notifyIcon.ContextMenuStrip.Items.Add("PMS Data Folder", null, PMSData_Click);
             }
             var connectionSettingsItem = _notifyIcon.ContextMenuStrip.Items.Add("Connection Settings", null, ConnectionSettingsCommand);
             if (_traySettingsWindow != null)
                 connectionSettingsItem.Enabled = false;
 
             _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-            
-            _notifyIcon.ContextMenuStrip.Items.Add("View Log", null, ViewLogs_Click);
+
+            if (_plexService is { State: CommunicationState.Opened })
+                _notifyIcon.ContextMenuStrip.Items.Add("View Log", null, ViewLogs_Click);
+
             var aboutItem = _notifyIcon.ContextMenuStrip.Items.Add("About", null, AboutCommand);
-            if (AboutWindow.Shown)
+            if (_aboutWindow != null)
                 aboutItem.Enabled = false;
             _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
             _notifyIcon.ContextMenuStrip.Items.Add("Exit", null, ExitCommand);
@@ -369,6 +372,7 @@ namespace PlexServiceTray
             _traySettingsWindow = new TrayApplicationSettingsWindow(GetTheme());
             if (_traySettingsWindow.ShowDialog() == true)
             {
+                _traySettings = TrayApplicationSettings.Load();
                 //if the user saved the settings, then reconnect using the new values
                 try
                 {
@@ -379,6 +383,12 @@ namespace PlexServiceTray
                 {
                     Logger("Exception on connection setting command" + ex.Message, LogEventLevel.Warning);
                 }
+
+                //if the theme changed, deal with it
+                if (_settingsWindow != null)
+                    _settingsWindow.ChangeTheme(GetTheme());
+                if (_aboutWindow != null)
+                    _aboutWindow.ChangeTheme(GetTheme());
             }
             _traySettingsWindow = null;
         }
@@ -390,7 +400,10 @@ namespace PlexServiceTray
         /// <param name="e"></param>
         private void AboutCommand(object sender, EventArgs e)
         {
-            AboutWindow.ShowAboutDialog(GetTheme());
+            _aboutWindow = new AboutWindow(GetTheme());
+            _ = _aboutWindow.ShowDialog();
+            _aboutWindow = null;
+            //AboutWindow.ShowAboutDialog(GetTheme());
         }
 
         /// <summary>

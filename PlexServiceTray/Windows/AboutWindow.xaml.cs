@@ -80,11 +80,21 @@ namespace PlexServiceTray.Windows
         public AboutWindow(string theme)
         {
             InitializeComponent();
-            ThemeManager.Current.ChangeTheme(this, theme);
+            ChangeTheme(theme);
             File = "LICENCE.rtf";
             Version = $"PMS Service {System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
             Help = "Please report any bugs or issues to:";
             DataContext = this;
+        }
+
+        public void ChangeTheme(string theme)
+        {
+            if (string.IsNullOrEmpty(theme)) return;
+            try
+            {
+                _ = ThemeManager.Current.ChangeTheme(this, theme);
+            }
+            catch { }
         }
 
         private void Title_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -118,16 +128,6 @@ namespace PlexServiceTray.Windows
         }
 
         #endregion OkCommand
-
-        public static bool Shown {get; private set;}
-
-        public static bool? ShowAboutDialog(string theme)
-        {
-            Shown = true;
-            var result = new AboutWindow(theme).ShowDialog();
-            Shown = false;
-            return result;
-        }
 
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
         {

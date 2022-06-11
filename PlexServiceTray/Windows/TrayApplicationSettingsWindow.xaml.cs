@@ -21,18 +21,22 @@ namespace PlexServiceTray.Windows
                     ThemeChanged();
             };
             DataContext = Context;
-            ThemeManager.Current.ChangeTheme(this, theme);
+            ChangeTheme(theme);
         }
 
         private void ThemeChanged()
         {
-            if (string.IsNullOrEmpty(Context?.Theme)) return;
+            ChangeTheme(Context.Theme?.Replace(" ", "."));
+        }
+
+        public void ChangeTheme(string theme)
+        {
+            if (string.IsNullOrEmpty(theme)) return;
             try
             {
-                ThemeManager.Current.ChangeTheme(this, Context.Theme?.Replace(" ", "."));
+                _ = ThemeManager.Current.ChangeTheme(this, theme);
             }
-            catch { //let it go
-            }
+            catch { }
         }
     }
 }

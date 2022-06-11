@@ -10,7 +10,8 @@
                  MinHeight="620" Height="620" MinWidth="500" Width="500"
                  WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip" AllowsTransparency="True" 
                  TextOptions.TextFormattingMode="Display" UseLayoutRounding="True" WindowStyle="None" 
-                 attached:DialogCloser.DialogResult="{Binding DialogResult}" Icon="/PlexServiceTray;component/PlexService_Bar.ico">
+                 attached:DialogCloser.DialogResult="{Binding DialogResult}" Icon="/PlexServiceTray;component/PlexService_Bar.ico"
+                 Title="Plex Media Server Service Settings">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -23,13 +24,10 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <TextBlock FontSize="20" HorizontalAlignment="Stretch" TextAlignment="Center" VerticalAlignment="Center" Text="Plex Media Server Service Settings" Padding="5" Margin="5,10,5,0"
-                       MouseLeftButtonDown="TitleMouseLeftButtonDown" MouseLeftButtonUp="TitleMouseLeftButtonUp"/>
-            <Grid Grid.Row="1" Margin="5,5,5,0">
+            <Grid Grid.Row="0" Margin="5,5,5,0">
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition/>
@@ -44,55 +42,6 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" Text="Service Port:" Margin="5,5,0,5" VerticalAlignment="Center" HorizontalAlignment="Right"/>
                 <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ServerPort, UpdateSourceTrigger=PropertyChanged}" Margin="5" ToolTip="The port the service listens on for communication with the tray application"/>
-                <!--<TextBlock Grid.Row="0" Grid.Column="2" Text="Theme:" Margin="5,5,0,5" VerticalAlignment="Center" HorizontalAlignment="Right" />
-                <ComboBox Grid.Row="0" Grid.Column="3" Text="{Binding Theme, UpdateSourceTrigger=PropertyChanged}" Margin="5" ToolTip="The tray application theme">
-                    <ComboBoxItem>Dark Amber</ComboBoxItem>
-                    <ComboBoxItem>Dark Blue</ComboBoxItem>
-                    <ComboBoxItem>Dark Brown</ComboBoxItem>
-                    <ComboBoxItem>Dark Cobalt</ComboBoxItem>
-                    <ComboBoxItem>Dark Crimson</ComboBoxItem>
-                    <ComboBoxItem>Dark Cyan</ComboBoxItem>
-                    <ComboBoxItem>Dark Emerald</ComboBoxItem>
-                    <ComboBoxItem>Dark Green</ComboBoxItem>
-                    <ComboBoxItem>Dark Indigo</ComboBoxItem>
-                    <ComboBoxItem>Dark Lime</ComboBoxItem>
-                    <ComboBoxItem>Dark Magenta</ComboBoxItem>
-                    <ComboBoxItem>Dark Mauve</ComboBoxItem>
-                    <ComboBoxItem>Dark Olive</ComboBoxItem>
-                    <ComboBoxItem>Dark Orange</ComboBoxItem>
-                    <ComboBoxItem>Dark Pink</ComboBoxItem>
-                    <ComboBoxItem>Dark Purple</ComboBoxItem>
-                    <ComboBoxItem>Dark Red</ComboBoxItem>
-                    <ComboBoxItem>Dark Sienna</ComboBoxItem>
-                    <ComboBoxItem>Dark Steel</ComboBoxItem>
-                    <ComboBoxItem>Dark Taupe</ComboBoxItem>
-                    <ComboBoxItem>Dark Teal</ComboBoxItem>
-                    <ComboBoxItem>Dark Violet</ComboBoxItem>
-                    <ComboBoxItem>Dark Yellow</ComboBoxItem>
-                    <ComboBoxItem>Light Amber</ComboBoxItem>
-                    <ComboBoxItem>Light Blue</ComboBoxItem>
-                    <ComboBoxItem>Light Brown</ComboBoxItem>
-                    <ComboBoxItem>Light Cobalt</ComboBoxItem>
-                    <ComboBoxItem>Light Crimson</ComboBoxItem>
-                    <ComboBoxItem>Light Cyan</ComboBoxItem>
-                    <ComboBoxItem>Light Emerald</ComboBoxItem>
-                    <ComboBoxItem>Light Green</ComboBoxItem>
-                    <ComboBoxItem>Light Indigo</ComboBoxItem>
-                    <ComboBoxItem>Light Lime</ComboBoxItem>
-                    <ComboBoxItem>Light Magenta</ComboBoxItem>
-                    <ComboBoxItem>Light Mauve</ComboBoxItem>
-                    <ComboBoxItem>Light Olive</ComboBoxItem>
-                    <ComboBoxItem>Light Orange</ComboBoxItem>
-                    <ComboBoxItem>Light Pink</ComboBoxItem>
-                    <ComboBoxItem>Light Purple</ComboBoxItem>
-                    <ComboBoxItem>Light Red</ComboBoxItem>
-                    <ComboBoxItem>Light Sienna</ComboBoxItem>
-                    <ComboBoxItem>Light Steel</ComboBoxItem>
-                    <ComboBoxItem>Light Taupe</ComboBoxItem>
-                    <ComboBoxItem>Light Teal</ComboBoxItem>
-                    <ComboBoxItem>Light Violet</ComboBoxItem>
-                    <ComboBoxItem>Light Yellow</ComboBoxItem>
-                </ComboBox>-->
 
                 <Grid Grid.Row="1" Grid.ColumnSpan="4" Grid.Column="0">
                     <Grid.ColumnDefinitions>
@@ -125,7 +74,7 @@
                     <CheckBox Grid.Column="2" Content=":Start Plex if Mounting Fails" FlowDirection="RightToLeft" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Center" IsChecked="{Binding StartPlexOnMountFail, UpdateSourceTrigger=PropertyChanged}"/>
                 </Grid>
             </Grid>
-            <Grid Grid.Row="2">
+            <Grid Grid.Row="1">
                 <UniformGrid Columns="2" Margin="0,0">
                     <FrameworkElement x:Name="C1"/>
                     <!-- no need to add the other three -->
@@ -240,7 +189,7 @@
                 </mah:MetroTabControl>
                     
             </Grid>
-            <Grid Grid.Row="3">
+            <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>

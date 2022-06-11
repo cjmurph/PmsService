@@ -16,27 +16,17 @@ namespace PlexServiceTray.Windows
         {
             InitializeComponent();
             DataContext = settingsViewModel;
-            if (!string.IsNullOrEmpty(theme)) ThemeManager.Current.ChangeTheme(this, theme);
+            ChangeTheme(theme);
         }
 
-        private void TitleMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        public void ChangeTheme(string theme)
         {
-            if (e.ClickCount >= 2)
+            if (string.IsNullOrEmpty(theme)) return;
+            try
             {
-                _maximiseRequired = true;
+                _ = ThemeManager.Current.ChangeTheme(this, theme);
             }
-            else
-            {
-                DragMove();
-            }
-        }
-
-        private void TitleMouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
-            if (!_maximiseRequired) {
-                return;
-            }
-            _maximiseRequired = false;
-            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+            catch { }
         }
     }
 }

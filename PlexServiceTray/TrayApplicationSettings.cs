@@ -28,7 +28,7 @@ namespace PlexServiceTray
         public bool IsLocal => ServerAddress is "127.0.0.1" or "localhost" or "0.0.0.0";
 
         [JsonProperty]
-        public string Theme { get; set; } = "Dark.Red";
+        public string Theme { get; set; } = "Dark.Amber";
 
         #endregion
 
