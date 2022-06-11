@@ -31,7 +31,8 @@ namespace PlexServiceWCF
             "PlexRelay",
             "Plex Relay",
             "EasyAudioEncoder",
-            "Plex Tuner Service"
+            "Plex Tuner Service",
+            "Plex Media Fingerprinter"
         };
 
         #endregion
@@ -84,6 +85,7 @@ namespace PlexServiceWCF
             _auxAppMonitors = new List<AuxiliaryApplicationMonitor>();
             var settings = SettingsHandler.Load();
             settings.AuxiliaryApplications.ForEach(x => _auxAppMonitors.Add(new AuxiliaryApplicationMonitor(x)));
+            //watch the plex update log to see if we should get involved
             WatchLog();
         }
         #endregion
@@ -222,7 +224,7 @@ namespace PlexServiceWCF
                 var watcher = new FileSystemWatcher(path,"Plex Update Service Launcher.log");
                 watcher.NotifyFilter = NotifyFilters.LastWrite;
                 watcher.EnableRaisingEvents = true;
-                watcher.Changed += OnChanged;
+                watcher.Changed += OnLogChanged;
             }
             catch (Exception e) 
             {
@@ -230,7 +232,7 @@ namespace PlexServiceWCF
             }
         }
         
-        private void OnChanged(object sender, FileSystemEventArgs e)
+        private void OnLogChanged(object sender, FileSystemEventArgs e)
         {
             if (e.ChangeType != WatcherChangeTypes.Changed)
             {
