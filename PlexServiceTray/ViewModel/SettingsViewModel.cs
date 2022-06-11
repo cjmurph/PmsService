@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.ObjectModel;
-using System.Windows.Input;
 using PlexServiceCommon;
+using PlexServiceTray.ViewModel;
 
-namespace PlexServiceTray
+namespace PlexServiceTray.ViewModel
 {
     public class SettingsWindowViewModel:ObservableObject
     {
@@ -83,17 +83,6 @@ namespace PlexServiceTray
 
                 WorkingSettings.AutoRemountDelay = value;
                 OnPropertyChanged(nameof(AutoRemountDelay));
-            }
-        }
-        
-        public string Theme
-        {
-            get => WorkingSettings.Theme?.Replace("."," ") ?? "Dark Red";
-            set 
-            {
-                if (WorkingSettings.Theme?.Replace(" ", ".") == value) return;
-                WorkingSettings.Theme = value.Replace(" ", ".");
-                OnPropertyChanged(nameof(Theme));
             }
         }
 
@@ -215,8 +204,10 @@ namespace PlexServiceTray
 
         public string AddToolTip
         {
-            get {
-                return SelectedTab switch {
+            get
+            {
+                return SelectedTab switch
+                {
                     0 => "Add Auxiliary Application",
                     1 => "Add Drive Map",
                     _ => null
@@ -231,11 +222,9 @@ namespace PlexServiceTray
             get => _dialogResult;
             set
             {
-                if (_dialogResult != value)
-                {
-                    _dialogResult = value;
-                    OnPropertyChanged(nameof(DialogResult));
-                }
+                if (_dialogResult == value) return;
+                _dialogResult = value;
+                OnPropertyChanged(nameof(DialogResult));
             }
         }
 

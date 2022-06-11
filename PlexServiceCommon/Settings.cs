@@ -70,20 +70,11 @@ namespace PlexServiceCommon
         [DefaultValue(true)]            
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
         public bool StartPlexOnMountFail { get; set; }
-        
-        /// <summary>
-        /// Our application theme.
-        /// </summary>
-        [DefaultValue("Dark.Red")]            
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
-        public string Theme { get; set; }
 
         public Settings()
         {
             AuxiliaryApplications = new List<AuxiliaryApplication>();
             DriveMaps = new List<DriveMap>();
-            //set a default theme value
-            Theme = "Dark.Red";
         }
 
     }

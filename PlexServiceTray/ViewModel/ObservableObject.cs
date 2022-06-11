@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 
-namespace PlexServiceTray
+namespace PlexServiceTray.ViewModel
 {
     public abstract class ObservableObject : INotifyPropertyChanged, IDataErrorInfo
     {

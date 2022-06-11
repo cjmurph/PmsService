@@ -1,14 +1,13 @@
 ﻿using System;
 using PlexServiceCommon;
-using System.Windows.Input;
 using Microsoft.Win32;
 using Ookii.Dialogs.Wpf;
 using PlexServiceTray.Validation;
 using System.ComponentModel.DataAnnotations;
 
-namespace PlexServiceTray
+namespace PlexServiceTray.ViewModel
 {
-    public class AuxiliaryApplicationViewModel:ObservableObject
+    public class AuxiliaryApplicationViewModel : ObservableObject
     {
         #region Properties
 

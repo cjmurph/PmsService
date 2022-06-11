@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace PlexServiceTray
+namespace PlexServiceTray.Attached
 {
     /// <summary>
     /// Behaviour for a window to listen for a view models DialogResult changing

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace PlexServiceTray
+namespace PlexServiceTray.ViewModel
 {
     public class RelayCommand : ICommand
     {

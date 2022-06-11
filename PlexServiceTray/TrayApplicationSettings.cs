@@ -8,7 +8,7 @@ namespace PlexServiceTray
     /// Local settings for the tray application to connect to the WCF service
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
-    internal class ConnectionSettings
+    internal class TrayApplicationSettings
     {
         #region Properties
 
@@ -16,26 +16,25 @@ namespace PlexServiceTray
         /// Address of the server running the wcf service
         /// </summary>
         [JsonProperty]
-        public string ServerAddress { get; set; }
+        public string ServerAddress { get; set; } = "localhost";
 
         /// <summary>
         /// port of the WCF service endpoint
         /// </summary>
         [JsonProperty]
-        public int ServerPort { get; set; }
+        public int ServerPort { get; set; } = 8787;
         
         [JsonProperty]
         public bool IsLocal => ServerAddress is "127.0.0.1" or "localhost" or "0.0.0.0";
+
+        [JsonProperty]
+        public string Theme { get; set; } = "Dark.Red";
 
         #endregion
 
         #region Constructor
 
-        private ConnectionSettings()
-        {
-            ServerAddress = "localhost";
-            ServerPort = 8787;
-        }
+        private TrayApplicationSettings() { }
 
         #endregion
 
@@ -87,18 +86,18 @@ namespace PlexServiceTray
         /// Load the settings from disk
         /// </summary>
         /// <returns></returns>
-        internal static ConnectionSettings Load()
+        internal static TrayApplicationSettings Load()
         {
             var filePath = GetSettingsFile();
-            ConnectionSettings settings;
+            TrayApplicationSettings settings;
             if (File.Exists(filePath)) {
                 using var sr = new StreamReader(filePath);
                 var rawSettings = sr.ReadToEnd();
-                settings = JsonConvert.DeserializeObject<ConnectionSettings>(rawSettings);
+                settings = JsonConvert.DeserializeObject<TrayApplicationSettings>(rawSettings);
             }
             else
             {
-                settings = new ConnectionSettings();
+                settings = new TrayApplicationSettings();
                 settings.Save();
             }
             return settings;

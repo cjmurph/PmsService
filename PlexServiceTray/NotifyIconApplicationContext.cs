@@ -10,6 +10,8 @@ using System.ServiceModel;
 using System.Windows;
 using Serilog;
 using Serilog.Events;
+using PlexServiceTray.Windows;
+using PlexServiceTray.ViewModel;
 
 namespace PlexServiceTray
 {
@@ -27,9 +29,9 @@ namespace PlexServiceTray
         private PlexServiceCommon.Interface.ITrayInteraction? _plexService;
 
         private SettingsWindow? _settingsWindow;
-        private ConnectionSettingsWindow? _connectionSettingsWindow;
+        private TrayApplicationSettingsWindow? _traySettingsWindow;
         private Settings? _settings;
-        private readonly ConnectionSettings _connectionSettings;
+        private readonly TrayApplicationSettings _traySettings;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -65,7 +67,7 @@ namespace PlexServiceTray
             _notifyIcon.MouseClick += NotifyIcon_Click;
             _notifyIcon.MouseDoubleClick += NotifyIcon_DoubleClick;
             _notifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
-            _connectionSettings = ConnectionSettings.Load();
+            _traySettings = TrayApplicationSettings.Load();
             Connect();
             // Load settings and store them, versus retrieving them. If updated, we'll listen for an event and re-cache them.
             if (_plexService != null) _settings = _plexService.GetSettings();
@@ -92,7 +94,7 @@ namespace PlexServiceTray
                 }
             };
             //Generate the endpoint from the local settings
-            var plexServiceEndpoint = new EndpointAddress(_connectionSettings.GetServiceAddress());
+            var plexServiceEndpoint = new EndpointAddress(_traySettings.GetServiceAddress());
             var callback = new TrayCallback();
             callback.StateChange += Callback_StateChange;
             callback.SettingChange += Callback_SettingChange;
@@ -259,7 +261,7 @@ namespace PlexServiceTray
                 _notifyIcon.ContextMenuStrip.Items.Add("PMS Data", null, PMSData_Click);
             }
             var connectionSettingsItem = _notifyIcon.ContextMenuStrip.Items.Add("Connection Settings", null, ConnectionSettingsCommand);
-            if (_connectionSettingsWindow != null)
+            if (_traySettingsWindow != null)
                 connectionSettingsItem.Enabled = false;
 
             _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
@@ -309,7 +311,7 @@ namespace PlexServiceTray
                 }
             };
             
-            _settingsWindow = new SettingsWindow(viewModel, _plexService);
+            _settingsWindow = new SettingsWindow(viewModel, GetTheme());
             if (_settingsWindow.ShowDialog() == true)
             {
                 try
@@ -352,9 +354,9 @@ namespace PlexServiceTray
         }
         private string GetTheme() 
         {
-            if (_plexService is null || _settings is null)  return "Dark.Amber";
+            if (_traySettings is null || string.IsNullOrEmpty(_traySettings.Theme)) return "Dark.Amber";
             
-            return _settings.Theme;
+            return _traySettings.Theme;
         }
         
         /// <summary>
@@ -364,9 +366,8 @@ namespace PlexServiceTray
         /// <param name="e"></param>
         private void ConnectionSettingsCommand(object sender, EventArgs e) 
         {
-            var theme = GetTheme();
-            _connectionSettingsWindow = new ConnectionSettingsWindow(theme);
-            if (_connectionSettingsWindow.ShowDialog() == true)
+            _traySettingsWindow = new TrayApplicationSettingsWindow(GetTheme());
+            if (_traySettingsWindow.ShowDialog() == true)
             {
                 //if the user saved the settings, then reconnect using the new values
                 try
@@ -379,7 +380,7 @@ namespace PlexServiceTray
                     Logger("Exception on connection setting command" + ex.Message, LogEventLevel.Warning);
                 }
             }
-            _connectionSettingsWindow = null;
+            _traySettingsWindow = null;
         }
 
         /// <summary>
@@ -456,7 +457,7 @@ namespace PlexServiceTray
         {
             //this is pretty old school, we should probably go to app.plex.tv...
             //The web manager should be located at the server address in the connection settings
-            Process.Start("http://" + _connectionSettings.ServerAddress + ":32400/web");
+            Process.Start("http://" + _traySettings.ServerAddress + ":32400/web");
         }
 
         /// <summary>
@@ -466,7 +467,7 @@ namespace PlexServiceTray
         /// <param name="e"></param>
         private void ViewLogs_Click(object sender, EventArgs e) 
         {
-            var sa = _connectionSettings.ServerAddress;
+            var sa = _traySettings.ServerAddress;
             // Use windows shell to open log file in whatever app the user uses...
             var fileToOpen = string.Empty;
             try
@@ -527,11 +528,11 @@ namespace PlexServiceTray
             var path = _plexService?.GetPmsDataPath() ?? string.Empty;
             if (string.IsNullOrEmpty(path)) return dir;
             // If we're not local, see if we can access PMS data dir over UNC
-            if (!_connectionSettings.IsLocal) 
+            if (!_traySettings.IsLocal) 
             {
                 var drive = path.Substring(0, 1);
                 var ext = path.Substring(3);
-                var unc = Path.Combine("\\\\" + _connectionSettings.ServerAddress, drive + "$", ext);
+                var unc = Path.Combine("\\\\" + _traySettings.ServerAddress, drive + "$", ext);
                 if (Directory.Exists(unc)) dir = unc;
             } 
             else 

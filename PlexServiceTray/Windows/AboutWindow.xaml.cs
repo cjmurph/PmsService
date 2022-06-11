@@ -2,8 +2,9 @@
 using System.Windows.Input;
 using System.Windows.Navigation;
 using ControlzEx.Theming;
+using PlexServiceTray.ViewModel;
 
-namespace PlexServiceTray
+namespace PlexServiceTray.Windows
 {
     /// <summary>
     /// Interaction logic for AboutWindow.xaml

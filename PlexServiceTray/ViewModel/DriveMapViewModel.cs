@@ -1,7 +1,7 @@
 ﻿using PlexServiceCommon;
 using System.ComponentModel.DataAnnotations;
 
-namespace PlexServiceTray
+namespace PlexServiceTray.ViewModel
 {
     public class DriveMapViewModel : ObservableObject
     {

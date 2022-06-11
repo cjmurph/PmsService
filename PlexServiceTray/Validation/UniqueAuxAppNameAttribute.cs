@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using PlexServiceTray.ViewModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace PlexServiceTray.Validation
