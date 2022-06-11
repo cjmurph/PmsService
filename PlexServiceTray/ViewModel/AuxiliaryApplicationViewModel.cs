@@ -130,7 +130,7 @@ namespace PlexServiceTray.ViewModel
 
         private readonly AuxiliaryApplication _auxApplication;
 
-        public AuxiliaryApplicationViewModel(AuxiliaryApplication auxApplication, SettingsWindowViewModel context)
+        public AuxiliaryApplicationViewModel(AuxiliaryApplication auxApplication, SettingsViewModel context)
         {
             ValidationContext = context;
             _auxApplication = auxApplication;

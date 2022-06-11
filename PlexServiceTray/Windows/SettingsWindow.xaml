@@ -1,25 +1,27 @@
 ﻿<mah:MetroWindow x:Class="PlexServiceTray.Windows.SettingsWindow"
-                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                 xmlns:attached="clr-namespace:PlexServiceTray.Attached"
-                 xmlns:fa="http://schemas.fontawesome.io/icons/"
-                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-                 mc:Ignorable="d"
-                 MinHeight="620" Height="620" MinWidth="500" Width="500"
-                 WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip" AllowsTransparency="True" 
-                 TextOptions.TextFormattingMode="Display" UseLayoutRounding="True" WindowStyle="None" 
-                 attached:DialogCloser.DialogResult="{Binding DialogResult}" Icon="/PlexServiceTray;component/PlexService_Bar.ico"
-                 Title="Plex Media Server Service Settings">
+            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            xmlns:attached="clr-namespace:PlexServiceTray.Attached"
+            xmlns:mock="clr-namespace:PlexServiceTray.Mock"
+            xmlns:fa="http://schemas.fontawesome.io/icons/"
+            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+            xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+            mc:Ignorable="d"
+            MinHeight="620" Height="620" MinWidth="500" Width="500"
+            WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip" AllowsTransparency="True" 
+            TextOptions.TextFormattingMode="Display" UseLayoutRounding="True" WindowStyle="None" 
+            attached:DialogCloser.DialogResult="{Binding DialogResult}" Icon="/PlexServiceTray;component/PlexService_Bar.ico"
+            Title="Plex Media Server Service Settings" d:DataContext="{d:DesignInstance Type=mock:MockSettingsViewModel, IsDesignTimeCreatable=True}">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Dark.Amber.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-    </Window.Resources> 
+    </Window.Resources>
     <Border BorderBrush="Black" BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
@@ -51,7 +53,7 @@
                     </Grid.ColumnDefinitions>
                     <CheckBox Grid.Column="0" Content=":Automatically restart Plex if it stops" FlowDirection="RightToLeft" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Center" IsChecked="{Binding AutoRestart, UpdateSourceTrigger=PropertyChanged}"/>
                     <TextBlock Grid.Column="1" HorizontalAlignment="Right" Text="Delay(s):" Margin="5,5,0,5" VerticalAlignment="Center" IsEnabled="{Binding AutoRestart}"/>
-                    <TextBox Grid.Column="2" Text="{Binding RestartDelay, UpdateSourceTrigger=PropertyChanged}" Margin="5" IsEnabled="{Binding AutoRestart}" ToolTip="If plex stops this is how long the service waits before restarting it"/>                    
+                    <TextBox Grid.Column="2" Text="{Binding RestartDelay, UpdateSourceTrigger=PropertyChanged}" Margin="5" IsEnabled="{Binding AutoRestart}" ToolTip="If plex stops this is how long the service waits before restarting it"/>
                 </Grid>
                 <Grid Grid.Row="2" Grid.ColumnSpan="4" Grid.Column="0">
                     <Grid.ColumnDefinitions>
@@ -61,7 +63,7 @@
                     </Grid.ColumnDefinitions>
                     <CheckBox Grid.Column="0" Content=":Attempt to reconnect drive mappings" FlowDirection="RightToLeft" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Center" IsChecked="{Binding AutoRemount, UpdateSourceTrigger=PropertyChanged}" ToolTip="Whether or not the service should attempt to re-connect a failed drive map."/>
                     <TextBlock Grid.Column="1" Text="Retries:" Margin="5,5,0,5" HorizontalAlignment="Right" VerticalAlignment="Center" IsEnabled="{Binding AutoRemount}"/>
-                    <TextBox Grid.Column="2" Text="{Binding AutoRemountCount, UpdateSourceTrigger=PropertyChanged}" Margin="5" IsEnabled="{Binding AutoRemount}" ToolTip="If mounting a drive fails, this is how many times a reconnect will be attempted."/>                    
+                    <TextBox Grid.Column="2" Text="{Binding AutoRemountCount, UpdateSourceTrigger=PropertyChanged}" Margin="5" IsEnabled="{Binding AutoRemount}" ToolTip="If mounting a drive fails, this is how many times a reconnect will be attempted."/>
                 </Grid>
                 <Grid Grid.Row="3" Grid.ColumnSpan="4" Grid.Column="0">
                     <Grid.ColumnDefinitions>
@@ -81,7 +83,7 @@
                 </UniformGrid>
                 <mah:MetroTabControl SelectedIndex="{Binding SelectedTab}">
                     <mah:MetroTabItem Header="Auxiliary Apps"  Width="{Binding ElementName=C1, Path=ActualWidth}" HorizontalAlignment="Center">
-                        <ListBox ItemsSource="{Binding AuxiliaryApplications}" SelectedItem="{Binding SelectedAuxApplication}" HorizontalContentAlignment="Stretch" ToolTip="Right Click to add/remove items">
+                        <ListBox ItemsSource="{Binding AuxiliaryApplications}" SelectedItem="{Binding SelectedAuxApplication}" HorizontalContentAlignment="Stretch">
                             <ListBox.Resources>
                                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent" />
                                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black" />
@@ -89,68 +91,71 @@
                             </ListBox.Resources>
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Expander IsExpanded="{Binding IsExpanded}" d:DataContext="{d:DesignInstance }">
+                                    <Expander IsExpanded="{Binding IsExpanded}">
                                         <Expander.Header>
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition/>
                                                     <ColumnDefinition Width="Auto"/>
                                                     <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Margin="5"/>
-                                                <Button Grid.Column="1" Command="{Binding StartCommand}" Margin="0,5">
+                                                <Button Grid.Column="1" Command="{Binding StartCommand}" Margin="0,5" ToolTip="Start Application">
                                                     <fa:FontAwesome Icon="Play" FontSize="14"/>
                                                 </Button>
-                                                <Button Grid.Column="2" Command="{Binding StopCommand}" Margin="5">
+                                                <Button Grid.Column="2" Command="{Binding StopCommand}" Margin="5" ToolTip="Stop Application">
                                                     <fa:FontAwesome Icon="Stop" FontSize="14"/>
+                                                </Button>
+                                                <Button Grid.Column="3" Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" CommandParameter="{Binding}" Margin="0,5,5,5"
+                                                        ToolTip="Remove Application">
+                                                    <fa:FontAwesome Icon="Close" FontSize="14"/>
                                                 </Button>
                                             </Grid>
                                         </Expander.Header>
                                         <Grid>
                                             <Grid.RowDefinitions>
-                                                <RowDefinition/>
-                                                <RowDefinition/>
-                                                <RowDefinition/>
-                                                <RowDefinition/>
-                                                <RowDefinition/>
+                                                <!-- fixed height so the water mark doesn't make everything move-->
+                                                <RowDefinition Height="48"/>
+                                                <RowDefinition Height="48"/>
+                                                <RowDefinition Height="48"/>
+                                                <RowDefinition Height="48"/>
+                                                <RowDefinition Height="48"/>
                                                 <RowDefinition/>
                                             </Grid.RowDefinitions>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width=".1*"/>
                                                 <ColumnDefinition/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Row="0" HorizontalAlignment="Right" Text="Name:" Margin="5" VerticalAlignment="Center"/>
-                                            <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True, ValidatesOnDataErrors=True}" Margin="5" ToolTip="Enter a user friendly name for this application"/>
-                                            
-                                            <TextBlock Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" Text="File:" Margin="5" VerticalAlignment="Center"/>
-                                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding FilePath, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True, ValidatesOnDataErrors=True}" Margin="5,5,0,5" ToolTip="This is the file you want to execute when plex is running."/>
-                                            <Button Grid.Row="1" Grid.Column="2" Content="..." Width="30" Command="{Binding BrowseCommand}" Margin="0,5,5,5"/>
-                                            
-                                            <TextBlock Grid.Row="2" Grid.Column="0" HorizontalAlignment="Right" Text="Argument:" Margin="5" VerticalAlignment="Center" ToolTip="Enter any command line arguments you want added to the startup command for this application"/>
-                                            <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Argument, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
-                                            
-                                            <TextBlock Grid.Row="3" Grid.Column="0" HorizontalAlignment="Right" Text="Working Directory:" Margin="5" VerticalAlignment="Center"/>
-                                            <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding WorkingFolder, UpdateSourceTrigger=PropertyChanged}" Margin="5,5,0,5" ToolTip="This is the working directory for the application."/>
-                                            <Button Grid.Row="3" Grid.Column="2" Content="..." Width="30" Command="{Binding BrowseFolderCommand}" Margin="0,5,5,5"/>
-                                            
-                                            <TextBlock Grid.Row="4" Grid.Column="0" HorizontalAlignment="Right" Text="URL:" Margin="5" VerticalAlignment="Center" ToolTip="Enter a url if the application has a web interface. A link will be added to the tray icon context menu."/>
-                                            <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
-                                            <Button Grid.Row="4" Grid.Column="2" Content="è" Width="30" Command="{Binding GoToUrlCommand}" Margin="0,5,5,5" FontFamily="Wingdings" FontSize="9" ToolTip="Open link in browser"/>
-                                            
-                                            <CheckBox Grid.Row="5" Grid.Column="0" Content=":Keep alive" FlowDirection="RightToLeft" HorizontalAlignment="Left" IsChecked="{Binding KeepAlive}" Margin="5" ToolTip="If selected, The service will attempt to keep this application running while plex is running. Otherwise when it stops it will not be restarted."/>
-                                            <TextBlock Grid.Row="5" Grid.Column="1" Text="Log Output:" Margin="5" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                            <CheckBox Grid.Row="5" Grid.Column="2" FlowDirection="RightToLeft" HorizontalAlignment="Left" IsChecked="{Binding LogOutput}" Margin="5" ToolTip="If selected, all output from the application will be written to the Plex Service log."/>
+                                            <TextBox Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True, ValidatesOnDataErrors=True}" Margin="5" ToolTip="Enter a user friendly name for this application"
+                                                     mah:TextBoxHelper.Watermark="Name" mah:TextBoxHelper.UseFloatingWatermark="True"/>
+
+                                            <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding FilePath, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True, ValidatesOnDataErrors=True}" Margin="5,5,0,5" ToolTip="This is the file you want to execute when plex is running."
+                                                     mah:TextBoxHelper.Watermark="File" mah:TextBoxHelper.UseFloatingWatermark="True"/>
+                                            <Button Grid.Row="1" Grid.Column="1" Content="..." Width="30" Command="{Binding BrowseCommand}" Margin="0,5,5,5"/>
+
+                                            <TextBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Argument, UpdateSourceTrigger=PropertyChanged}" Margin="5" ToolTip="Enter any command line arguments you want added to the startup command for this application"
+                                                     mah:TextBoxHelper.Watermark="Argument" mah:TextBoxHelper.UseFloatingWatermark="True"/>
+
+                                            <TextBox Grid.Row="2" Grid.Column="0" Text="{Binding WorkingFolder, UpdateSourceTrigger=PropertyChanged}" Margin="5,5,0,5" ToolTip="This is the working directory for the application."
+                                                     mah:TextBoxHelper.Watermark="Working Directory" mah:TextBoxHelper.UseFloatingWatermark="True"/>
+                                            <Button Grid.Row="2" Grid.Column="1" Content="..." Width="30" Command="{Binding BrowseFolderCommand}" Margin="0,5,5,5"/>
+
+
+                                            <TextBox Grid.Row="4" Grid.Column="0" Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}" Margin="5,5,0,5" ToolTip="Enter a url if the application has a web interface. A link will be added to the tray icon context menu."
+                                                     mah:TextBoxHelper.Watermark="URL" mah:TextBoxHelper.UseFloatingWatermark="True"/>
+                                            <Button Grid.Row="4" Grid.Column="1" Content="è" Width="30" Command="{Binding GoToUrlCommand}" Margin="0,5,5,5" FontFamily="Wingdings" FontSize="9" ToolTip="Open link in browser"/>
+
+                                            <StackPanel Grid.Row="5" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                                                <CheckBox Grid.Row="5" Grid.Column="0" Content="Keep alive" FlowDirection="RightToLeft" HorizontalAlignment="Left" IsChecked="{Binding KeepAlive}" Margin="30,10" ToolTip="If selected, The service will attempt to keep this application running while plex is running. Otherwise when it stops it will not be restarted."/>
+                                                <CheckBox Grid.Row="5" Grid.Column="1" Content="Log Output" FlowDirection="RightToLeft" HorizontalAlignment="Left" IsChecked="{Binding LogOutput}" Margin="5" ToolTip="If selected, all output from the application will be written to the Plex Service log."/>
+                                            </StackPanel>
+
+
                                         </Grid>
                                     </Expander>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
-                            <ListBox.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="Add Auxiliary Application" Command="{Binding AddCommand}"/>
-                                    <MenuItem Header="{Binding RemoveToolTip}" Command="{Binding RemoveCommand}"/>
-                                </ContextMenu>
-                            </ListBox.ContextMenu>
                         </ListBox>
                     </mah:MetroTabItem>
                     <mah:MetroTabItem Header="Drive Mappings" Width="{Binding ElementName=C1, Path=ActualWidth}" HorizontalAlignment="Right">
@@ -164,30 +169,24 @@
                                 <DataTemplate>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="70"/>
                                             <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="30"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock VerticalAlignment="Center" Text="Share (UNC path):" Margin="5"/>
-                                        <TextBox Grid.Column="1" VerticalAlignment="Center" Text="{Binding ShareName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, NotifyOnValidationError=True}" Margin="0,5,5,5"
-                                                 d:DataContext="{d:DesignInstance }" />
-                                        <TextBlock Grid.Column="2" VerticalAlignment="Center" Text="Drive Letter:" Margin="5"/>
-                                        <TextBox Grid.Column="3" VerticalAlignment="Center" Text="{Binding DriveLetter, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, NotifyOnValidationError=True}" Margin="0,5,5,5"
-                                                 d:DataContext="{d:DesignInstance }" />
+                                        <TextBox Grid.Column="0" VerticalAlignment="Center" Text="{Binding ShareName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, NotifyOnValidationError=True}" Margin="0,5,5,5" 
+                                                 mah:TextBoxHelper.Watermark="Share (UNC Path)" mah:TextBoxHelper.UseFloatingWatermark="True" />
+                                        <TextBox Grid.Column="1" VerticalAlignment="Center" Text="{Binding DriveLetter, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, NotifyOnValidationError=True}" Margin="0,5,5,5" 
+                                                 mah:TextBoxHelper.Watermark="Drive Letter" mah:TextBoxHelper.UseFloatingWatermark="True"/>
+                                        <Button Grid.Column="2" Style="{DynamicResource MahApps.Styles.Button.ToolBar}" Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" CommandParameter="{Binding}">
+                                            <fa:FontAwesome Icon="Close" FontSize="16"/>
+                                        </Button>
                                     </Grid>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
-                            <ListBox.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="Add Drive Mapping" Command="{Binding AddCommand}"/>
-                                    <MenuItem Header="{Binding RemoveToolTip}" Command="{Binding RemoveCommand}"/>
-                                </ContextMenu>
-                            </ListBox.ContextMenu>
                         </ListBox>
                     </mah:MetroTabItem>
                 </mah:MetroTabControl>
-                    
+
             </Grid>
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
@@ -198,10 +197,11 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Content="+" Command="{Binding AddCommand}" Width="30" Margin="5" ToolTip="{Binding AddToolTip}"/>
-                <Button Grid.Column="1" Content="-" Command="{Binding RemoveCommand}" Width="30" Margin="5" ToolTip="{Binding RemoveToolTip}"/>
+                <Button Grid.Column="0" Command="{Binding AddCommand}" Width="40" Height="40" Margin="5" ToolTip="{Binding AddToolTip}" Style="{DynamicResource MahApps.Styles.Button.Circle}">
+                    <fa:FontAwesome Icon="Plus" FontSize="20"/>
+                </Button>
                 <Button Grid.Column="4" Content="Save" Command="{Binding SaveCommand}" Width="70" Margin="5"/>
-                <Button Grid.Column="5" Content="Cancel" Command="{Binding CancelCommand}" Width="70" Margin="5"/>            
+                <Button Grid.Column="5" Content="Cancel" Command="{Binding CancelCommand}" Width="70" Margin="5"/>
             </Grid>
         </Grid>
     </Border>

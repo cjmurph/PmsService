@@ -288,7 +288,7 @@ namespace PlexServiceTray
             if (_plexService is null || _settings is null) return;
 
 
-            var viewModel = new SettingsWindowViewModel(_settings);
+            var viewModel = new SettingsViewModel(_settings);
             viewModel.AuxAppStartRequest += (s, _) => 
             {
                 if (s is not AuxiliaryApplicationViewModel requester) {

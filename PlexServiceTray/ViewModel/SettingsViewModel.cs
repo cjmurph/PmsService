@@ -6,7 +6,7 @@ using PlexServiceTray.ViewModel;
 
 namespace PlexServiceTray.ViewModel
 {
-    public class SettingsWindowViewModel:ObservableObject
+    public class SettingsViewModel:ObservableObject
     {
         /// <summary>
         /// The server endpoint port
@@ -233,7 +233,7 @@ namespace PlexServiceTray.ViewModel
         /// </summary>
         public Settings WorkingSettings { get; set; }
 
-        public SettingsWindowViewModel(Settings settings)
+        public SettingsViewModel(Settings settings)
         {
             WorkingSettings = settings;
             AuxiliaryApplications = new ObservableCollection<AuxiliaryApplicationViewModel>();
@@ -299,8 +299,8 @@ namespace PlexServiceTray.ViewModel
         {
             return SelectedTab switch
             {
-                0 => SelectedAuxApplication != null,
-                1 => SelectedDriveMap != null,
+                0 => parameter is not null && parameter is AuxiliaryApplicationViewModel,
+                1 => parameter is not null && parameter is DriveMapViewModel,
                 _ => false,
             };
         }
@@ -310,12 +310,16 @@ namespace PlexServiceTray.ViewModel
             switch (SelectedTab)
             {
                 case 0:
-                    SelectedAuxApplication.StartRequest -= OnAuxAppStartRequest;
-                    SelectedAuxApplication.StopRequest -= OnAuxAppStopRequest;
-                    AuxiliaryApplications.Remove(SelectedAuxApplication);
+                    if (parameter is AuxiliaryApplicationViewModel auxApp)
+                    {
+                        auxApp.StartRequest -= OnAuxAppStartRequest;
+                        auxApp.StopRequest -= OnAuxAppStopRequest;
+                        AuxiliaryApplications.Remove(auxApp);
+                    }
                     break;
                 case 1:
-                    DriveMaps.Remove(SelectedDriveMap);
+                    if (parameter is DriveMapViewModel map)
+                        DriveMaps.Remove(map);
                     break;
             }
             

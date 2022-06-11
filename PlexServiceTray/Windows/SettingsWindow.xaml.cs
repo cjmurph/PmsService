@@ -1,6 +1,4 @@
-﻿using System.Windows;
-using System.Windows.Input;
-using ControlzEx.Theming;
+﻿using ControlzEx.Theming;
 using PlexServiceTray.ViewModel;
 
 namespace PlexServiceTray.Windows
@@ -10,9 +8,7 @@ namespace PlexServiceTray.Windows
     /// </summary>
     public partial class SettingsWindow
     {
-        private bool _maximiseRequired;
-        
-        public SettingsWindow(SettingsWindowViewModel settingsViewModel, string theme)
+        public SettingsWindow(SettingsViewModel settingsViewModel, string theme)
         {
             InitializeComponent();
             DataContext = settingsViewModel;

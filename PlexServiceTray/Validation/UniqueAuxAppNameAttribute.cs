@@ -8,7 +8,7 @@ namespace PlexServiceTray.Validation
     {
         private new const string ErrorMessage = "There's already an Auxilliary Application called {0}.";
 
-        private SettingsWindowViewModel _context;
+        private SettingsViewModel _context;
 
         public override string FormatErrorMessage(string name)
         {
@@ -23,7 +23,7 @@ namespace PlexServiceTray.Validation
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             if (validationContext != null)
-                _context = validationContext.ObjectInstance as SettingsWindowViewModel;
+                _context = validationContext.ObjectInstance as SettingsViewModel;
             var name = value as string;
             base.ErrorMessage = FormatErrorMessage(name);
             if (string.IsNullOrEmpty(name) || _context?.AuxiliaryApplications == null) {
