@@ -26,7 +26,7 @@ namespace PlexServiceCommon {
 				return result;
 			}
 
-			path = (string) pmsDataKey.GetValue("LocalAppdataPath");
+			path = Path.Combine((string) pmsDataKey.GetValue("LocalAppdataPath"), "Plex Media Server");
 			result = path;
 
 			return result;
