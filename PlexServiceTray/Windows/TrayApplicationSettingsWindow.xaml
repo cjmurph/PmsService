@@ -3,10 +3,10 @@
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                  xmlns:attached="clr-namespace:PlexServiceTray.Attached"
                  xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-                 MinHeight="170" Height="150" MinWidth="350" Width="350" 
+                 MinWidth="360" Width="360" 
                  WindowStartupLocation="CenterScreen" ResizeMode="NoResize" SizeToContent="Height"
                  WindowStyle="None" attached:DialogCloser.DialogResult="{Binding DialogResult}" Icon="/PlexServiceTray;component/PlexService_Bar.ico"
-                 Title="Plex Service Connection Settings">
+                 Title="Plex Service Tray Settings">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -17,35 +17,32 @@
         </ResourceDictionary>
     </Window.Resources>
     <Border BorderBrush="Black" BorderThickness="1">
-        <Grid>
+        <Grid Margin="5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid Grid.Row="0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="48"/>
+                    <RowDefinition Height="48"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="Address" Margin="5,0,5,5" FontSize="16"/>
-                <TextBox Text="{Binding ServerAddress, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="0"
-                         Margin="5,0,5,0"/>
-                <TextBlock Text=":" Grid.Column="1" Grid.Row="1" VerticalAlignment="Center" FontSize="16"/>
-                <TextBlock Text="Port" Grid.Row="0" Grid.Column="2" Margin="5,0,5,5" FontSize="16"/>
-                <TextBox Text="{Binding ServerPort, UpdateSourceTrigger=PropertyChanged}" Grid.Column="2" Grid.Row="1" Margin="5,0,5,0"/>
-                <TextBlock Grid.Row="2" Grid.ColumnSpan="3" Text="Tray Application Theme" Margin="5" VerticalAlignment="Center" FontSize="16" />
-                <ComboBox Grid.Row="3" Grid.ColumnSpan="3" ItemsSource="{Binding Themes}" SelectedItem="{Binding Theme, UpdateSourceTrigger=PropertyChanged}" Margin="5" ToolTip="The tray application theme"/>
-            </Grid>
-            
-            <Grid Grid.Row="2">
+                
+                <TextBox Text="{Binding ServerAddress, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="0" Margin="5" VerticalContentAlignment="Center"
+                         mah:TextBoxHelper.Watermark="Server Address" mah:TextBoxHelper.UseFloatingWatermark="True"/>
+                <TextBlock Text=":" Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" FontSize="16"/>
+
+                <TextBox Text="{Binding ServerPort, UpdateSourceTrigger=PropertyChanged}" Grid.Column="2" Grid.Row="0" Margin="5" VerticalContentAlignment="Center"
+                         mah:TextBoxHelper.Watermark="Port" mah:TextBoxHelper.UseFloatingWatermark="True"/>
+                <ComboBox Grid.Row="1" Grid.ColumnSpan="3" ItemsSource="{Binding Themes}" SelectedItem="{Binding Theme, UpdateSourceTrigger=PropertyChanged}" Margin="5" ToolTip="The tray application theme" VerticalContentAlignment="Center"
+                          mah:TextBoxHelper.Watermark="Theme" mah:TextBoxHelper.UseFloatingWatermark="True"/>
+            </Grid>            
+            <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition Width="Auto"/>
