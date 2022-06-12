@@ -8,10 +8,17 @@ namespace PlexServiceTray.Windows
     /// </summary>
     public partial class SettingsWindow
     {
+        public SettingsViewModel Context { get; set; }
         public SettingsWindow(SettingsViewModel settingsViewModel, string theme)
         {
             InitializeComponent();
-            DataContext = settingsViewModel;
+            Context = settingsViewModel;
+            settingsViewModel.PropertyChanged += (_, args) =>
+            {
+                if (args.PropertyName == nameof(Context.Theme))
+                    ChangeTheme(Context.Theme.Replace(" ", "."));
+            };
+            DataContext = Context;
             ChangeTheme(theme);
         }
 

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.ObjectModel;
 using PlexServiceCommon;
 using PlexServiceTray.ViewModel;
+using System.ComponentModel;
 
 namespace PlexServiceTray.ViewModel
 {
@@ -114,23 +115,10 @@ namespace PlexServiceTray.ViewModel
             }
         }
 
-
-        private ObservableCollection<AuxiliaryApplicationViewModel> _auxilaryApplications;
         /// <summary>
         /// Collection of Auxiliary applications to run alongside plex
         /// </summary>
-        public ObservableCollection<AuxiliaryApplicationViewModel> AuxiliaryApplications
-        {
-            get => _auxilaryApplications;
-            set {
-                if (_auxilaryApplications == value) {
-                    return;
-                }
-
-                _auxilaryApplications = value;
-                OnPropertyChanged(nameof(AuxiliaryApplications));
-            }
-        }
+        public ObservableCollection<AuxiliaryApplicationViewModel> AuxiliaryApplications { get; } = new ObservableCollection<AuxiliaryApplicationViewModel>();
 
         private AuxiliaryApplicationViewModel _selectedAuxApplication;
 
@@ -148,20 +136,8 @@ namespace PlexServiceTray.ViewModel
             }
         }
 
-        private ObservableCollection<DriveMapViewModel> _driveMaps;
 
-        public ObservableCollection<DriveMapViewModel> DriveMaps
-        {
-            get => _driveMaps;
-            set
-            {
-                if (_driveMaps != value)
-                {
-                    _driveMaps = value;
-                    OnPropertyChanged(nameof(DriveMaps));
-                }
-            }
-        }
+        public ObservableCollection<DriveMapViewModel> DriveMaps { get; } = new ObservableCollection<DriveMapViewModel>();
 
         private DriveMapViewModel _selectedDriveMap;
 
@@ -178,6 +154,21 @@ namespace PlexServiceTray.ViewModel
                 OnPropertyChanged(nameof(RemoveToolTip));
             }
         }
+
+        private string _theme;
+
+        public string Theme
+        {
+            get => _theme;
+            set
+            {
+                if (_theme == value) return;
+                _theme = value;
+                OnPropertyChanged(nameof(Theme));
+            }
+        }
+
+        public ObservableCollection<string> Themes { get; } = new ObservableCollection<string>(TrayApplicationSettings.Themes);
 
         public string RemoveToolTip
         {
@@ -233,11 +224,10 @@ namespace PlexServiceTray.ViewModel
         /// </summary>
         public Settings WorkingSettings { get; set; }
 
-        public SettingsViewModel(Settings settings)
+        public SettingsViewModel(Settings settings, string theme)
         {
             WorkingSettings = settings;
-            AuxiliaryApplications = new ObservableCollection<AuxiliaryApplicationViewModel>();
-            DriveMaps = new ObservableCollection<DriveMapViewModel>();
+            _theme = theme;
 
             WorkingSettings.AuxiliaryApplications.ForEach(x =>
             {

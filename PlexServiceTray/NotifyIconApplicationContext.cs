@@ -224,10 +224,10 @@ namespace PlexServiceTray
                     _notifyIcon.ContextMenuStrip.Items.Add("Unable to connect to service. Check settings");
                 }
                 if (!string.IsNullOrEmpty(GetDataDir())) _notifyIcon.ContextMenuStrip.Items.Add("PMS Data Folder", null, PMSData_Click);
-                if (_settings != null) {
+                if (_settings != null) 
+                {
                     _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-                    var auxAppsToLink = _settings.AuxiliaryApplications.Where(aux => !string.IsNullOrEmpty(aux.Url))
-                        .ToList();
+                    var auxAppsToLink = _settings.AuxiliaryApplications.Where(aux => !string.IsNullOrEmpty(aux.Url)).ToList();
                     if (auxAppsToLink.Count > 0) {
                         var auxAppsItem = new ToolStripMenuItem
                         {
@@ -248,7 +248,7 @@ namespace PlexServiceTray
                         _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
                     }
 
-                    var settingsItem = _notifyIcon.ContextMenuStrip.Items.Add("Settings", null, SettingsCommand);
+                    var settingsItem = _notifyIcon.ContextMenuStrip.Items.Add("Service Settings", null, SettingsCommand);
                     if (_settingsWindow != null) {
                         settingsItem.Enabled = false;
                     }
@@ -261,7 +261,7 @@ namespace PlexServiceTray
                 _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
                 if (!string.IsNullOrEmpty(GetDataDir())) _notifyIcon.ContextMenuStrip.Items.Add("PMS Data Folder", null, PMSData_Click);
             }
-            var connectionSettingsItem = _notifyIcon.ContextMenuStrip.Items.Add("Connection Settings", null, ConnectionSettingsCommand);
+            var connectionSettingsItem = _notifyIcon.ContextMenuStrip.Items.Add("Tray Settings", null, TraySettingsCommand);
             if (_traySettingsWindow != null)
                 connectionSettingsItem.Enabled = false;
 
@@ -288,7 +288,7 @@ namespace PlexServiceTray
             if (_plexService is null || _settings is null) return;
 
 
-            var viewModel = new SettingsViewModel(_settings);
+            var viewModel = new SettingsViewModel(_settings, GetTheme().Replace(".", " "));
             viewModel.AuxAppStartRequest += (s, _) => 
             {
                 if (s is not AuxiliaryApplicationViewModel requester) {
@@ -317,6 +317,23 @@ namespace PlexServiceTray
             _settingsWindow = new SettingsWindow(viewModel, GetTheme());
             if (_settingsWindow.ShowDialog() == true)
             {
+                var theme = viewModel.Theme.Replace(" ", ".");
+                if(theme != GetTheme())
+                {
+                    //theme change, push it around and update settings
+                    _traySettings.Theme = theme;
+                    _traySettings.Save();
+
+                    //if the theme changed, deal with it
+                    if (_traySettingsWindow != null)
+                    {
+                        _traySettingsWindow.Context.Theme = GetTheme().Replace(".", " ");
+                        _traySettingsWindow.ChangeTheme(theme);
+                    }
+                    if (_aboutWindow != null)
+                        _aboutWindow.ChangeTheme(theme);
+                }
+
                 try
                 {
                     _plexService.SetSettings(viewModel.WorkingSettings);
@@ -367,7 +384,7 @@ namespace PlexServiceTray
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ConnectionSettingsCommand(object sender, EventArgs e) 
+        private void TraySettingsCommand(object sender, EventArgs e) 
         {
             _traySettingsWindow = new TrayApplicationSettingsWindow(GetTheme());
             if (_traySettingsWindow.ShowDialog() == true)
@@ -386,7 +403,10 @@ namespace PlexServiceTray
 
                 //if the theme changed, deal with it
                 if (_settingsWindow != null)
+                {
+                    _settingsWindow.Context.Theme = GetTheme().Replace(".", " ");
                     _settingsWindow.ChangeTheme(GetTheme());
+                }
                 if (_aboutWindow != null)
                     _aboutWindow.ChangeTheme(GetTheme());
             }
@@ -486,9 +506,12 @@ namespace PlexServiceTray
             try
             {
                 // If we're local to the service, just open the file.
-                if (sa is "127.0.0.1" or "0.0.0.0" or "localhost") {
+                if (sa is "127.0.0.1" or "0.0.0.0" or "localhost") 
+                {
                     fileToOpen = _plexService?.GetLogPath();
-                } else {
+                } 
+                else 
+                {
                     Logger("Requesting log.");
                     // Otherwise, request the log data from the server, save it to a temp file, and open that.
                     var logData = _plexService?.GetLog();
@@ -507,7 +530,8 @@ namespace PlexServiceTray
                 if (string.IsNullOrEmpty(fileToOpen)) return;
                 
                 var process = new Process();
-                process.StartInfo = new ProcessStartInfo {
+                process.StartInfo = new ProcessStartInfo 
+                {
                     UseShellExecute = true,
                     FileName = fileToOpen
                 };

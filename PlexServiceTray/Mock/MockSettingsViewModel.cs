@@ -9,8 +9,14 @@ namespace PlexServiceTray.Mock
 {
     public class MockSettingsViewModel:SettingsViewModel
     {
-        public MockSettingsViewModel():base(new PlexServiceCommon.Settings())
+        public MockSettingsViewModel():base(new PlexServiceCommon.Settings(), "Dark Amber")
         {
+            ServerPort = 8787;
+
+            AutoRemount = true;
+            AutoRemountCount = 2;
+            AutoRestart = true;
+
             //add some mock data
             AuxiliaryApplications.Add(new AuxiliaryApplicationViewModel(new PlexServiceCommon.AuxiliaryApplication()
             {

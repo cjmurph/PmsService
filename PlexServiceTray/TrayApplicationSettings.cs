@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using Newtonsoft.Json;
 
@@ -10,6 +12,57 @@ namespace PlexServiceTray
     [JsonObject(MemberSerialization.OptIn)]
     internal class TrayApplicationSettings
     {
+        public static readonly IList<string> Themes = new ReadOnlyCollection<string> 
+            (new List<string>
+            {
+                "Dark Amber",
+                "Dark Blue",
+                "Dark Brown",
+                "Dark Cobalt",
+                "Dark Crimson",
+                "Dark Cyan",
+                "Dark Emerald",
+                "Dark Green",
+                "Dark Indigo",
+                "Dark Lime",
+                "Dark Magenta",
+                "Dark Mauve",
+                "Dark Olive",
+                "Dark Orange",
+                "Dark Pink",
+                "Dark Purple",
+                "Dark Red",
+                "Dark Sienna",
+                "Dark Steel",
+                "Dark Taupe",
+                "Dark Teal",
+                "Dark Violet",
+                "Dark Yellow",
+                "Light Amber",
+                "Light Blue",
+                "Light Brown",
+                "Light Cobalt",
+                "Light Crimson",
+                "Light Cyan",
+                "Light Emerald",
+                "Light Green",
+                "Light Indigo",
+                "Light Lime",
+                "Light Magenta",
+                "Light Mauve",
+                "Light Olive",
+                "Light Orange",
+                "Light Pink",
+                "Light Purple",
+                "Light Red",
+                "Light Sienna",
+                "Light Steel",
+                "Light Taupe",
+                "Light Teal",
+                "Light Violet",
+                "Light Yellow"
+            });
+
         #region Properties
 
         /// <summary>
