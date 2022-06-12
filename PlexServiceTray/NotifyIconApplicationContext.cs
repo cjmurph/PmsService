@@ -32,7 +32,7 @@ namespace PlexServiceTray
         private TrayApplicationSettingsWindow? _traySettingsWindow;
         private Settings? _settings;
         private TrayApplicationSettings _traySettings;
-        private AboutWindow _aboutWindow;
+        private AboutWindow? _aboutWindow;
 
         /// <summary>
         /// Clean up any resources being used.

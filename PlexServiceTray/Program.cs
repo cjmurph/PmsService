@@ -23,7 +23,6 @@ namespace PlexServiceTray
             try
             {
                 var applicationContext = new NotifyIconApplicationContext();
-                applicationContext.Connect();
                 Application.Run(applicationContext);
             }
             catch (Exception ex)

@@ -20,7 +20,6 @@ namespace PlexService
 #else
             PlexMediaServerService serviceCall = new();
             serviceCall.OnDebug(args);
-            System.Console.ReadLine();
 #endif
 
             //if (args.Length > 0 && args[0].ToUpper() == "DEBUG")
