@@ -34,22 +34,22 @@
         <Condition Message='This setup requires the .NET Framework 4.7.2 (or greater) to be installed.'>
             <![CDATA[Installed OR WIX_IS_NETFRAMEWORK_472_OR_LATER_INSTALLED]]>
         </Condition>
-        <Feature Id="PlexServiceFeature" Title="Plex Service" Description="Plex Service 1.1.9" Level="1"
+        <Feature Id="PlexServiceFeature" Title="Plex Service" Description="Plex Service 1.2.0" Level="1"
                  ConfigurableDirectory='INSTALLDIR'>
             <ComponentRef Id="PlexServiceComponent"/>
             <ComponentRef Id="PlexServiceWCFComponent"/>
             <ComponentRef Id="PlexServiceCommonComponent"/>
             <ComponentRef Id="PlexServiceTrayComponent"/>
-            <ComponentRef Id="NewtonsoftJsonComponent"/>
-            <ComponentRef Id="FontAwesomeWpfDll"/>
-            <ComponentRef Id="OokiiComponent"/>
+			<ComponentRef Id="ControlzEzComponent"/>
+            <ComponentRef Id="FontAwesomeWpfDll"/>            
             <ComponentRef Id="MahAppsComponent"/>
-            <ComponentRef Id="MahAppsResComponent"/>
-            <ComponentRef Id="ControlzEzComponent"/>
+            <ComponentRef Id="MahAppsResComponent"/>            
             <ComponentRef Id="XamlBehaviorsComponent"/>
+			<ComponentRef Id="NewtonsoftJsonComponent"/>
+			<ComponentRef Id="OokiiComponent"/>			
             <ComponentRef Id="SerilogCoreComponent"/>
-            <ComponentRef Id="SerilogFileComponent"/>
-            <ComponentRef Id="SerilogAsyncComponent"/>
+			<ComponentRef Id="SerilogAsyncComponent"/>
+            <ComponentRef Id="SerilogFileComponent"/>            
             <ComponentRef Id="BarIconComponent"/>
             <ComponentRef Id="LicensesComponent"/>
             <ComponentRef Id="PlexServiceTrayAutostart"/>
