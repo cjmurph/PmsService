@@ -129,8 +129,9 @@ namespace PlexServiceWCF
             var is64Bit = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"));
 
             var architecture = is64Bit ? RegistryView.Registry64 : RegistryView.Registry32;
+
             try {
-                pmsDataKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, architecture).OpenSubKey(keyName);
+                pmsDataKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, architecture).OpenSubKey(keyName, true);
                 if (pmsDataKey != null) {
                     var firstRun = (int) pmsDataKey.GetValue("FirstRun");
                     Log.Debug("First run is: " + firstRun);
@@ -147,7 +148,7 @@ namespace PlexServiceWCF
                 if (key == null) {
                     return;
                 }
-
+                key.CreateSubKey("FirstRun");
                 pmsDataKey = key;
             }
             
@@ -605,11 +606,7 @@ namespace PlexServiceWCF
                 //work out the os type (32 or 64) and set the registry view to suit. this is only a reliable check when this project is compiled to x86.
                 var is64Bit = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"));
 
-                var architecture = RegistryView.Registry32;
-                if (is64Bit)
-                {
-                    architecture = RegistryView.Registry64;
-                }
+                var architecture = is64Bit ? RegistryView.Registry64 : RegistryView.Registry32;
 
                 using var userDataKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, architecture).OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Installer\UserData");
                 if(userDataKey != null)
