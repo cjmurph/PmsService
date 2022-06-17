@@ -10,26 +10,32 @@ namespace PlexServiceCommon {
 		/// <returns></returns>
 		public static string GetPlexDataDir()
 		{
-			var result = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-			var path = Path.Combine(result, "Plex Media Server");
-			if (Directory.Exists(path)) {
-				return path;
-			}
-			result = string.Empty;
+			//set appDataFolder to the default user local app data folder
+			var appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+			
+
+			//check if the user has a custom path specified in the registry, if so, update the path to return this instead
+
 			var is64Bit = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"));
 
 			var architecture = is64Bit ? RegistryView.Registry64 : RegistryView.Registry32;
 
-			using var pmsDataKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, architecture)
-				.OpenSubKey(@"Software\Plex, Inc.\Plex Media Server");
-			if (pmsDataKey == null) {
-				return result;
+			try
+			{
+				using var pmsDataKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, architecture).OpenSubKey(@"Software\Plex, Inc.\Plex Media Server");
+
+				if (pmsDataKey is not null)
+					appDataFolder = Path.Combine((string)pmsDataKey.GetValue("LocalAppdataPath"), "Plex Media Server");
 			}
+			catch { }
 
-			path = Path.Combine((string) pmsDataKey.GetValue("LocalAppdataPath"), "Plex Media Server");
-			result = path;
 
-			return result;
+			var path = Path.Combine(appDataFolder, "Plex Media Server");
+
+			if (Directory.Exists(path))
+				return path;
+
+			return string.Empty;
 		}
 	}
 }
