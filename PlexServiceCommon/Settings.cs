@@ -71,6 +71,12 @@ namespace PlexServiceCommon
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
         public bool StartPlexOnMountFail { get; set; }
 
+        /// <summary>
+        /// Allow the user to manually specify the plex executable path
+        /// </summary>
+        [JsonProperty]
+        public string UserDefinedInstallLocation { get; set; }
+
         public Settings()
         {
             AuxiliaryApplications = new List<AuxiliaryApplication>();

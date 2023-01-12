@@ -33,6 +33,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition/>
+                    <RowDefinition/>
                     <RowDefinition />
                     <RowDefinition />
                 </Grid.RowDefinitions>
@@ -47,17 +48,26 @@
                 <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding Themes}" SelectedItem="{Binding Theme, UpdateSourceTrigger=PropertyChanged}" Margin="5" ToolTip="The tray application theme" 
                           mah:TextBoxHelper.Watermark="Theme" mah:TextBoxHelper.UseFloatingWatermark="True" VerticalContentAlignment="Center"/>
 
+                <Grid Grid.Row="1" Grid.ColumnSpan="2" Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Text="{Binding UserDefinedInstallLocation, UpdateSourceTrigger=PropertyChanged}"  ToolTip="The port the service listens on for communication with the tray application"
+                         mah:TextBoxHelper.Watermark="Manually defined Plex Executable Location (optional)" mah:TextBoxHelper.UseFloatingWatermark="True" VerticalContentAlignment="Center" Height="37"/>
+                    <Button Grid.Column="1" Content="..." Width="30" Command="{Binding BrowseForPlexCommand}" Margin="0"/>
+                </Grid>
 
-                <CheckBox Grid.Row="1" Grid.Column="0" Content=":Automatically restart Plex if it stops" FlowDirection="RightToLeft" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Center" IsChecked="{Binding AutoRestart, UpdateSourceTrigger=PropertyChanged}"/>
-                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding RestartDelay, UpdateSourceTrigger=PropertyChanged}" Margin="5" IsEnabled="{Binding AutoRestart}" ToolTip="If plex stops this is how long the service waits before restarting it"
+                <CheckBox Grid.Row="2" Grid.Column="0" Content=":Automatically restart Plex if it stops" FlowDirection="RightToLeft" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Center" IsChecked="{Binding AutoRestart, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding RestartDelay, UpdateSourceTrigger=PropertyChanged}" Margin="5" IsEnabled="{Binding AutoRestart}" ToolTip="If plex stops this is how long the service waits before restarting it"
                             mah:TextBoxHelper.Watermark="Restart Delay(s)" mah:TextBoxHelper.UseFloatingWatermark="True" VerticalContentAlignment="Center"/>
 
-                <CheckBox Grid.Row="2" Grid.Column="0" Content=":Attempt to reconnect drive mappings" FlowDirection="RightToLeft" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Center" IsChecked="{Binding AutoRemount, UpdateSourceTrigger=PropertyChanged}" ToolTip="Whether or not the service should attempt to re-connect a failed drive map."/>
-                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding AutoRemountCount, UpdateSourceTrigger=PropertyChanged}" Margin="5" IsEnabled="{Binding AutoRemount}" ToolTip="If mounting a drive fails, this is how many times a reconnect will be attempted."
+                <CheckBox Grid.Row="3" Grid.Column="0" Content=":Attempt to reconnect drive mappings" FlowDirection="RightToLeft" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Center" IsChecked="{Binding AutoRemount, UpdateSourceTrigger=PropertyChanged}" ToolTip="Whether or not the service should attempt to re-connect a failed drive map."/>
+                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding AutoRemountCount, UpdateSourceTrigger=PropertyChanged}" Margin="5" IsEnabled="{Binding AutoRemount}" ToolTip="If mounting a drive fails, this is how many times a reconnect will be attempted."
                              mah:TextBoxHelper.Watermark="Retries" mah:TextBoxHelper.UseFloatingWatermark="True" VerticalContentAlignment="Center"/>
                 
-                <CheckBox Grid.Row="3" Grid.Column="0" Content=":Start Plex if Mounting Fails" FlowDirection="RightToLeft" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Center" IsChecked="{Binding StartPlexOnMountFail, UpdateSourceTrigger=PropertyChanged}"/>    
-                <TextBox Grid.Row="3" Grid.Column="1" HorizontalAlignment="Stretch" Text="{Binding AutoRemountDelay, UpdateSourceTrigger=PropertyChanged}" Margin="5" IsEnabled="{Binding StartPlexOnMountFail}" ToolTip="Should Plex be started if drive mounting fails?"
+                <CheckBox Grid.Row="4" Grid.Column="0" Content=":Start Plex if Mounting Fails" FlowDirection="RightToLeft" HorizontalAlignment="Stretch" Margin="5" VerticalAlignment="Center" IsChecked="{Binding StartPlexOnMountFail, UpdateSourceTrigger=PropertyChanged}"/>    
+                <TextBox Grid.Row="4" Grid.Column="1" HorizontalAlignment="Stretch" Text="{Binding AutoRemountDelay, UpdateSourceTrigger=PropertyChanged}" Margin="5" IsEnabled="{Binding StartPlexOnMountFail}" ToolTip="Should Plex be started if drive mounting fails?"
                              mah:TextBoxHelper.Watermark="Retry Delay(s)" mah:TextBoxHelper.UseFloatingWatermark="True" VerticalContentAlignment="Center"/>
                     
 

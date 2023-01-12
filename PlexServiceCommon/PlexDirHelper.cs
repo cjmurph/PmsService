@@ -17,15 +17,16 @@ namespace PlexServiceCommon {
 			//check if the user has a custom path specified in the registry, if so, update the path to return this instead
 
 			var is64Bit = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"));
-
-			var architecture = is64Bit ? RegistryView.Registry64 : RegistryView.Registry32;
-
-			try
+			string subKey = @"Software\Plex, Inc.\Plex Media Server";
+			string value = "LocalAppDataPath";
+            try
 			{
-				using var pmsDataKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, architecture).OpenSubKey(@"Software\Plex, Inc.\Plex Media Server");
+				using var pmsDataKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, is64Bit ? RegistryView.Registry64 : RegistryView.Registry32).OpenSubKey(subKey);
 
 				if (pmsDataKey is not null)
-					appDataFolder = Path.Combine((string)pmsDataKey.GetValue("LocalAppdataPath"), "Plex Media Server");
+				{
+					appDataFolder = pmsDataKey.GetValue(value).ToString();
+				}
 			}
 			catch { }
 

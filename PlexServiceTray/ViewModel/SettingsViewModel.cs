@@ -4,6 +4,9 @@ using System.Collections.ObjectModel;
 using PlexServiceCommon;
 using PlexServiceTray.ViewModel;
 using System.ComponentModel;
+using Microsoft.Win32;
+using System.Windows;
+using System.IO;
 
 namespace PlexServiceTray.ViewModel
 {
@@ -98,7 +101,19 @@ namespace PlexServiceTray.ViewModel
                 OnPropertyChanged(nameof(StartPlexOnMountFail));
             }
         }
-        
+
+        public string UserDefinedInstallLocation
+        {
+            get => WorkingSettings.UserDefinedInstallLocation;
+            set
+            {
+                if(WorkingSettings.UserDefinedInstallLocation == value) return;
+                WorkingSettings.UserDefinedInstallLocation = value;
+                OnPropertyChanged(nameof(UserDefinedInstallLocation));
+            }
+        }
+
+
         private int _selectedTab;
 
         public int SelectedTab
@@ -277,6 +292,39 @@ namespace PlexServiceTray.ViewModel
         }
 
         #endregion AddCommand
+
+        /// <summary>
+        /// Allow the user brose to the plex executable
+        /// </summary>
+        #region BrowseForPlexCommand
+        RelayCommand _browseForPlexCommand;
+        public RelayCommand BrowseForPlexCommand => _browseForPlexCommand ??= new RelayCommand(OnBrowseForPlex);
+
+        private void OnBrowseForPlex(object parameter)
+        {
+            var initialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+            if (!string.IsNullOrEmpty(UserDefinedInstallLocation))
+            {
+                initialDirectory = Path.GetDirectoryName(UserDefinedInstallLocation);
+            }
+            var ofd = new OpenFileDialog
+            {
+                FileName = "Plex Media Server.exe",
+                Filter = "Executable Files *.exe|*.exe",
+                InitialDirectory = initialDirectory,
+                CheckPathExists = true,
+                CheckFileExists = true,
+                Title = "Locate Plex Media Server"
+            };
+            if (ofd.ShowDialog() != true)
+            {
+                return;
+            }
+
+            UserDefinedInstallLocation = ofd.FileName;
+        }
+
+        #endregion BrowseForPlexCommand
 
         /// <summary>
         /// Remove the selected auxiliary application

@@ -8,6 +8,9 @@ using System.IO;
 using System.Threading;
 using PlexServiceCommon;
 using Serilog;
+using System.Runtime.InteropServices;
+using System.Runtime;
+using System.Threading.Tasks;
 
 namespace PlexServiceWCF
 {
@@ -56,6 +59,10 @@ namespace PlexServiceWCF
 
         private readonly List<AuxiliaryApplicationMonitor> _auxAppMonitors;
 
+        private Settings _settings;
+
+        private FileSystemWatcher? _updateLogWatcher;
+
         #endregion
 
         #region Properties
@@ -83,8 +90,8 @@ namespace PlexServiceWCF
         {
             State = PlexState.Stopped;
             _auxAppMonitors = new List<AuxiliaryApplicationMonitor>();
-            var settings = SettingsHandler.Load();
-            settings.AuxiliaryApplications.ForEach(x => _auxAppMonitors.Add(new AuxiliaryApplicationMonitor(x)));
+            _settings = SettingsHandler.Load();
+            _settings.AuxiliaryApplications.ForEach(x => _auxAppMonitors.Add(new AuxiliaryApplicationMonitor(x)));
             //watch the plex update log to see if we should get involved
             WatchLog();
         }
@@ -172,6 +179,8 @@ namespace PlexServiceWCF
         /// </summary>
         internal void Start()
         {
+            //reload the settings just in case
+            _settings = SettingsHandler.Load();
             //Find the plex executable
             _executableFileName = GetPlexExecutable();
             if (string.IsNullOrEmpty(_executableFileName))
@@ -182,20 +191,19 @@ namespace PlexServiceWCF
             }
             else
             {
-                //load the settings
-                var settings = SettingsHandler.Load();
-
+                //make sure this doesn't get stuck for any reason.
+                _updating = false;
                 Log.Information("Plex executable found at " + _executableFileName);
                 
                 //map network drives
                 var drivesMapped = true;
-                if (settings.DriveMaps.Count > 0) {
+                if (_settings.DriveMaps.Count > 0) {
                     Log.Information("Mapping Network Drives");
 
-                    drivesMapped = settings.DriveMaps.All(toMap => TryMap(toMap, settings));
+                    drivesMapped = _settings.DriveMaps.All(toMap => TryMap(toMap, _settings));
                 }
 
-                if (!drivesMapped && !settings.StartPlexOnMountFail) 
+                if (!drivesMapped && !_settings.StartPlexOnMountFail) 
                 {
                     Log.Warning("One or more drive mappings failed and settings are configured to *not* start Plex on mount failure. Please check your drives and try again.");
                 } 
@@ -207,7 +215,7 @@ namespace PlexServiceWCF
                 //stop any running aux apps
                 _auxAppMonitors.ForEach(a => a.Stop());
                 _auxAppMonitors.Clear();
-                settings.AuxiliaryApplications.ForEach(x => _auxAppMonitors.Add(new AuxiliaryApplicationMonitor(x)));
+                _settings.AuxiliaryApplications.ForEach(x => _auxAppMonitors.Add(new AuxiliaryApplicationMonitor(x)));
                 //hook up the state change event for all the applications
                 _auxAppMonitors.AsParallel().ForAll(x => x.Start());
             }
@@ -215,17 +223,28 @@ namespace PlexServiceWCF
 
         private void WatchLog() {
             var path = PlexDirHelper.GetPlexDataDir();
-            
-            if (string.IsNullOrEmpty(path)) return;
+
+            if (string.IsNullOrEmpty(path))
+            {
+                Log.Debug("Unable to locate PMS Log Path: " + path);
+                return;
+            }
 
             path = Path.Combine(path, "Logs");
             Log.Debug("PMS Log Path: " + path);
             try 
             {
-                var watcher = new FileSystemWatcher(path,"Plex Update Service Launcher.log");
-                watcher.NotifyFilter = NotifyFilters.LastWrite;
-                watcher.EnableRaisingEvents = true;
-                watcher.Changed += OnLogChanged;
+                _updateLogWatcher = new FileSystemWatcher(path,"Plex Update Service Launcher.log");
+                _updateLogWatcher.NotifyFilter = 
+                    NotifyFilters.Attributes |
+                    NotifyFilters.CreationTime |
+                    NotifyFilters.FileName |
+                    NotifyFilters.LastAccess |
+                    NotifyFilters.LastWrite |
+                    NotifyFilters.Size |
+                    NotifyFilters.Security;
+                _updateLogWatcher.EnableRaisingEvents = true;
+                _updateLogWatcher.Changed += OnLogChanged;
             }
             catch (Exception e) 
             {
@@ -240,13 +259,13 @@ namespace PlexServiceWCF
                 return;
             }
             var read = false;
-            var lastLine = string.Empty;
+            List<string> logLines = new();
             // Ensure the file isn't in use when we try to read it.
             while (!read) 
             {
                 try 
                 {
-                    lastLine = File.ReadLines(e.FullPath).ToArray().Last();
+                    logLines = File.ReadLines(e.FullPath).ToList();
                     read = true;
                 } 
                 catch (Exception) 
@@ -254,18 +273,20 @@ namespace PlexServiceWCF
                     // Ignored, we know what the problem is
                 }
             }
+
             // Only set _updating once.
-            if (lastLine != null && lastLine.Contains("Closing Plex Media Server Processes") && !_updating) 
+            if (logLines?.Count > 0 && !_updating && logLines.Any(x => x.Contains("Closing Plex Media Server Processes"))) 
             {
                 Log.Debug("MATCH");
                 State = PlexState.Updating;
                 Log.Information("Plex update started.");
                 _updating = true;
                 return;
+
             }
 
             // And only unset it if it's already been set.
-            if (lastLine != null && (!lastLine.Contains("Install: Success") || !_updating)) 
+            if (logLines?.Count > 0 && (!logLines.Any(x => x.Contains("Install: Success")) || !_updating)) 
             {
                 return;
             }
@@ -340,14 +361,11 @@ namespace PlexServiceWCF
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Plex_Exited(object sender, EventArgs e)
+        private async void Plex_Exited(object sender, EventArgs e)
         {
             Log.Information("Plex Media Server has stopped!");
             //unsubscribe
             if (_plex != null) _plex.Exited -= Plex_Exited;
-
-            //kill the supporting processes.
-            KillSupportingProcesses();
 
             if (_plex != null)
             {
@@ -355,19 +373,30 @@ namespace PlexServiceWCF
                 _plex = null;
             }
 
-            //restart as required
-            var settings = SettingsHandler.Load();
-            if (State != PlexState.Stopping && settings.AutoRestart)
+            //wait at least 10 seconds for the update log to be written to
+            //not sure why it takes so long to get a change notification.
+            Log.Information("Wait some time for the update log to be written before reacting to this exit event");
+            await Task.Delay(TimeSpan.FromSeconds(10));
+
+            if (_updating)
             {
-                if (_updating) {
-                    State = PlexState.Stopped;
-                    Log.Information("Plex is updating, waiting for finish before re-starting.");
-                    return;
-                }
-                Log.Information($"Waiting {settings.RestartDelay} seconds before re-starting the Plex process.");
+                //State = PlexState.Stopped;
+                Log.Information("Plex is updating, waiting for finish before re-starting.");
+                return;
+            }
+
+            //kill the supporting processes.
+            KillSupportingProcesses();
+
+            //restart as required
+            _settings = SettingsHandler.Load();
+            if (State != PlexState.Stopping && _settings.AutoRestart)
+            {
+                
+                Log.Information($"Waiting {_settings.RestartDelay} seconds before re-starting the Plex process.");
                 State = PlexState.Pending;
                 var autoEvent = new AutoResetEvent(false);
-                var t = new Timer(_ => { Start(); autoEvent.Set(); }, null, settings.RestartDelay * 1000, Timeout.Infinite);
+                var t = new Timer(_ => { Start(); autoEvent.Set(); }, null, _settings.RestartDelay * 1000, Timeout.Infinite);
                 autoEvent.WaitOne();
                 t.Dispose();
             }
@@ -553,13 +582,20 @@ namespace PlexServiceWCF
         /// Returns the full path and filename of the plex media server executable
         /// </summary>
         /// <returns></returns>
-        private static string GetPlexExecutable()
+        private string GetPlexExecutable()
         {
             var result = string.Empty;
+            //first see if its defined in the settings
 
-            //first we will do a dirty check for a text file with the executable path in our log folder.
+            if(!string.IsNullOrEmpty(_settings.UserDefinedInstallLocation) && File.Exists(_settings.UserDefinedInstallLocation))
+            {
+                result = _settings.UserDefinedInstallLocation;
+                Log.Information($"Plex executable using user specified value in settings");
+            }
+
+            //next we will do a dirty check for a text file with the executable path in our log folder.
             //this is here to help anyone having issues and let them specify it manually themselves.
-            if(!string.IsNullOrEmpty(TrayInteraction.AppDataPath))
+            if(string.IsNullOrEmpty(result) && !string.IsNullOrEmpty(TrayInteraction.AppDataPath))
             {
                 var location = Path.Combine(TrayInteraction.AppDataPath, "location.txt");
                 if (File.Exists(location))
@@ -572,6 +608,7 @@ namespace PlexServiceWCF
                     if (File.Exists(userSpecified))
                     {
                         result = userSpecified;
+                        Log.Information($"Plex executable using user specified value in location.txt");
                     }
                 }
             }
@@ -591,10 +628,38 @@ namespace PlexServiceWCF
                 };
 
 
-                foreach (var location in possibleLocations.Where(File.Exists)) {
+                foreach (var location in possibleLocations.Where(File.Exists)) 
+                {
                     result = location;
+                    Log.Information($"Plex executable found using hard coded lookup");
                     break;
                 }
+            }
+
+            //work out the os type (32 or 64) and set the registry view to suit. this is only a reliable check when this project is compiled to x86.
+            var is64Bit = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"));
+
+            //the plex registry key in software holds a key called installFolder, check for that in both 32 and 64 bit registry views
+            if (string.IsNullOrEmpty(result))
+            {
+                using var softwareKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, is64Bit ? RegistryView.Registry64 : RegistryView.Registry32).OpenSubKey(@"SOFTWARE\Plex, Inc.\Plex Media Server");
+                if (softwareKey != null)
+                {
+                    if (softwareKey != null)
+                    {
+                        var names = softwareKey.GetValueNames();
+                        if (names.Contains("InstallFolder"))
+                        {
+                            var possible = softwareKey.GetValue("InstallFolder").ToString();
+                            if (File.Exists(possible))
+                            {
+                                result = possible;
+                                Log.Information($"Plex executable found in plex registry key");
+                            }
+                        }
+                    }
+                }
+
             }
 
             //so if we still can't find it, we need to do a more exhaustive check through the installer locations in the registry
@@ -603,17 +668,13 @@ namespace PlexServiceWCF
                 //let's have a flag to break out of the loops below for faster execution, because this is nasty.
                 var resultFound = false;
 
-                //work out the os type (32 or 64) and set the registry view to suit. this is only a reliable check when this project is compiled to x86.
-                var is64Bit = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"));
-
-                var architecture = is64Bit ? RegistryView.Registry64 : RegistryView.Registry32;
-
-                using var userDataKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, architecture).OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Installer\UserData");
+                using var userDataKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, is64Bit ? RegistryView.Registry64 : RegistryView.Registry32).OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Installer\UserData");
                 if(userDataKey != null)
                 {
                     foreach (var userKeyName in userDataKey.GetSubKeyNames())
                     {
-                        using (var userKey = userDataKey.OpenSubKey(userKeyName)) {
+                        using (var userKey = userDataKey.OpenSubKey(userKeyName)) 
+                        {
                             using var componentsKey = userKey?.OpenSubKey("Components");
                             if (componentsKey != null) // Make sure there are Assemblies
                             {
@@ -629,6 +690,7 @@ namespace PlexServiceWCF
                                                 //found it hooray!
                                                 result = value;
                                                 resultFound = true;
+                                                Log.Information($"Plex executable found in windows installer registry keys");
                                                 break;
                                             }
                                         }
@@ -650,8 +712,6 @@ namespace PlexServiceWCF
             }
             return result;
         }
-
-        
         
         #endregion
 
