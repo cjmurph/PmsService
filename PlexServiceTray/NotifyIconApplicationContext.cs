@@ -197,6 +197,7 @@ namespace PlexServiceTray
                     {
                         case PlexState.Running:
                             _notifyIcon.ContextMenuStrip.Items.Add("Stop Plex", null, StopPlex_Click);
+                            _notifyIcon.ContextMenuStrip.Items.Add("Restart Plex", null, RestartPlex_Click);
                             _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
                             _notifyIcon.ContextMenuStrip.Items.Add("Open Plex...", null, OpenManager_Click);
                             break;
@@ -477,6 +478,30 @@ namespace PlexServiceTray
             catch (Exception ex)
             {
                 Logger("Exception stopping Plex..." + ex.Message);
+                Disconnect();
+            }
+        }
+
+        /// <summary>
+        /// Restart Plex
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RestartPlex_Click(object sender, EventArgs e)
+        {
+            //stop it
+            if (_plexService == null)
+            {
+                return;
+            }
+
+            try
+            {
+                _plexService.Restart();
+            }
+            catch (Exception ex)
+            {
+                Logger("Exception on restart Plex..." + ex.Message);
                 Disconnect();
             }
         }
