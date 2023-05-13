@@ -12,24 +12,11 @@ namespace PlexServiceCommon {
 		{
 			//set appDataFolder to the default user local app data folder
 			var appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-			
+
 
 			//check if the user has a custom path specified in the registry, if so, update the path to return this instead
-
-			var is64Bit = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"));
-			string subKey = @"Software\Plex, Inc.\Plex Media Server";
-			string value = "LocalAppDataPath";
-            try
-			{
-				using var pmsDataKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, is64Bit ? RegistryView.Registry64 : RegistryView.Registry32).OpenSubKey(subKey);
-
-				if (pmsDataKey is not null)
-				{
-					appDataFolder = pmsDataKey.GetValue(value).ToString();
-				}
-			}
-			catch { }
-
+			var userDefinedPath = PlexRegistryHelper.ReadUserRegistryValue("LocalAppDataPath");
+			appDataFolder = string.IsNullOrEmpty(userDefinedPath) ? appDataFolder : userDefinedPath;
 
 			var path = Path.Combine(appDataFolder, "Plex Media Server");
 

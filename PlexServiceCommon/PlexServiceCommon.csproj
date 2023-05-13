@@ -52,6 +52,7 @@
     <Compile Include="Interface\ITrayInteraction.cs" />
     <Compile Include="LogWriter.cs" />
     <Compile Include="PlexDirHelper.cs" />
+    <Compile Include="PlexRegistryHelper.cs" />
     <Compile Include="PlexState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension"
      xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">	
-    <Product Id="*" Name="Plex Service" Language="1033" Version="1.2.1" Manufacturer="cjmurph"
+    <Product Id="*" Name="Plex Service" Language="1033" Version="1.2.2" Manufacturer="cjmurph"
              UpgradeCode="daa483bb-c7e1-4c79-a4d6-3c2c4c3d9daf">
         <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" SummaryCodepage="1252"/>
         <Binary Id="success_bmp" SourceFile="$(sys.SOURCEFILEDIR)success.bmp"/>
@@ -35,7 +35,7 @@
         <Condition Message='This setup requires the .NET Framework 4.7.2 (or greater) to be installed.'>
             <![CDATA[Installed OR WIX_IS_NETFRAMEWORK_472_OR_LATER_INSTALLED]]>
         </Condition>
-        <Feature Id="PlexServiceFeature" Title="Plex Service" Description="Plex Service 1.2.1" Level="1"
+        <Feature Id="PlexServiceFeature" Title="Plex Service" Description="Plex Service 1.2.2" Level="1"
                  ConfigurableDirectory='INSTALLDIR'>
             <ComponentRef Id="PlexServiceComponent"/>
             <ComponentRef Id="PlexServiceWCFComponent"/>

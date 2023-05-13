@@ -11,6 +11,7 @@ using Serilog;
 using System.Runtime.InteropServices;
 using System.Runtime;
 using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace PlexServiceWCF
 {
@@ -29,6 +30,7 @@ namespace PlexServiceWCF
             "Plex DLNA Server",
             "PlexScriptHost",
             "PlexTranscoder",
+            "Plex Transcoder",
             "PlexNewTranscoder",
             "Plex Media Scanner",
             "PlexRelay",
@@ -63,6 +65,8 @@ namespace PlexServiceWCF
 
         private FileSystemWatcher? _updateLogWatcher;
 
+        private bool _restartRequested = false;
+
         #endregion
 
         #region Properties
@@ -81,6 +85,19 @@ namespace PlexServiceWCF
                 OnStateChange();
             }
         }
+
+        private Version? _plexVersion;
+
+        public Version? PlexVersion
+        {
+            get => _plexVersion;
+            set
+            {
+                if (_plexVersion == value) return;
+                _plexVersion = value;
+            }
+        }
+
 
         #endregion
 
@@ -179,6 +196,8 @@ namespace PlexServiceWCF
         /// </summary>
         internal void Start()
         {
+            //clear any restart request flag
+            _restartRequested = false;
             //reload the settings just in case
             _settings = SettingsHandler.Load();
             //Find the plex executable
@@ -342,12 +361,13 @@ namespace PlexServiceWCF
         /// <param name="delay">The amount of time in ms to wait before starting after stop</param>
         internal void Restart(int delay)
         {
+            Log.Information("Restarting Plex...");
+            _restartRequested = true;
             Stop();
-            State = PlexState.Pending;
-            var autoEvent = new AutoResetEvent(false);
-            var t = new Timer(_ => { Start(); autoEvent.Set(); }, null, delay, Timeout.Infinite);
-            autoEvent.WaitOne();
-            t.Dispose();
+            //var autoEvent = new AutoResetEvent(false);
+            //var t = new Timer(_ => { Start(); autoEvent.Set(); }, null, delay, Timeout.Infinite);
+            //autoEvent.WaitOne();
+            //t.Dispose();
         }
 
         #endregion
@@ -390,7 +410,7 @@ namespace PlexServiceWCF
 
             //restart as required
             _settings = SettingsHandler.Load();
-            if (State != PlexState.Stopping && _settings.AutoRestart)
+            if ((State != PlexState.Stopping && _settings.AutoRestart) || _restartRequested)
             {
                 
                 Log.Information($"Waiting {_settings.RestartDelay} seconds before re-starting the Plex process.");
@@ -446,6 +466,7 @@ namespace PlexServiceWCF
                     //check version to see if we can use the startup argument
                     var plexVersion = FileVersionInfo.GetVersionInfo(_executableFileName).FileVersion;
                     var v = new Version(plexVersion);
+                    PlexVersion = v;
                     var minimumVersion = new Version("0.9.8.12");
                     if (v.CompareTo(minimumVersion) == -1)
                     {

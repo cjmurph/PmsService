@@ -41,7 +41,7 @@
                     <ColumnDefinition Width="0.25*"/>
                     <ColumnDefinition Width="0.25*"/>
                 </Grid.ColumnDefinitions>
-                <TextBox Grid.Row="0" Grid.Column="0" Text="{Binding ServerPort, UpdateSourceTrigger=PropertyChanged}" Margin="5" ToolTip="The port the service listens on for communication with the tray application"
+                <TextBox Grid.Row="0" Grid.Column="0" Text="{Binding ServerPort, UpdateSourceTrigger=PropertyChanged}" Margin="5" ToolTip="The port the service listens on for communication with the tray application, use extreme caution!"
                          mah:TextBoxHelper.Watermark="Service Port" mah:TextBoxHelper.UseFloatingWatermark="True" VerticalContentAlignment="Center"/>
                 
                 <!--tray app setting -->

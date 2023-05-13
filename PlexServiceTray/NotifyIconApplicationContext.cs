@@ -515,7 +515,18 @@ namespace PlexServiceTray
         {
             //this is pretty old school, we should probably go to app.plex.tv...
             //The web manager should be located at the server address in the connection settings
-            Process.Start("http://" + _traySettings.ServerAddress + ":32400/web");
+            var address = _plexService?.GetWebLink();
+            Logger("Weblink received from server: " + address, LogEventLevel.Information);
+            address = string.IsNullOrEmpty(address) ? "http://" + _traySettings.ServerAddress + ":32400/web" : address.Replace("localhost", _traySettings.ServerAddress);
+            Logger("Address to open: " + address, LogEventLevel.Information);
+            if (_traySettings.ServerAddress != "localhost" && address.EndsWith("Setup Plex.html"))
+            {
+                //we can't open the setup page from a different computer
+                _notifyIcon.ShowBalloonTip(2000, "Plex Service", "Please go to the computer hosting plex and run initial setup", ToolTipIcon.Error);
+                Logger("Cannot open address from remote tray: " + address, LogEventLevel.Information);
+                return;
+            }            
+            Process.Start(address);
         }
 
         /// <summary>

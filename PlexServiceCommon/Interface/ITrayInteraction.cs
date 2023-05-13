@@ -53,5 +53,8 @@ namespace PlexServiceCommon.Interface
 
         [OperationContract]
         void UnSubscribe();
+
+        [OperationContract]
+        string GetWebLink();
     }
 }
