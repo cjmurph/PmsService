@@ -22,8 +22,10 @@ namespace PlexServiceWCF
     {
         #region static strings
 
-        //Process names
+        //Process name
         private static readonly string _plexName = "Plex Media Server";
+        //Updater name
+        private static readonly string _plexUpdaterName = "Plex Update Service Launcher";
         //List of processes spawned by plex that we need to get rid of
         private static readonly string[] SupportingProcesses =
         {
@@ -55,6 +57,11 @@ namespace PlexServiceWCF
         private Process? _plex;
 
         /// <summary>
+        /// Plex Updater Launcher process
+        /// </summary>
+        private Process? _plexUpdater;
+
+        /// <summary>
         /// Flag to determine if PMS is updating itself.
         /// </summary>
         private bool _updating;
@@ -62,8 +69,6 @@ namespace PlexServiceWCF
         private readonly List<AuxiliaryApplicationMonitor> _auxAppMonitors;
 
         private Settings _settings;
-
-        private FileSystemWatcher? _updateLogWatcher;
 
         private bool _restartRequested = false;
 
@@ -109,8 +114,6 @@ namespace PlexServiceWCF
             _auxAppMonitors = new List<AuxiliaryApplicationMonitor>();
             _settings = SettingsHandler.Load();
             _settings.AuxiliaryApplications.ForEach(x => _auxAppMonitors.Add(new AuxiliaryApplicationMonitor(x)));
-            //watch the plex update log to see if we should get involved
-            WatchLog();
         }
         #endregion
 
@@ -240,80 +243,6 @@ namespace PlexServiceWCF
             }
         }
 
-        private void WatchLog() {
-            var path = PlexDirHelper.GetPlexDataDir();
-
-            if (string.IsNullOrEmpty(path))
-            {
-                Log.Debug("Unable to locate PMS Log Path: " + path);
-                return;
-            }
-
-            path = Path.Combine(path, "Logs");
-            Log.Debug("PMS Log Path: " + path);
-            try 
-            {
-                _updateLogWatcher = new FileSystemWatcher(path,"Plex Update Service Launcher.log");
-                _updateLogWatcher.NotifyFilter = 
-                    NotifyFilters.Attributes |
-                    NotifyFilters.CreationTime |
-                    NotifyFilters.FileName |
-                    NotifyFilters.LastAccess |
-                    NotifyFilters.LastWrite |
-                    NotifyFilters.Size |
-                    NotifyFilters.Security;
-                _updateLogWatcher.EnableRaisingEvents = true;
-                _updateLogWatcher.Changed += OnLogChanged;
-            }
-            catch (Exception e) 
-            {
-                Log.Warning("Exception: " + e.Message);
-            }
-        }
-        
-        private void OnLogChanged(object sender, FileSystemEventArgs e)
-        {
-            if (e.ChangeType != WatcherChangeTypes.Changed)
-            {
-                return;
-            }
-            var read = false;
-            List<string> logLines = new();
-            // Ensure the file isn't in use when we try to read it.
-            while (!read) 
-            {
-                try 
-                {
-                    logLines = File.ReadLines(e.FullPath).ToList();
-                    read = true;
-                } 
-                catch (Exception) 
-                {
-                    // Ignored, we know what the problem is
-                }
-            }
-
-            // Only set _updating once.
-            if (logLines?.Count > 0 && !_updating && logLines.Any(x => x.Contains("Closing Plex Media Server Processes"))) 
-            {
-                Log.Debug("MATCH");
-                State = PlexState.Updating;
-                Log.Information("Plex update started.");
-                _updating = true;
-                return;
-
-            }
-
-            // And only unset it if it's already been set.
-            if (logLines?.Count > 0 && (!logLines.Any(x => x.Contains("Install: Success")) || !_updating)) 
-            {
-                return;
-            }
-            _updating = false;
-            Log.Information("PMS update is complete, killing and restarting process.");
-            Start();
-        }
-
         private static bool TryMap(DriveMap map, Settings settings)
         {
             var count = settings.AutoRemount ? settings.AutoRemountCount : 1;
@@ -376,6 +305,20 @@ namespace PlexServiceWCF
 
         #region Exit events
 
+        private async void Updater_Exited(object sender, EventArgs e)
+        {
+
+            if (_plexUpdater != null)
+            {
+                _plexUpdater.Dispose();
+                _plexUpdater = null;
+            }
+
+            _updating = false;
+            Log.Information("PMS update is complete, killing and restarting process.");
+            Start();
+        }
+
         /// <summary>
         /// This event fires when the plex process we have a reference to exits
         /// </summary>
@@ -393,15 +336,22 @@ namespace PlexServiceWCF
                 _plex = null;
             }
 
-            //wait at least 10 seconds for the update log to be written to
-            //not sure why it takes so long to get a change notification.
-            Log.Information("Wait some time for the update log to be written before reacting to this exit event");
-            await Task.Delay(TimeSpan.FromSeconds(10));
-
             if (_updating)
             {
                 //State = PlexState.Stopped;
                 Log.Information("Plex is updating, waiting for finish before re-starting.");
+                return;
+            }
+
+            _plexUpdater = Process.GetProcessesByName(_plexUpdaterName).FirstOrDefault();
+            if (_plexUpdater != null)
+            {
+                Log.Debug("Updater Detected");
+                State = PlexState.Updating;
+                Log.Information("Plex update started.");
+                _updating = true;
+                _plexUpdater.EnableRaisingEvents = true;
+                _plexUpdater.Exited += Updater_Exited;
                 return;
             }
 
