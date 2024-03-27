@@ -607,30 +607,22 @@ namespace PlexServiceWCF
                 }
             }
 
-            //work out the os type (32 or 64) and set the registry view to suit. this is only a reliable check when this project is compiled to x86.
-            var is64Bit = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"));
-
             //the plex registry key in software holds a key called installFolder, check for that in both 32 and 64 bit registry views
             if (string.IsNullOrEmpty(result))
             {
-                using var softwareKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, is64Bit ? RegistryView.Registry64 : RegistryView.Registry32).OpenSubKey(@"SOFTWARE\Plex, Inc.\Plex Media Server");
-                if (softwareKey != null)
+                //look in HKLM
+                result = PlexRegistryHelper.ReadLocalMachineRegistryValue("InstallFolder");
+                if (string.IsNullOrEmpty(result))
                 {
-                    if (softwareKey != null)
-                    {
-                        var names = softwareKey.GetValueNames();
-                        if (names.Contains("InstallFolder"))
-                        {
-                            var possible = softwareKey.GetValue("InstallFolder").ToString();
-                            if (File.Exists(possible))
-                            {
-                                result = possible;
-                                Log.Information($"Plex executable found in plex registry key");
-                            }
-                        }
-                    }
+                    //look in HKLU
+                    result = PlexRegistryHelper.ReadUserRegistryValue("InstallFolder");
+                    if(!string.IsNullOrEmpty(result))
+                        Log.Information($"Plex executable found in HKLU plex registry key");
                 }
-
+                else
+                {
+                    Log.Information($"Plex executable found in HKLM plex registry key");
+                }
             }
 
             //so if we still can't find it, we need to do a more exhaustive check through the installer locations in the registry
@@ -638,7 +630,8 @@ namespace PlexServiceWCF
             {
                 //let's have a flag to break out of the loops below for faster execution, because this is nasty.
                 var resultFound = false;
-
+                //work out the os type (32 or 64) and set the registry view to suit. this is only a reliable check when this project is compiled to x86.
+                var is64Bit = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432"));
                 using var userDataKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, is64Bit ? RegistryView.Registry64 : RegistryView.Registry32).OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Installer\UserData");
                 if(userDataKey != null)
                 {
