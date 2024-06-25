@@ -425,7 +425,7 @@ namespace PlexServiceWCF
                     else
                     {
                         Log.Information($"Plex Media Server version is {plexVersion}. Can use startup argument.");
-                        plexStartInfo.Arguments = "-noninteractive";
+                        plexStartInfo.Arguments = "-noninteractive -noautorestart";
                     }
                     _plex.StartInfo = plexStartInfo;
                     _plex.EnableRaisingEvents = true;
