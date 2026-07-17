@@ -19,6 +19,9 @@ namespace PlexServiceCommon.Interface
         void Restart();
 
         [OperationContract]
+        void UpdateAllLibraries();
+
+        [OperationContract]
         void SetSettings(Settings settings);
 
         [OperationContract]
