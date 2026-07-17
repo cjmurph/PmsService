@@ -198,6 +198,7 @@ namespace PlexServiceTray
                         case PlexState.Running:
                             _notifyIcon.ContextMenuStrip.Items.Add("Stop Plex", null, StopPlex_Click);
                             _notifyIcon.ContextMenuStrip.Items.Add("Restart Plex", null, RestartPlex_Click);
+                            _notifyIcon.ContextMenuStrip.Items.Add("Update Plex Libraries", null, UpdateLibraries_Click);
                             _notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
                             _notifyIcon.ContextMenuStrip.Items.Add("Open Plex...", null, OpenManager_Click);
                             break;
@@ -502,6 +503,30 @@ namespace PlexServiceTray
             catch (Exception ex)
             {
                 Logger("Exception on restart Plex..." + ex.Message);
+                Disconnect();
+            }
+        }
+
+        /// <summary>
+        /// Ask the service to request an update of all plex libraries
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void UpdateLibraries_Click(object sender, EventArgs e)
+        {
+            if (_plexService == null)
+            {
+                return;
+            }
+
+            try
+            {
+                _plexService.UpdateAllLibraries();
+                _notifyIcon.ShowBalloonTip(2000, "Plex Service", "Library update requested", ToolTipIcon.Info);
+            }
+            catch (Exception ex)
+            {
+                Logger("Exception updating libraries..." + ex.Message);
                 Disconnect();
             }
         }

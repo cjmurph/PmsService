@@ -101,6 +101,36 @@ namespace PlexServiceWCF
         }
 
         /// <summary>
+        /// Ask the local plex server to update (scan) all libraries.
+        /// The request is made from the service so it comes from localhost and the machine hosting plex.
+        /// </summary>
+        public void UpdateAllLibraries()
+        {
+            //fire the request off in another thread so the tray isn't kept waiting
+            Task.Factory.StartNew(() =>
+            {
+                var address = "http://localhost:32400/library/sections/all/refresh";
+                //include the token if we can find one, localhost is usually trusted without it
+                var token = PlexRegistryHelper.ReadUserRegistryValue("PlexOnlineToken");
+                if (!string.IsNullOrEmpty(token))
+                {
+                    address += "?X-Plex-Token=" + token;
+                }
+                try
+                {
+                    var request = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(address);
+                    request.Timeout = 30000;
+                    using var response = (System.Net.HttpWebResponse)request.GetResponse();
+                    Log.Write(LogEventLevel.Information, "Update of all libraries requested, plex responded: " + response.StatusCode);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning("Exception requesting library update: " + ex.Message);
+                }
+            });
+        }
+
+        /// <summary>
         /// Write the settings to the server
         /// </summary>
         /// <param name="settings">Json serialised Settings instance</param>
