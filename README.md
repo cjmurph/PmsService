@@ -15,7 +15,7 @@ https://forums.plex.tv/discussion/93994/pms-as-a-service
 # Features
 - Run Plex Media Server as a background service.
 - Handy-dandy tray application, accessible to all users.
-- Newly refreshed UI with over 46 different theme combinations.
+- Settings window in the style of Windows 11 with light and dark mode.
 - Access Plex Appdata folder and web interface from tray application.
 - Option to mount UNC shares as mapped drives.
 - Option to run/stop Auxiliary applications on Plex start/stop.
@@ -24,7 +24,25 @@ https://forums.plex.tv/discussion/93994/pms-as-a-service
 - Automatically detect failed drive mounts and wait a configured amount of time before re-trying.
 - Option to not start Plex on drive map failures, preventing accidental library deletion with auto-clean.
 - Option to log auxiliary application output to the PlexService log.
+- Option to start auxiliary applications before Plex, e.g. a tuner Plex needs on startup.
+- Start, stop and restart Plex from the command line.
 - Supports silent installation.
+
+# Permissions
+
+Everybody who can sign in to the computer can see the state of Plex in the tray. Changing settings, starting or stopping Plex and controlling auxiliary applications is limited to administrators and to the account the service runs as.
+
+# Command line
+
+Plex can be controlled through the service, also remotely with `sc \\computer ...`:
+
+```
+sc control PlexService 128   (start Plex)
+sc control PlexService 129   (stop Plex)
+sc control PlexService 130   (restart Plex)
+```
+
+`PlexServiceTray.exe --settings` opens the settings window directly.
 
 # Installation
 
@@ -42,6 +60,10 @@ Installation will fail if you don't run your script/command prompt as admin.*
 You should be able to upgrade PlexService in-place. In rare occurrences, you may not be able to properly update or uninstall PlexService.
 
 If that happens, see below for steps to manually remove it for a clean installation.
+
+# Building
+
+You only need the .NET SDK, Visual Studio is optional. Run `.\build.ps1` in PowerShell, it builds everything and puts the installer into the `artifacts` folder. The WiX toolset is downloaded automatically on the first run.
 
 
 # Manual Uninstallation
