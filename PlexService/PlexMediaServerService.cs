@@ -94,7 +94,16 @@ namespace PlexService
         /// </summary>
         protected override void OnStop()
         {
-            RequestAdditionalTime(30000);
+            try
+            {
+                // only allowed while handling a stop command, not on shutdown or when debugging
+                RequestAdditionalTime(30000);
+            }
+            catch (InvalidOperationException)
+            {
+                // not needed in that case
+            }
+
             try
             {
                 Log.Information("Stopping plex.");
