@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
@@ -26,6 +26,7 @@
     <Resource Include="PlexService.ico" />
     <Resource Include="PlexService_Bar.ico" />
     <EmbeddedResource Include="PlexService.ico" LogicalName="PlexServiceTray.PlexService.ico" />
+    <EmbeddedResource Include="..\LICENSE.md" LogicalName="PlexServiceTray.LICENSE.md" Link="LICENSE.md" />
     <None Update="PlexService_Bar.ico" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
@@ -34,8 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FontAwesome.WPF" Version="4.7.0.9" />
-    <PackageReference Include="MahApps.Metro" Version="2.4.10" />
+    <PackageReference Include="WPF-UI" Version="4.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
   </ItemGroup>

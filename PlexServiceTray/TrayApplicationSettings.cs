@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
+using Microsoft.Win32;
 using Newtonsoft.Json;
 
 namespace PlexServiceTray
@@ -12,56 +13,11 @@ namespace PlexServiceTray
     [JsonObject(MemberSerialization.OptIn)]
     internal class TrayApplicationSettings
     {
-        public static readonly IList<string> Themes = new ReadOnlyCollection<string> 
-            (new List<string>
-            {
-                "Dark Amber",
-                "Dark Blue",
-                "Dark Brown",
-                "Dark Cobalt",
-                "Dark Crimson",
-                "Dark Cyan",
-                "Dark Emerald",
-                "Dark Green",
-                "Dark Indigo",
-                "Dark Lime",
-                "Dark Magenta",
-                "Dark Mauve",
-                "Dark Olive",
-                "Dark Orange",
-                "Dark Pink",
-                "Dark Purple",
-                "Dark Red",
-                "Dark Sienna",
-                "Dark Steel",
-                "Dark Taupe",
-                "Dark Teal",
-                "Dark Violet",
-                "Dark Yellow",
-                "Light Amber",
-                "Light Blue",
-                "Light Brown",
-                "Light Cobalt",
-                "Light Crimson",
-                "Light Cyan",
-                "Light Emerald",
-                "Light Green",
-                "Light Indigo",
-                "Light Lime",
-                "Light Magenta",
-                "Light Mauve",
-                "Light Olive",
-                "Light Orange",
-                "Light Pink",
-                "Light Purple",
-                "Light Red",
-                "Light Sienna",
-                "Light Steel",
-                "Light Taupe",
-                "Light Teal",
-                "Light Violet",
-                "Light Yellow"
-            });
+        public const int DefaultPort = 8787;
+
+        public const string SystemTheme = "System";
+
+        public static readonly IReadOnlyList<string> BaseThemes = new[] { SystemTheme, "Light", "Dark" };
 
         #region Properties
 
@@ -75,29 +31,68 @@ namespace PlexServiceTray
         /// port of the WCF service endpoint
         /// </summary>
         [JsonProperty]
-        public int ServerPort { get; set; } = 8787;
-        
+        public int ServerPort { get; set; } = DefaultPort;
+
+        public bool IsLocal => ServerAddress is "127.0.0.1" or "localhost" or "0.0.0.0" or "::1" ||
+                               string.Equals(ServerAddress, Environment.MachineName, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// System, Light or Dark (older versions stored values like Dark.Amber)
+        /// </summary>
         [JsonProperty]
-        public bool IsLocal => ServerAddress is "127.0.0.1" or "localhost" or "0.0.0.0";
+        public string Theme { get; set; } = SystemTheme;
 
         [JsonProperty]
-        public string Theme { get; set; } = "Dark.Amber";
+        public bool ShowNotifications { get; set; } = true;
 
         #endregion
 
-        #region Constructor
+        public string BaseTheme
+        {
+            get
+            {
+                var value = Theme?.Split('.')[0];
+                return value != null && BaseThemes.Contains(value) ? value : SystemTheme;
+            }
+        }
 
-        private TrayApplicationSettings() { }
+        /// <summary>
+        /// Light or Dark, "System" is resolved from the Windows app mode
+        /// </summary>
+        public string ResolvedTheme => ResolveTheme(BaseTheme);
 
-        #endregion
+        public bool IsDark => ResolvedTheme == "Dark";
+
+        public static string ResolveTheme(string baseTheme)
+        {
+            if (baseTheme == SystemTheme) baseTheme = AppsUseLightTheme() ? "Light" : "Dark";
+            return baseTheme;
+        }
+
+        private static bool AppsUseLightTheme()
+        {
+            try
+            {
+                using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+                return key?.GetValue("AppsUseLightTheme") is not int value || value != 0;
+            }
+            catch
+            {
+                return true;
+            }
+        }
 
         /// <summary>
         /// Turn the properties into a useful endpoint uri
         /// </summary>
-        /// <returns></returns>
         public string GetServiceAddress()
         {
             return $"net.tcp://{ServerAddress}:{ServerPort}/PlexService/";
+        }
+
+        public TrayApplicationSettings Clone()
+        {
+            return (TrayApplicationSettings)MemberwiseClone();
         }
 
         #region Load/Save
@@ -105,13 +100,10 @@ namespace PlexServiceTray
         /// <summary>
         /// get the settings file location
         /// </summary>
-        /// <returns></returns>
         internal static string GetSettingsFile()
         {
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Plex Service\LocalSettings.json");
         }
-
-       
 
         /// <summary>
         /// Save the settings file
@@ -119,40 +111,43 @@ namespace PlexServiceTray
         internal void Save()
         {
             var filePath = GetSettingsFile();
+            var dir = Path.GetDirectoryName(filePath);
+            if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
 
-            if (!Directory.Exists(Path.GetDirectoryName(filePath))) {
-                var dir = Path.GetDirectoryName(filePath);
-                if (!string.IsNullOrEmpty(dir)) {
-                    Directory.CreateDirectory(dir);    
-                } else {
-                    throw new DirectoryNotFoundException(dir);
-                }
-            }
-
-            using var sw = new StreamWriter(filePath, false);
-            var rawSettings = JsonConvert.SerializeObject(this);
-            sw.Write(rawSettings);
-        }
-
-
-        /// <summary>
-        /// Load the settings from disk
-        /// </summary>
-        /// <returns></returns>
-        internal static TrayApplicationSettings Load()
-        {
-            var filePath = GetSettingsFile();
-            TrayApplicationSettings settings;
-            if (File.Exists(filePath)) {
-                using var sr = new StreamReader(filePath);
-                var rawSettings = sr.ReadToEnd();
-                settings = JsonConvert.DeserializeObject<TrayApplicationSettings>(rawSettings);
+            var tempFile = filePath + ".tmp";
+            File.WriteAllText(tempFile, JsonConvert.SerializeObject(this, Formatting.Indented));
+            if (File.Exists(filePath))
+            {
+                File.Replace(tempFile, filePath, null);
             }
             else
             {
-                settings = new TrayApplicationSettings();
-                settings.Save();
+                File.Move(tempFile, filePath);
             }
+        }
+
+        /// <summary>
+        /// Load the settings from disk, a missing or broken file results in the defaults
+        /// </summary>
+        internal static TrayApplicationSettings Load()
+        {
+            TrayApplicationSettings settings = null;
+            try
+            {
+                var filePath = GetSettingsFile();
+                if (File.Exists(filePath))
+                {
+                    settings = JsonConvert.DeserializeObject<TrayApplicationSettings>(File.ReadAllText(filePath));
+                }
+            }
+            catch
+            {
+                // fall back to defaults below
+            }
+
+            settings ??= new TrayApplicationSettings();
+            if (string.IsNullOrWhiteSpace(settings.ServerAddress)) settings.ServerAddress = "localhost";
+            if (settings.ServerPort is <= 0 or > 65535) settings.ServerPort = DefaultPort;
             return settings;
         }
 

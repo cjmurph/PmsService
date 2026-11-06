@@ -1,435 +1,612 @@
-﻿using System;
-using System.Linq;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using PlexServiceCommon;
-using PlexServiceTray.ViewModel;
-using System.ComponentModel;
-using Microsoft.Win32;
-using System.Windows;
 using System.IO;
+using System.Linq;
+using System.Windows;
+using Microsoft.Win32;
+using PlexServiceCommon;
 
 namespace PlexServiceTray.ViewModel
 {
-    public class SettingsViewModel:ObservableObject
+    public enum SettingsPage
     {
-        /// <summary>
-        /// The server endpoint port
-        /// </summary>
-        public int ServerPort
-        {
-            get => WorkingSettings.ServerPort;
-            set 
-            {
-                if (WorkingSettings.ServerPort == value) return;
+        General,
+        AuxiliaryApps,
+        DriveMappings,
+        Tray,
+        About
+    }
 
-                WorkingSettings.ServerPort = value;
-                OnPropertyChanged(nameof(ServerPort));
-            }
+    public class SettingsViewModel : ViewModelBase
+    {
+        internal const string NewAppName = "New application";
+
+        private readonly ServiceClient _service;
+        private readonly TrayApplicationSettings _traySettings;
+        private Settings _settings;
+
+        internal SettingsViewModel(ServiceClient service, TrayApplicationSettings traySettings)
+        {
+            _service = service;
+            _traySettings = traySettings.Clone();
+            _serverAddress = _traySettings.ServerAddress;
+            _trayPort = _traySettings.ServerPort;
+            _baseTheme = _traySettings.BaseTheme;
+            _showNotifications = _traySettings.ShowNotifications;
+            Reload();
         }
 
         /// <summary>
-        /// Plex restart delay
+        /// Raised after the local tray settings were saved
         /// </summary>
-        public int RestartDelay
-        {
-            get => WorkingSettings.RestartDelay;
-            set 
-            {
-                if (WorkingSettings.RestartDelay == value) return;
+        internal event EventHandler<TrayApplicationSettings> TraySettingsSaved;
 
-                WorkingSettings.RestartDelay = value;
-                OnPropertyChanged(nameof(RestartDelay));
+        /// <summary>
+        /// Raised when the window should close
+        /// </summary>
+        public event EventHandler CloseRequested;
+
+        #region Connection state
+
+        private bool _isConnected;
+        public bool IsConnected
+        {
+            get => _isConnected;
+            private set
+            {
+                if (!SetProperty(ref _isConnected, value)) return;
+                OnPropertyChanged(nameof(CanEditServer));
+                OnPropertyChanged(nameof(ServerNotice));
             }
         }
 
-        public bool AutoRestart
+        private bool _canControl;
+        public bool CanControl
         {
-            get => WorkingSettings.AutoRestart;
-            set 
+            get => _canControl;
+            private set
             {
-                if (WorkingSettings.AutoRestart == value) return;
-
-                WorkingSettings.AutoRestart = value;
-                OnPropertyChanged(nameof(AutoRestart));
-            }
-        }
-        
-        public bool AutoRemount
-        {
-            get => WorkingSettings.AutoRemount;
-            set 
-            {
-                if (WorkingSettings.AutoRemount == value) return;
-
-                WorkingSettings.AutoRemount = value;
-                OnPropertyChanged(nameof(AutoRemount));
-            }
-        }
-        
-        public int AutoRemountCount
-        {
-            get => WorkingSettings.AutoRemountCount;
-            set 
-            {
-                if (WorkingSettings.AutoRemountCount == value) return;
-
-                WorkingSettings.AutoRemountCount = value;
-                OnPropertyChanged(nameof(AutoRemountCount));
-            }
-        }
-        
-        public int AutoRemountDelay
-        {
-            get => WorkingSettings.AutoRemountDelay;
-            set 
-            {
-                if (WorkingSettings.AutoRemountDelay == value) return;
-
-                WorkingSettings.AutoRemountDelay = value;
-                OnPropertyChanged(nameof(AutoRemountDelay));
+                if (!SetProperty(ref _canControl, value)) return;
+                OnPropertyChanged(nameof(CanEditServer));
+                OnPropertyChanged(nameof(ServerNotice));
             }
         }
 
-        public bool StartPlexOnMountFail
-        {
-            get => WorkingSettings.StartPlexOnMountFail;
-            set 
-            {
-                if (WorkingSettings.StartPlexOnMountFail == value) return;
+        /// <summary>
+        /// The service settings can only be changed when connected and allowed to
+        /// </summary>
+        public bool CanEditServer => IsConnected && CanControl;
 
-                WorkingSettings.StartPlexOnMountFail = value;
-                OnPropertyChanged(nameof(StartPlexOnMountFail));
-            }
-        }
+        public string ServerNotice => !IsConnected
+            ? $"Can't reach the Plex Service at {_traySettings.ServerAddress}:{_traySettings.ServerPort}. Check the address on the Tray app page and make sure the service is running."
+            : !CanControl
+                ? "You can look at the settings, but changing them requires administrator rights on the Plex server."
+                : null;
 
-        public string UserDefinedInstallLocation
+        public bool HasServerNotice => ServerNotice != null;
+
+        public string ConnectionStatus => IsConnected ? $"Connected to {_traySettings.ServerAddress}:{_traySettings.ServerPort}" : "Not connected";
+
+        #endregion
+
+        #region Navigation
+
+        private SettingsPage _selectedPage;
+        public SettingsPage SelectedPage
         {
-            get => WorkingSettings.UserDefinedInstallLocation;
+            get => _selectedPage;
             set
             {
-                if(WorkingSettings.UserDefinedInstallLocation == value) return;
-                WorkingSettings.UserDefinedInstallLocation = value;
-                OnPropertyChanged(nameof(UserDefinedInstallLocation));
+                if (!SetProperty(ref _selectedPage, value)) return;
+                OnPropertyChanged(nameof(SelectedPageIndex));
+                if (value == SettingsPage.AuxiliaryApps) RefreshAuxAppStates();
             }
         }
 
-
-        private int _selectedTab;
-
-        public int SelectedTab
+        public int SelectedPageIndex
         {
-            get => _selectedTab;
-            set 
-            {
-                if (_selectedTab == value) return;
+            get => (int)SelectedPage;
+            set => SelectedPage = (SettingsPage)Math.Max(0, value);
+        }
 
-                _selectedTab = value;
-                OnPropertyChanged(nameof(SelectedTab));
-                OnPropertyChanged(nameof(RemoveToolTip));
-                OnPropertyChanged(nameof(AddToolTip));
+        #endregion
+
+        #region Dirty tracking
+
+        private bool _isDirty;
+        public bool IsDirty
+        {
+            get => _isDirty;
+            private set => SetProperty(ref _isDirty, value);
+        }
+
+        private bool _loading;
+
+        internal void MarkDirty()
+        {
+            if (!_loading) IsDirty = true;
+            OnPropertyChanged(nameof(ValidationSummary));
+        }
+
+        #endregion
+
+        #region General
+
+        private string _installLocation;
+        public string UserDefinedInstallLocation
+        {
+            get => _installLocation;
+            set
+            {
+                if (SetProperty(ref _installLocation, value?.Trim().Trim('"'))) MarkDirty();
             }
         }
 
-        /// <summary>
-        /// Collection of Auxiliary applications to run alongside plex
-        /// </summary>
-        public ObservableCollection<AuxiliaryApplicationViewModel> AuxiliaryApplications { get; } = new ObservableCollection<AuxiliaryApplicationViewModel>();
+        private bool _autoRestart;
+        public bool AutoRestart
+        {
+            get => _autoRestart;
+            set
+            {
+                if (SetProperty(ref _autoRestart, value)) MarkDirty();
+            }
+        }
+
+        private int _restartDelay;
+        public int RestartDelay
+        {
+            get => _restartDelay;
+            set
+            {
+                if (SetProperty(ref _restartDelay, value)) MarkDirty();
+            }
+        }
+
+        private int _serverPort;
+        public int ServerPort
+        {
+            get => _serverPort;
+            set
+            {
+                if (!SetProperty(ref _serverPort, value)) return;
+                MarkDirty();
+                OnPropertyChanged(nameof(PortChanged));
+            }
+        }
+
+        public bool PortChanged => _settings != null && ServerPort != _settings.ServerPort;
+
+        #endregion
+
+        #region Drive mappings
+
+        public ObservableCollection<DriveMapViewModel> DriveMaps { get; } = new();
+
+        public IReadOnlyList<string> DriveLetters => DriveMapViewModel.DriveLetters;
+
+        private bool _autoRemount;
+        public bool AutoRemount
+        {
+            get => _autoRemount;
+            set
+            {
+                if (SetProperty(ref _autoRemount, value)) MarkDirty();
+            }
+        }
+
+        private int _autoRemountCount;
+        public int AutoRemountCount
+        {
+            get => _autoRemountCount;
+            set
+            {
+                if (SetProperty(ref _autoRemountCount, value)) MarkDirty();
+            }
+        }
+
+        private int _autoRemountDelay;
+        public int AutoRemountDelay
+        {
+            get => _autoRemountDelay;
+            set
+            {
+                if (SetProperty(ref _autoRemountDelay, value)) MarkDirty();
+            }
+        }
+
+        private bool _startPlexOnMountFail;
+        public bool StartPlexOnMountFail
+        {
+            get => _startPlexOnMountFail;
+            set
+            {
+                if (SetProperty(ref _startPlexOnMountFail, value)) MarkDirty();
+            }
+        }
+
+        internal void RevalidateDriveMaps()
+        {
+            foreach (var map in DriveMaps) map.Revalidate();
+        }
+
+        #endregion
+
+        #region Auxiliary applications
+
+        public ObservableCollection<AuxiliaryApplicationViewModel> AuxiliaryApplications { get; } = new();
 
         private AuxiliaryApplicationViewModel _selectedAuxApplication;
-
         public AuxiliaryApplicationViewModel SelectedAuxApplication
         {
             get => _selectedAuxApplication;
             set
             {
-                if (_selectedAuxApplication != value)
-                {
-                    _selectedAuxApplication = value;
-                    OnPropertyChanged(nameof(SelectedAuxApplication));
-                    OnPropertyChanged(nameof(RemoveToolTip));
-                }
+                if (!SetProperty(ref _selectedAuxApplication, value)) return;
+                OnPropertyChanged(nameof(HasSelectedAuxApplication));
+                if (value != null) RefreshAuxAppState(value);
             }
         }
 
+        public bool HasSelectedAuxApplication => SelectedAuxApplication != null;
 
-        public ObservableCollection<DriveMapViewModel> DriveMaps { get; } = new ObservableCollection<DriveMapViewModel>();
-
-        private DriveMapViewModel _selectedDriveMap;
-
-        public DriveMapViewModel SelectedDriveMap
+        internal void RevalidateAuxApps()
         {
-            get => _selectedDriveMap;
-            set {
-                if (_selectedDriveMap == value) {
-                    return;
-                }
-
-                _selectedDriveMap = value;
-                OnPropertyChanged(nameof(SelectedDriveMap));
-                OnPropertyChanged(nameof(RemoveToolTip));
-            }
+            foreach (var app in AuxiliaryApplications) app.Revalidate();
         }
 
-        private string _theme;
-
-        public string Theme
+        private void RefreshAuxAppStates()
         {
-            get => _theme;
+            foreach (var app in AuxiliaryApplications) RefreshAuxAppState(app);
+        }
+
+        private void RefreshAuxAppState(AuxiliaryApplicationViewModel app)
+        {
+            if (!IsConnected || !app.CanStartStop) return;
+            app.Running = _service.Call(c => c.IsAuxAppRunning(app.Name), false);
+        }
+
+        internal void StartAuxApp(AuxiliaryApplicationViewModel app)
+        {
+            Guard(() => _service.Call(c => c.StartAuxApp(app.Name)));
+            RefreshAuxAppState(app);
+        }
+
+        internal void StopAuxApp(AuxiliaryApplicationViewModel app)
+        {
+            Guard(() => _service.Call(c => c.StopAuxApp(app.Name)));
+            RefreshAuxAppState(app);
+        }
+
+        #endregion
+
+        #region Tray app
+
+        private string _serverAddress;
+        public string ServerAddress
+        {
+            get => _serverAddress;
             set
             {
-                if (_theme == value) return;
-                _theme = value;
-                OnPropertyChanged(nameof(Theme));
+                if (SetProperty(ref _serverAddress, value?.Trim())) MarkDirty();
             }
         }
 
-        public ObservableCollection<string> Themes { get; } = new ObservableCollection<string>(TrayApplicationSettings.Themes);
-
-        public string RemoveToolTip
+        private int _trayPort;
+        public int TrayPort
         {
-            get
-            {
-                switch (SelectedTab)
-                {
-                    case 0:
-                        if (SelectedAuxApplication != null)
-                        {
-                            return "Remove " + SelectedAuxApplication.Name;
-                        }
-                        break;
-                    case 1:
-                        if (SelectedDriveMap != null)
-                        {
-                            return "Remove Drive Map " + SelectedDriveMap.DriveLetter + " -> " + SelectedDriveMap.ShareName;
-                        }
-                        break;
-                }
-                return "Nothing selected!";
-            }
-        }
-
-        public string AddToolTip
-        {
-            get
-            {
-                return SelectedTab switch
-                {
-                    0 => "Add Auxiliary Application",
-                    1 => "Add Drive Map",
-                    _ => null
-                };
-            }
-        }
-
-        private bool? _dialogResult;
-
-        public bool? DialogResult
-        {
-            get => _dialogResult;
+            get => _trayPort;
             set
             {
-                if (_dialogResult == value) return;
-                _dialogResult = value;
-                OnPropertyChanged(nameof(DialogResult));
+                if (SetProperty(ref _trayPort, value)) MarkDirty();
+            }
+        }
+
+        public IReadOnlyList<string> BaseThemes => TrayApplicationSettings.BaseThemes;
+
+        private string _baseTheme;
+        public string BaseTheme
+        {
+            get => _baseTheme;
+            set
+            {
+                if (!SetProperty(ref _baseTheme, value)) return;
+                MarkDirty();
+                OnPropertyChanged(nameof(ThemeName));
             }
         }
 
         /// <summary>
-        /// Use one settings instance for the life of the window.
+        /// The resolved MahApps theme for the current selection, used for a live preview
         /// </summary>
-        public Settings WorkingSettings { get; set; }
+        public string ThemeName => TrayApplicationSettings.ResolveTheme(BaseTheme);
 
-        public SettingsViewModel(Settings settings, string theme)
+        private bool _showNotifications;
+        public bool ShowNotifications
         {
-            WorkingSettings = settings;
-            _theme = theme;
-
-            WorkingSettings.AuxiliaryApplications.ForEach(x =>
+            get => _showNotifications;
+            set
             {
-                var auxApp = new AuxiliaryApplicationViewModel(x, this);
-                auxApp.StartRequest += OnAuxAppStartRequest;
-                auxApp.StopRequest += OnAuxAppStopRequest;
-                auxApp.CheckRunningRequest += OnAuxAppCheckRunRequest;
-                AuxiliaryApplications.Add(auxApp);
+                if (SetProperty(ref _showNotifications, value)) MarkDirty();
+            }
+        }
+
+        #endregion
+
+        #region About
+
+        public string Version => "Version " + typeof(SettingsViewModel).Assembly.GetName().Version.ToString(3);
+
+        public string ProjectUrl => "https://github.com/cjmurph/PmsService";
+
+        public string IssuesUrl => "https://github.com/cjmurph/PmsService/issues";
+
+        /// <summary>
+        /// License text with the hard line breaks of the file removed so it wraps nicely
+        /// </summary>
+        public string LicenseText
+        {
+            get
+            {
+                using var stream = typeof(SettingsViewModel).Assembly.GetManifestResourceStream("PlexServiceTray.LICENSE.md");
+                if (stream == null) return string.Empty;
+                using var reader = new StreamReader(stream);
+                var paragraphs = reader.ReadToEnd().Replace("\r\n", "\n").Split(new[] { "\n\n" }, StringSplitOptions.RemoveEmptyEntries);
+                return string.Join(Environment.NewLine + Environment.NewLine, paragraphs.Select(p => p.Replace("\n", " ").Trim()));
+            }
+        }
+
+        #endregion
+
+        #region Validation
+
+        protected override IEnumerable<string> ValidatedProperties => new[] { nameof(ServerAddress), nameof(TrayPort), nameof(ServerPort), nameof(UserDefinedInstallLocation) };
+
+        protected override string Validate(string propertyName)
+        {
+            switch (propertyName)
+            {
+                case nameof(ServerAddress):
+                    if (string.IsNullOrWhiteSpace(ServerAddress)) return "Enter the name or address of the computer running the service";
+                    break;
+                case nameof(TrayPort):
+                    if (TrayPort is <= 0 or > 65535) return "Enter a port between 1 and 65535";
+                    if (TrayPort == 32400) return "32400 is the Plex port, the service uses its own port (default 8787)";
+                    break;
+                case nameof(ServerPort):
+                    if (!IsConnected) break;
+                    if (ServerPort is <= 0 or > 65535) return "Enter a port between 1 and 65535";
+                    if (ServerPort == 32400) return "32400 is used by Plex itself, pick a different port";
+                    break;
+                case nameof(UserDefinedInstallLocation):
+                    if (!string.IsNullOrEmpty(UserDefinedInstallLocation) && _traySettings.IsLocal &&
+                        !File.Exists(UserDefinedInstallLocation) && !Directory.Exists(UserDefinedInstallLocation))
+                        return "The file doesn't exist";
+                    break;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// First problem that prevents saving, shown in the footer
+        /// </summary>
+        public string ValidationSummary
+        {
+            get
+            {
+                var error = Error;
+                if (error != null) return error;
+                var aux = AuxiliaryApplications.FirstOrDefault(a => a.HasErrors);
+                if (aux != null) return $"{(string.IsNullOrWhiteSpace(aux.Name) ? "Auxiliary app" : aux.Name)}: {aux.Error}";
+                var map = DriveMaps.FirstOrDefault(m => m.HasErrors);
+                if (map != null) return $"Drive {map.DriveLetter}: {map.Error}";
+                return null;
+            }
+        }
+
+        #endregion
+
+        #region Load / Save
+
+        private void Reload()
+        {
+            _loading = true;
+            try
+            {
+                IsConnected = _service.EnsureConnected();
+                _settings = IsConnected ? _service.Call(c => c.GetSettings(), null) : null;
+                IsConnected = _settings != null;
+                CanControl = IsConnected && _service.CanControl();
+
+                var settings = _settings ?? new Settings();
+                UserDefinedInstallLocation = settings.UserDefinedInstallLocation ?? string.Empty;
+                AutoRestart = settings.AutoRestart;
+                RestartDelay = settings.RestartDelay;
+                ServerPort = settings.ServerPort;
+                AutoRemount = settings.AutoRemount;
+                AutoRemountCount = settings.AutoRemountCount;
+                AutoRemountDelay = settings.AutoRemountDelay;
+                StartPlexOnMountFail = settings.StartPlexOnMountFail;
+
+                DriveMaps.Clear();
+                settings.DriveMaps.ForEach(d => DriveMaps.Add(new DriveMapViewModel(d, this)));
+                AuxiliaryApplications.Clear();
+                settings.AuxiliaryApplications.ForEach(a => AuxiliaryApplications.Add(new AuxiliaryApplicationViewModel(a, this)));
+                SelectedAuxApplication = AuxiliaryApplications.FirstOrDefault();
+                OnPropertyChanged(nameof(ConnectionStatus));
+                OnPropertyChanged(nameof(HasServerNotice));
+            }
+            finally
+            {
+                _loading = false;
+            }
+            IsDirty = false;
+        }
+
+        private bool CanSave => IsDirty && ValidationSummary == null;
+
+        private RelayCommand _saveCommand;
+        public RelayCommand SaveCommand => _saveCommand ??= new RelayCommand(_ =>
+        {
+            if (Save()) CloseRequested?.Invoke(this, EventArgs.Empty);
+        }, _ => CanSave);
+
+        private RelayCommand _applyCommand;
+        public RelayCommand ApplyCommand => _applyCommand ??= new RelayCommand(_ => Save(), _ => CanSave);
+
+        private RelayCommand _cancelCommand;
+        public RelayCommand CancelCommand => _cancelCommand ??= new RelayCommand(_ => CloseRequested?.Invoke(this, EventArgs.Empty));
+
+        private bool Save()
+        {
+            return Guard(() =>
+            {
+                var oldPort = _settings?.ServerPort;
+                if (CanEditServer && _settings != null)
+                {
+                    var settings = new Settings
+                    {
+                        UserDefinedInstallLocation = UserDefinedInstallLocation,
+                        AutoRestart = AutoRestart,
+                        RestartDelay = RestartDelay,
+                        ServerPort = ServerPort,
+                        AutoRemount = AutoRemount,
+                        AutoRemountCount = AutoRemountCount,
+                        AutoRemountDelay = AutoRemountDelay,
+                        StartPlexOnMountFail = StartPlexOnMountFail,
+                        AuxiliaryApplications = AuxiliaryApplications.Select(a => a.ToModel()).ToList(),
+                        DriveMaps = DriveMaps.Select(d => d.ToModel()).ToList()
+                    };
+                    if (!_service.Call(c => { c.SetSettings(settings); return true; }, false))
+                    {
+                        throw new InvalidOperationException("The settings could not be sent to the service. " + _service.LastError);
+                    }
+                }
+
+                var connectionChanged = ServerAddress != _traySettings.ServerAddress || TrayPort != _traySettings.ServerPort;
+                _traySettings.ServerAddress = ServerAddress;
+                _traySettings.ServerPort = TrayPort;
+                _traySettings.Theme = BaseTheme;
+                _traySettings.ShowNotifications = ShowNotifications;
+                _traySettings.Save();
+                TraySettingsSaved?.Invoke(this, _traySettings.Clone());
+
+                if (oldPort != null && CanEditServer && ServerPort != oldPort)
+                {
+                    MessageBox.Show(
+                        $"The service will use port {ServerPort} after it has been restarted (Services > PlexService > Restart).\n\nRemember to set the same port on the Tray app page.",
+                        "Restart required", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+
+                Reload();
+                if (connectionChanged && !IsConnected)
+                {
+                    MessageBox.Show($"The tray can't reach the service at {ServerAddress}:{TrayPort}.", "Not connected",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
             });
-
-            WorkingSettings.DriveMaps.ForEach(x => DriveMaps.Add(new DriveMapViewModel(x)));
-
-            if (AuxiliaryApplications.Count > 0)
-            {
-                AuxiliaryApplications[0].IsExpanded = true;
-            }
         }
 
-        /// <summary>
-        /// Allow the user to add a new Auxiliary application
-        /// </summary>
-        #region AddCommand
-        RelayCommand _addCommand;
-        public RelayCommand AddCommand => _addCommand ??= new RelayCommand(OnAdd);
-
-        private void OnAdd(object parameter)
+        private RelayCommand _reconnectCommand;
+        public RelayCommand ReconnectCommand => _reconnectCommand ??= new RelayCommand(_ =>
         {
-            switch (SelectedTab)
+            if (IsDirty && MessageBox.Show("Reconnecting discards your unsaved changes. Continue?", "Plex Service",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+            _service.Disconnect();
+            Reload();
+        });
+
+        private static bool Guard(Action action)
+        {
+            try
             {
-                case 0:
-                    var newAuxApp = new AuxiliaryApplication();
-                    newAuxApp.Name = "New Auxiliary Application";
-                    var newAuxAppViewModel = new AuxiliaryApplicationViewModel(newAuxApp, this);
-                    newAuxAppViewModel.StartRequest += OnAuxAppStartRequest;
-                    newAuxAppViewModel.StopRequest += OnAuxAppStopRequest;
-                    newAuxAppViewModel.CheckRunningRequest += OnAuxAppCheckRunRequest;
-                    newAuxAppViewModel.IsExpanded = true;
-                    AuxiliaryApplications.Add(newAuxAppViewModel);
-                    break;
-                case 1:
-                    var newDriveMap = new DriveMap(@"\\computer\share", "Z");
-                    var newDriveMapViewModel = new DriveMapViewModel(newDriveMap);
-                    DriveMaps.Add(newDriveMapViewModel);
-                    break;
+                action();
+                return true;
             }
-            
+            catch (UnauthorizedAccessException ex)
+            {
+                MessageBox.Show(ex.Message, "Access denied", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Plex Service", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            return false;
         }
 
-        #endregion AddCommand
+        #endregion
 
-        /// <summary>
-        /// Allow the user brose to the plex executable
-        /// </summary>
-        #region BrowseForPlexCommand
-        RelayCommand _browseForPlexCommand;
-        public RelayCommand BrowseForPlexCommand => _browseForPlexCommand ??= new RelayCommand(OnBrowseForPlex);
+        #region Commands
 
-        private void OnBrowseForPlex(object parameter)
+        private RelayCommand _browseForPlexCommand;
+        public RelayCommand BrowseForPlexCommand => _browseForPlexCommand ??= new RelayCommand(_ =>
         {
             var initialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
-            if (!string.IsNullOrEmpty(UserDefinedInstallLocation))
+            try
             {
-                initialDirectory = Path.GetDirectoryName(UserDefinedInstallLocation);
+                var dir = Path.GetDirectoryName(UserDefinedInstallLocation);
+                if (Directory.Exists(dir)) initialDirectory = dir;
             }
+            catch
+            {
+                // keep the default
+            }
+
             var ofd = new OpenFileDialog
             {
                 FileName = "Plex Media Server.exe",
-                Filter = "Executable Files *.exe|*.exe",
+                Filter = "Plex Media Server|Plex Media Server.exe|Programs|*.exe",
                 InitialDirectory = initialDirectory,
-                CheckPathExists = true,
                 CheckFileExists = true,
                 Title = "Locate Plex Media Server"
             };
-            if (ofd.ShowDialog() != true)
-            {
-                return;
-            }
+            if (ofd.ShowDialog() == true) UserDefinedInstallLocation = ofd.FileName;
+        }, _ => CanEditServer && _traySettings.IsLocal);
 
-            UserDefinedInstallLocation = ofd.FileName;
-        }
-
-        #endregion BrowseForPlexCommand
-
-        /// <summary>
-        /// Remove the selected auxiliary application
-        /// </summary>
-        #region RemoveCommand
-        RelayCommand _removeCommand;
-        public RelayCommand RemoveCommand => _removeCommand ??= new RelayCommand(OnRemove, CanRemove); 
-
-        private bool CanRemove(object parameter)
+        private RelayCommand _addAuxAppCommand;
+        public RelayCommand AddAuxAppCommand => _addAuxAppCommand ??= new RelayCommand(_ =>
         {
-            return SelectedTab switch
-            {
-                0 => parameter is not null && parameter is AuxiliaryApplicationViewModel,
-                1 => parameter is not null && parameter is DriveMapViewModel,
-                _ => false,
-            };
-        }
+            var name = NewAppName;
+            for (var i = 2; AuxiliaryApplications.Any(a => a.Name == name); i++) name = $"{NewAppName} {i}";
+            var app = new AuxiliaryApplicationViewModel(new AuxiliaryApplication { Name = name }, this, true);
+            AuxiliaryApplications.Add(app);
+            SelectedAuxApplication = app;
+            MarkDirty();
+        }, _ => CanEditServer);
 
-        private void OnRemove(object parameter)
+        private RelayCommand _removeAuxAppCommand;
+        public RelayCommand RemoveAuxAppCommand => _removeAuxAppCommand ??= new RelayCommand(p =>
         {
-            switch (SelectedTab)
-            {
-                case 0:
-                    if (parameter is AuxiliaryApplicationViewModel auxApp)
-                    {
-                        auxApp.StartRequest -= OnAuxAppStartRequest;
-                        auxApp.StopRequest -= OnAuxAppStopRequest;
-                        AuxiliaryApplications.Remove(auxApp);
-                    }
-                    break;
-                case 1:
-                    if (parameter is DriveMapViewModel map)
-                        DriveMaps.Remove(map);
-                    break;
-            }
-            
-        }
+            if (p is not AuxiliaryApplicationViewModel app) return;
+            if (!app.IsNew && MessageBox.Show($"Remove {app.Name}? The service stops it when you save.", "Remove application",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+            var index = AuxiliaryApplications.IndexOf(app);
+            AuxiliaryApplications.Remove(app);
+            SelectedAuxApplication = AuxiliaryApplications.Count == 0 ? null : AuxiliaryApplications[Math.Min(index, AuxiliaryApplications.Count - 1)];
+            RevalidateAuxApps();
+            MarkDirty();
+        }, p => CanEditServer && p is AuxiliaryApplicationViewModel);
 
-        #endregion RemoveCommand
-
-        /// <summary>
-        /// Save the settings file
-        /// </summary>
-        #region SaveCommand
-        RelayCommand _saveCommand;
-        public RelayCommand SaveCommand => _saveCommand ??= new RelayCommand(OnSave, CanSave);
-
-        private bool CanSave(object parameter)
+        private RelayCommand _addDriveMapCommand;
+        public RelayCommand AddDriveMapCommand => _addDriveMapCommand ??= new RelayCommand(_ =>
         {
-            return ServerPort > 0 && string.IsNullOrEmpty(Error) && !AuxiliaryApplications.Any(a => !string.IsNullOrEmpty(a.Error) || string.IsNullOrEmpty(a.Name)) && !DriveMaps.Any(dm => !string.IsNullOrEmpty(dm.Error) || string.IsNullOrEmpty(dm.ShareName) || string.IsNullOrEmpty(dm.DriveLetter));
-        }
+            var used = DriveMaps.Select(d => d.DriveLetter).ToList();
+            var letter = Enumerable.Range(0, 26).Select(i => ((char)('Z' - i)).ToString()).FirstOrDefault(l => !used.Contains(l)) ?? "Z";
+            DriveMaps.Add(new DriveMapViewModel(new DriveMap(string.Empty, letter), this));
+            MarkDirty();
+        }, _ => CanEditServer);
 
-        private void OnSave(object parameter)
+        private RelayCommand _removeDriveMapCommand;
+        public RelayCommand RemoveDriveMapCommand => _removeDriveMapCommand ??= new RelayCommand(p =>
         {
-            WorkingSettings.AuxiliaryApplications.Clear();
-            foreach (var aux in AuxiliaryApplications)
-            {
-                WorkingSettings.AuxiliaryApplications.Add(aux.GetAuxiliaryApplication());
-            }
-            WorkingSettings.DriveMaps.Clear();
-            foreach(var dMap in DriveMaps)
-            {
-                WorkingSettings.DriveMaps.Add(dMap.GetDriveMap());
-            }
-            DialogResult = true;
-        }
+            if (p is not DriveMapViewModel map) return;
+            DriveMaps.Remove(map);
+            RevalidateDriveMaps();
+            MarkDirty();
+        }, p => CanEditServer && p is DriveMapViewModel);
 
-        #endregion SaveCommand
-
-        /// <summary>
-        /// Close the dialogue without saving changes
-        /// </summary>
-        #region CancelCommand
-        RelayCommand _cancelCommand;
-        public RelayCommand CancelCommand => _cancelCommand ??= new RelayCommand(OnCancel);
-
-        private void OnCancel(object parameter)
-        {
-            DialogResult = false;
-        }
-
-        #endregion CancelCommand
-
-        #region Aux app start/stop request handling
-
-        private void OnAuxAppStopRequest(object sender, EventArgs e)
-        {
-            AuxAppStopRequest?.Invoke(sender, e);
-        }
-
-        public event EventHandler AuxAppStopRequest;
-
-        private void OnAuxAppStartRequest(object sender, EventArgs e)
-        {
-            AuxAppStartRequest?.Invoke(sender, e);
-        }
-
-        public event EventHandler AuxAppStartRequest;
-
-        private void OnAuxAppCheckRunRequest(object sender, EventArgs e)
-        {
-            AuxAppCheckRunRequest?.Invoke(sender, e);
-        }
-
-        public event EventHandler AuxAppCheckRunRequest;
+        private RelayCommand _openLinkCommand;
+        public RelayCommand OpenLinkCommand => _openLinkCommand ??= new RelayCommand(p => Shell.OpenUrl(p as string));
 
         #endregion
     }

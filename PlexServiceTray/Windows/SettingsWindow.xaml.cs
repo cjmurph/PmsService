@@ -1,4 +1,5 @@
-﻿using ControlzEx.Theming;
+﻿using System.ComponentModel;
+using System.Windows;
 using PlexServiceTray.ViewModel;
 
 namespace PlexServiceTray.Windows
@@ -8,28 +9,38 @@ namespace PlexServiceTray.Windows
     /// </summary>
     public partial class SettingsWindow
     {
-        public SettingsViewModel Context { get; set; }
-        public SettingsWindow(SettingsViewModel settingsViewModel, string theme)
+        private readonly string _savedTheme;
+
+        public SettingsViewModel ViewModel { get; }
+
+        public SettingsWindow(SettingsViewModel viewModel)
         {
+            ViewModel = viewModel;
+            _savedTheme = viewModel.BaseTheme;
+            Theme.Apply(_savedTheme);
             InitializeComponent();
-            Context = settingsViewModel;
-            settingsViewModel.PropertyChanged += (_, args) =>
+            DataContext = viewModel;
+
+            viewModel.PropertyChanged += (_, args) =>
             {
-                if (args.PropertyName == nameof(Context.Theme))
-                    ChangeTheme(Context.Theme.Replace(" ", "."));
+                // live preview of the theme
+                if (args.PropertyName == nameof(SettingsViewModel.ThemeName)) Theme.Apply(viewModel.BaseTheme);
             };
-            DataContext = Context;
-            ChangeTheme(theme);
+            viewModel.CloseRequested += (_, _) => Close();
         }
 
-        public void ChangeTheme(string theme)
+        protected override void OnClosing(CancelEventArgs e)
         {
-            if (string.IsNullOrEmpty(theme)) return;
-            try
+            if (ViewModel.IsDirty &&
+                MessageBox.Show(this, "Discard your unsaved changes?", "Plex Service", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
             {
-                _ = ThemeManager.Current.ChangeTheme(this, theme);
+                e.Cancel = true;
+                return;
             }
-            catch { }
+
+            // undo a theme preview that wasn't saved
+            if (ViewModel.IsDirty) Theme.Apply(_savedTheme);
+            base.OnClosing(e);
         }
     }
 }
