@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using Serilog;
 
 namespace PlexServiceCommon
@@ -10,7 +11,15 @@ namespace PlexServiceCommon
     /// </summary>
     public class AuxiliaryApplicationMonitor
     {
+        private static readonly TimeSpan RestartDelay = TimeSpan.FromSeconds(5);
+
+        private readonly object _sync = new();
+
         public string Name => _aux.Name;
+
+        public bool StartBeforePlex => _aux.StartBeforePlex;
+
+        public int StartDelay => Math.Max(0, _aux.StartDelay);
 
         public bool Running { get; private set; }
 
@@ -18,7 +27,7 @@ namespace PlexServiceCommon
         /// Auxiliary process
         /// </summary>
         private Process _auxProcess;
-        
+
         /// <summary>
         /// Flag for actual stop rather than crash we should attempt to restart from
         /// </summary>
@@ -34,131 +43,126 @@ namespace PlexServiceCommon
             _aux = aux;
         }
 
-        #region Start
-
         /// <summary>
-        /// Start monitoring plex
+        /// Start the application
         /// </summary>
         public void Start()
         {
-            _stopping = false;
-
-            if(!string.IsNullOrEmpty(_aux.FilePath) && File.Exists(_aux.FilePath))
+            lock (_sync)
             {
+                _stopping = false;
+                if (string.IsNullOrEmpty(_aux.FilePath) || !File.Exists(_aux.FilePath))
+                {
+                    Log.Warning($"Unable to start {_aux.Name}, the file '{_aux.FilePath}' doesn't exist");
+                    return;
+                }
+
                 ProcStart();
             }
         }
-
-        #endregion
-
-        #region Stop
 
         /// <summary>
         /// Stop the monitor and kill the processes
         /// </summary>
         public void Stop()
         {
-            _stopping = true;
-            End();
+            lock (_sync)
+            {
+                _stopping = true;
+                End();
+            }
         }
-
-        #endregion
-
-        #region Process handling
-
-        #region Exit events
 
         /// <summary>
         /// This event fires when the process we have a reference to exits
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void AuxProcess_Exited(object sender, EventArgs e)
+        private void AuxProcess_Exited(object sender, EventArgs e)
         {
-            if (_aux.KeepAlive) {
-                Log.Information(_aux.Name + " has stopped!");
-                //unsubscribe
-                _auxProcess.Exited -= AuxProcess_Exited;
-                End();
-                //restart as required
-                if (!_stopping)
-                {
-                    Log.Information("Re-starting " + _aux.Name);
-                    //wait some seconds first
-                    var autoEvent = new System.Threading.AutoResetEvent(false);
-                    var t = new System.Threading.Timer(_ => { ProcStart(); autoEvent.Set(); }, null, 5000, System.Threading.Timeout.Infinite);
-                    autoEvent.WaitOne();
-                    t.Dispose();
-                }
-                else
-                {
-                    Log.Information(_aux.Name + " stopped");
-                    Running = false;
-                }
-            }
-            else
+            lock (_sync)
             {
-                Log.Information(_aux.Name + " has completed");
-                //unsubscribe
-                _auxProcess.Exited -= AuxProcess_Exited;
-                _auxProcess.Dispose();
+                if (sender is Process exited)
+                {
+                    exited.Exited -= AuxProcess_Exited;
+                    if (!ReferenceEquals(exited, _auxProcess))
+                    {
+                        exited.Dispose();
+                        return;
+                    }
+                }
+
+                _auxProcess?.Dispose();
+                _auxProcess = null;
                 Running = false;
+
+                if (!_aux.KeepAlive || _stopping)
+                {
+                    Log.Information(_aux.Name + " has completed");
+                    return;
+                }
+
+                Log.Information($"{_aux.Name} has stopped, re-starting in {RestartDelay.TotalSeconds} seconds");
             }
+
+            Task.Delay(RestartDelay).ContinueWith(_ =>
+            {
+                lock (_sync)
+                {
+                    if (!_stopping) ProcStart();
+                }
+            });
         }
 
-        #endregion
-
-        #region Start methods
-
         /// <summary>
-        /// Start a new/get a handle on existing process
+        /// Start a new process
         /// </summary>
         private void ProcStart()
         {
-            Log.Information("Attempting to start " + _aux.Name);
             if (_auxProcess != null) {
                 return;
             }
-            //we dont care if this is already running, depending on the application, this could cause lots of issues but hey... 
-                
-            //Auxiliary process
-            _auxProcess = new Process();
-            _auxProcess.StartInfo.FileName = _aux.FilePath;
-            _auxProcess.StartInfo.WorkingDirectory = _aux.WorkingFolder;
-            _auxProcess.StartInfo.UseShellExecute = false;
-            _auxProcess.StartInfo.Arguments = _aux.Argument;
-            _auxProcess.EnableRaisingEvents = true;
-            _auxProcess.StartInfo.RedirectStandardError = true;
-            _auxProcess.StartInfo.RedirectStandardOutput = true;
-            _auxProcess.Exited += AuxProcess_Exited;
-            if (_aux.LogOutput) {
-                Log.Information("Enabling logging for " + _aux.Name);
-                _auxProcess.OutputDataReceived += (_, e) => {
-                    if (string.IsNullOrEmpty(e.Data)) return;
-                    Log.Debug($"{_aux.Name}:{e.Data}");
-                };
-            }
+
+            Log.Information("Attempting to start " + _aux.Name);
+            var process = new Process {
+                StartInfo = {
+                    FileName = _aux.FilePath,
+                    WorkingDirectory = string.IsNullOrEmpty(_aux.WorkingFolder) ? Path.GetDirectoryName(_aux.FilePath) ?? string.Empty : _aux.WorkingFolder,
+                    UseShellExecute = false,
+                    Arguments = _aux.Argument ?? string.Empty,
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
+                },
+                EnableRaisingEvents = true
+            };
+            process.Exited += AuxProcess_Exited;
+
+            // both streams always need to be drained, otherwise a chatty app blocks once the pipe buffer is full
+            process.OutputDataReceived += (_, e) => {
+                if (_aux.LogOutput && !string.IsNullOrEmpty(e.Data)) Log.Debug($"{_aux.Name}: {e.Data}");
+            };
+            process.ErrorDataReceived += (_, e) => {
+                if (_aux.LogOutput && !string.IsNullOrEmpty(e.Data)) Log.Warning($"{_aux.Name}: {e.Data}");
+            };
+
             try
             {
-                _auxProcess.Start();
-                _auxProcess.BeginOutputReadLine();
-                Log.Information(_aux.Name + " Started.");
+                process.Start();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+                _auxProcess = process;
                 Running = true;
+                Log.Information(_aux.Name + " Started.");
             }
             catch (Exception ex)
             {
-                Log.Information(_aux.Name + " failed to start. " + ex.Message);
+                process.Exited -= AuxProcess_Exited;
+                process.Dispose();
+                Log.Warning(_aux.Name + " failed to start. " + ex.Message);
             }
-            Log.Information("Done starting app.");
         }
 
-
-        #endregion
-
-        #region End methods
-
         /// <summary>
-        /// Kill the plex process
+        /// Kill the process
         /// </summary>
         private void End() {
             if (_auxProcess == null) {
@@ -166,23 +170,19 @@ namespace PlexServiceCommon
             }
 
             Log.Information("Killing " + _aux.Name);
+            var process = _auxProcess;
+            _auxProcess = null;
+            Running = false;
             try
             {
-                _auxProcess.Kill();
+                process.Exited -= AuxProcess_Exited;
+                if (!process.HasExited) process.Kill();
             } catch (Exception ex) {
                 Log.Warning($"Exception stopping auxProc {_aux.Name}: " + ex.Message);
             } finally
             {
-                _auxProcess.Dispose();
-                _auxProcess = null;
-                Running = false;
+                process.Dispose();
             }
         }
-
-        #endregion
-
-        #endregion
-
-        
     }
 }

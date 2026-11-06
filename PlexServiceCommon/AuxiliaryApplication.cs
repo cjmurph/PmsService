@@ -49,6 +49,18 @@ namespace PlexServiceCommon
         [JsonProperty]
         public string Url { get; set; }
 
+        /// <summary>
+        /// Start this application before Plex is started (e.g. a tuner Plex needs to see on startup)
+        /// </summary>
+        [JsonProperty]
+        public bool StartBeforePlex { get; set; }
+
+        /// <summary>
+        /// Seconds to wait after starting this application before Plex is started. Only used with StartBeforePlex.
+        /// </summary>
+        [JsonProperty]
+        public int StartDelay { get; set; }
+
         public AuxiliaryApplication()
         {
             Name = string.Empty;
