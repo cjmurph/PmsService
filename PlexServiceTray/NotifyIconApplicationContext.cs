@@ -61,7 +61,7 @@ namespace PlexServiceTray
                     BackColor = Color.FromArgb(41, 42, 45),
                     RenderMode = ToolStripRenderMode.System
                 },
-                Icon = new Icon(Properties.Resources.PlexService, SystemInformation.SmallIconSize),
+                Icon = new Icon(typeof(NotifyIconApplicationContext).Assembly.GetManifestResourceStream("PlexServiceTray.PlexService.ico")!, SystemInformation.SmallIconSize),
                 Text = "Manage Plex Media Server Service",
                 Visible = true
             };
