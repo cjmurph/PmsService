@@ -56,5 +56,8 @@ namespace PlexServiceCommon.Interface
 
         [OperationContract]
         string GetWebLink();
+
+        [OperationContract]
+        bool CanControl();
     }
 }

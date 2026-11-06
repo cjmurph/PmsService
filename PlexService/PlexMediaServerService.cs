@@ -1,10 +1,8 @@
 ﻿using System;
 using System.ServiceModel;
-using System.ServiceModel.Description;
 using System.ServiceProcess;
 using PlexServiceCommon;
 using PlexServiceWCF;
-using System.Threading;
 using Serilog;
 
 namespace PlexService
@@ -14,26 +12,27 @@ namespace PlexService
     /// </summary>
     public partial class PlexMediaServerService : ServiceBase
     {
-        private const string _baseAddress = "net.tcp://localhost:{0}/PlexService";
-
         /// <summary>
-        /// Default the address with port 8787
+        /// Custom service commands, usable with "sc control PlexService 128|129|130"
         /// </summary>
-        private string _address = string.Format(_baseAddress, 8787);
+        private const int CommandStartPlex = 128;
+        private const int CommandStopPlex = 129;
+        private const int CommandRestartPlex = 130;
 
-        private static readonly TimeSpan _timeOut = TimeSpan.FromSeconds(2);
+        private const string BaseAddress = "net.tcp://localhost:{0}/PlexService";
+
+        private static readonly TimeSpan TimeOut = TimeSpan.FromSeconds(2);
 
         private ServiceHost _host;
 
-        private PlexServiceCommon.Interface.ITrayInteraction _plexService;
-
-        private readonly AutoResetEvent _stopped = new(false);
+        private TrayInteraction _trayInteraction;
 
         public PlexMediaServerService()
         {
             InitializeComponent();
             //This is a simple start stop service, no pause and resume.
             CanPauseAndContinue = false;
+            CanShutdown = true;
         }
 
         public void OnDebug(string[] args)
@@ -53,46 +52,38 @@ namespace PlexService
         {
             try
             {
-                if (_host != null) _host.Close();
+                _host?.Close();
 
                 var port = SettingsHandler.Load().ServerPort;
-                //sanity check the port setting
-                if (port == 0)
-                    port = 8787;
+                var address = string.Format(BaseAddress, port);
 
-                _address = string.Format(_baseAddress, port);
-
-                Uri[] addressBase = { new(_address) };
-                _host = new ServiceHost(typeof(TrayInteraction), addressBase);
-
-                var behave = new ServiceMetadataBehavior();
-                _host.Description.Behaviors.Add(behave);
+                _trayInteraction = new TrayInteraction();
+                _host = new ServiceHost(_trayInteraction, new Uri(address));
+                _host.Authorization.ServiceAuthorizationManager = new AdminAuthorizationManager();
 
                 //Setup a TCP binding with appropriate timeouts.
                 //use a reliable connection so the clients can be notified when the receive timeout has elapsed and the connection is torn down.
-                var netTcpB = new NetTcpBinding {
-                    OpenTimeout = _timeOut,
-                    CloseTimeout = _timeOut,
+                var netTcpB = new NetTcpBinding(SecurityMode.Transport) {
+                    OpenTimeout = TimeOut,
+                    CloseTimeout = TimeOut,
                     ReceiveTimeout = TimeSpan.FromMinutes(10),
                     ReliableSession = {
                         Enabled = true,
                         InactivityTimeout = TimeSpan.FromMinutes(5)
                     }
                 };
-                _host.AddServiceEndpoint(typeof(PlexServiceCommon.Interface.ITrayInteraction), netTcpB, _address);
-                _host.AddServiceEndpoint(typeof(IMetadataExchange),
-                MetadataExchangeBindings.CreateMexTcpBinding(), "mex");
-                
-                //once the host is opened, start plex
-                //_host.Opened += (s, e) => System.Threading.Tasks.Task.Factory.StartNew(() => startPlex());
-                // Open the ServiceHostBase to create listeners and start 
-                // listening for messages.
+                netTcpB.Security.Transport.ClientCredentialType = TcpClientCredentialType.Windows;
+                _host.AddServiceEndpoint(typeof(PlexServiceCommon.Interface.ITrayInteraction), netTcpB, address);
                 _host.Open();
+                Log.Information($"Plex Service listening on {address}");
             }
             catch (Exception ex)
             {
-                Log.Warning("Exception starting Plex Service: " + ex.Message + " at " + ex.StackTrace);
+                Log.Error(ex, "Exception starting Plex Service");
             }
+
+            // start plex even if the endpoint couldn't be opened, the tray is optional
+            _trayInteraction?.Start();
             Log.Information("Plex Service Started.");
 
             base.OnStart(args);
@@ -103,34 +94,24 @@ namespace PlexService
         /// </summary>
         protected override void OnStop()
         {
+            RequestAdditionalTime(30000);
+            try
+            {
+                Log.Information("Stopping plex.");
+                _trayInteraction?.Shutdown(TimeSpan.FromSeconds(20));
+            }
+            catch (Exception ex)
+            {
+                Log.Warning("Exception stopping plex: " + ex.Message);
+            }
+
             if (_host != null)
             {
-                //Try and connect to the WCF service and call its stop method
                 try {
-                    if (_plexService == null) {
-                        Log.Information("Connecting to plex service.");
-                        Connect();
-                    }
-
-                    if (_plexService != null)
-                    {
-                        Log.Information("Stopping plex service.");
-                        _plexService.Stop();
-                        //wait for plex to stop for 10 seconds
-                        if(!_stopped.WaitOne(10000))
-                        {
-                            Log.Warning("Timed out waiting for plex service to stop.");
-                        }
-                        Disconnect();
-                    }
-                } catch (Exception ex) {
-                    Log.Warning("Exception in OnStop: " + ex.Message);
-                }
-
-                try {
-                    _host.Close();
+                    _host.Close(TimeOut);
                 } catch (Exception ex) {
                     Log.Warning("Exception closing host: " + ex.Message);
+                    _host.Abort();
                 }
                 finally
                 {
@@ -138,69 +119,37 @@ namespace PlexService
                 }
             }
             Log.Information("Plex Service Stopped.");
+            Log.CloseAndFlush();
             base.OnStop();
         }
 
-        /// <summary>
-        /// Connect to WCF service
-        /// </summary>
-        private void Connect()
+        protected override void OnShutdown()
         {
-            //Create a NetTcp binding to the service and set some appropriate timeouts.
-            //Use reliable connection so we know when we have been disconnected
-            var plexServiceBinding = new NetTcpBinding {
-                OpenTimeout = _timeOut,
-                CloseTimeout = _timeOut,
-                SendTimeout = _timeOut,
-                ReliableSession = {
-                    Enabled = true,
-                    InactivityTimeout = TimeSpan.FromMinutes(1)
-                }
-            };
-            //Generate the endpoint from the local settings
-            var plexServiceEndpoint = new EndpointAddress(_address);
-
-            var callback = new TrayCallback();
-            callback.Stopped += (_,_) => _stopped.Set();
-            var client = new TrayInteractionClient(callback, plexServiceBinding, plexServiceEndpoint);
-
-            //Make a channel factory so we can create the link to the service
-            //var plexServiceChannelFactory = new ChannelFactory<PlexServiceCommon.Interface.ITrayInteraction>(plexServiceBinding, plexServiceEndpoint);
-
-            _plexService = null;
-
-            try
-            {
-                _plexService = client.ChannelFactory.CreateChannel();
-                
-                _plexService.Subscribe();
-                //If we lose connection to the service, set the object to null so we will know to reconnect the next time the tray icon is clicked
-                _plexService.Faulted += (_, _) => _plexService = null;
-                _plexService.Closed += (_, _) => _plexService = null;
-            }
-            catch (Exception ex)
-            {
-                Log.Warning("Exception connecting PMS/WCF: " + ex.Message);
-                _plexService = null;
-            }
+            OnStop();
+            base.OnShutdown();
         }
 
-        /// <summary>
-        /// Disconnect from WCF service
-        /// </summary>
-        private void Disconnect()
+        protected override void OnCustomCommand(int command)
         {
-            //try and be nice...
-            if (_plexService != null)
+            if (_trayInteraction == null) return;
+            switch (command)
             {
-                try
-                {
-                    _plexService.Close();
-                } catch (Exception ex) {
-                    Log.Warning("Exception disconnecting PMS/WCF: " + ex.Message);
-                }
+                case CommandStartPlex:
+                    Log.Information("Start requested via service control");
+                    _trayInteraction.Start();
+                    break;
+                case CommandStopPlex:
+                    Log.Information("Stop requested via service control");
+                    _trayInteraction.Stop();
+                    break;
+                case CommandRestartPlex:
+                    Log.Information("Restart requested via service control");
+                    _trayInteraction.Restart();
+                    break;
+                default:
+                    base.OnCustomCommand(command);
+                    break;
             }
-            _plexService = null;
         }
     }
 }
