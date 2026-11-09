@@ -185,7 +185,15 @@ namespace PlexServiceTray.ViewModel
 
         public ObservableCollection<DriveMapViewModel> DriveMaps { get; } = new();
 
-        public IReadOnlyList<string> DriveLetters => DriveMapViewModel.DriveLetters;
+        /// <summary>
+        /// Letters of drives that already exist on the server
+        /// </summary>
+        internal IReadOnlyCollection<string> UsedDriveLetters { get; private set; } = new string[0];
+
+        internal void RefreshAvailableLetters(DriveMapViewModel changed = null)
+        {
+            foreach (var map in DriveMaps.Where(m => !ReferenceEquals(m, changed))) map.RefreshAvailableLetters();
+        }
 
         private bool _autoRemount;
         public bool AutoRemount
@@ -440,8 +448,10 @@ namespace PlexServiceTray.ViewModel
                 AutoRemountDelay = settings.AutoRemountDelay;
                 StartPlexOnMountFail = settings.StartPlexOnMountFail;
 
+                UsedDriveLetters = IsConnected ? _service.Call(c => c.GetUsedDriveLetters(), new string[0]) : new string[0];
                 DriveMaps.Clear();
                 settings.DriveMaps.ForEach(d => DriveMaps.Add(new DriveMapViewModel(d, this)));
+                RefreshAvailableLetters();
                 AuxiliaryApplications.Clear();
                 settings.AuxiliaryApplications.ForEach(a => AuxiliaryApplications.Add(new AuxiliaryApplicationViewModel(a, this)));
                 SelectedAuxApplication = AuxiliaryApplications.FirstOrDefault();
@@ -638,9 +648,9 @@ namespace PlexServiceTray.ViewModel
         private RelayCommand _addDriveMapCommand;
         public RelayCommand AddDriveMapCommand => _addDriveMapCommand ??= new RelayCommand(_ =>
         {
-            var used = DriveMaps.Select(d => d.DriveLetter).ToList();
-            var letter = Enumerable.Range(0, 26).Select(i => ((char)('Z' - i)).ToString()).FirstOrDefault(l => !used.Contains(l)) ?? "Z";
+            var letter = DriveMapViewModel.FirstFreeLetter(DriveMaps.Select(d => d.DriveLetter).Concat(UsedDriveLetters));
             DriveMaps.Add(new DriveMapViewModel(new DriveMap(string.Empty, letter), this));
+            RefreshAvailableLetters();
             MarkDirty();
         }, _ => CanEditServer);
 
@@ -650,6 +660,7 @@ namespace PlexServiceTray.ViewModel
             if (p is not DriveMapViewModel map) return;
             DriveMaps.Remove(map);
             RevalidateDriveMaps();
+            RefreshAvailableLetters();
             MarkDirty();
         }, p => CanEditServer && p is DriveMapViewModel);
 

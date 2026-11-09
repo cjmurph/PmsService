@@ -43,6 +43,9 @@ namespace PlexServiceCommon.Interface
         DriveMapTestResult TestDriveMap(DriveMap map);
 
         [OperationContract]
+        string[] GetUsedDriveLetters();
+
+        [OperationContract]
         PlexState GetStatus();
 
         [OperationContract]

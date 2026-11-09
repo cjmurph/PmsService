@@ -521,7 +521,7 @@
                                                             </Grid.ColumnDefinitions>
                                                             <ui:SymbolIcon Grid.Column="0" Symbol="HardDrive20" FontSize="20" Margin="2,0,16,0" />
                                                             <ComboBox Grid.Column="1" VerticalAlignment="Center" Validation.ErrorTemplate="{StaticResource FieldError}"
-                                                                      ItemsSource="{Binding DataContext.DriveLetters, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                      ItemsSource="{Binding AvailableLetters}"
                                                                       SelectedItem="{Binding DriveLetter, ValidatesOnDataErrors=True}">
                                                                 <ComboBox.ItemTemplate>
                                                                     <DataTemplate>

@@ -213,6 +213,7 @@ namespace PlexServiceCommon
                 case 1231:
                 case 1232: return "The server can't be reached. Check the name and that it is turned on.";
                 case 67: return "The share wasn't found. Check the name of the server and the share.";
+                case 85: return "This drive letter is already in use.";
                 case 86:
                 case 1326: return "The user name or password is incorrect.";
                 case 1219: return "Windows is already connected to this server with a different account, and it only allows one account per server.";

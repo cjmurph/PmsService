@@ -16,7 +16,7 @@ namespace PlexServiceWCF
         private static readonly string[] ReadOnlyOperations =
         {
             "GetStatus", "GetSettings", "GetWebLink", "GetPmsDataPath", "IsAuxAppRunning",
-            "GetLogPath", "Subscribe", "UnSubscribe", "LogMessage", "CanControl",
+            "GetLogPath", "Subscribe", "UnSubscribe", "LogMessage", "CanControl", "GetUsedDriveLetters",
             // a library scan is harmless, anyone may trigger it
             "UpdateAllLibraries"
         };

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.ServiceModel;
 using System.Threading.Tasks;
 using PlexServiceCommon;
@@ -140,6 +141,22 @@ namespace PlexServiceWCF
             if (settings == null) return;
             DriveMapSecrets.Apply(settings, SettingsHandler.Load());
             SettingsHandler.Save(settings);
+        }
+
+        /// <summary>
+        /// Drive letters that are taken on this machine. Network drives from our own mappings don't count, they are free to be kept.
+        /// </summary>
+        public string[] GetUsedDriveLetters()
+        {
+            var own = SettingsHandler.Load().DriveMaps
+                .Where(m => !string.IsNullOrEmpty(m.DriveLetter))
+                .Select(m => m.DriveLetter.Substring(0, 1).ToUpperInvariant())
+                .ToList();
+            return DriveInfo.GetDrives()
+                .Select(d => new { Letter = d.Name.Substring(0, 1).ToUpperInvariant(), d.DriveType })
+                .Where(d => d.DriveType != DriveType.Network || !own.Contains(d.Letter))
+                .Select(d => d.Letter)
+                .ToArray();
         }
 
         /// <summary>

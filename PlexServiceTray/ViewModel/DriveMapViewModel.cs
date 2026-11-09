@@ -20,7 +20,7 @@ namespace PlexServiceTray.ViewModel
     {
         private static readonly Regex UncPath = new(@"^\\\\[^\\/:*?""<>|]+(\\[^\\/:*?""<>|]+)+\\?$");
 
-        public static IReadOnlyList<string> DriveLetters { get; } = Enumerable.Range('A', 26).Select(c => ((char)c).ToString()).ToList();
+        private static readonly IReadOnlyList<string> AllDriveLetters = Enumerable.Range('A', 26).Select(c => ((char)c).ToString()).ToList();
 
         private readonly SettingsViewModel _owner;
         private readonly string _id;
@@ -60,7 +60,23 @@ namespace PlexServiceTray.ViewModel
                 if (!SetProperty(ref _driveLetter, value)) return;
                 _owner.MarkDirty();
                 _owner.RevalidateDriveMaps();
+                _owner.RefreshAvailableLetters(this);
             }
+        }
+
+        /// <summary>
+        /// Letters that can be picked for this mapping. Always holds its own letter, even one that collides, so the error can be shown.
+        /// </summary>
+        public IReadOnlyList<string> AvailableLetters => AllDriveLetters
+            .Where(l => l == _driveLetter || (!_owner.UsedDriveLetters.Contains(l) && _owner.DriveMaps.All(m => m.DriveLetter != l)))
+            .ToList();
+
+        internal void RefreshAvailableLetters() => OnPropertyChanged(nameof(AvailableLetters));
+
+        internal static string FirstFreeLetter(IEnumerable<string> taken)
+        {
+            var used = taken.ToList();
+            return AllDriveLetters.Reverse().FirstOrDefault(l => !used.Contains(l)) ?? "Z";
         }
 
         public string UserName
@@ -182,6 +198,7 @@ namespace PlexServiceTray.ViewModel
                     break;
                 case nameof(DriveLetter):
                     if (string.IsNullOrEmpty(DriveLetter)) return "Pick a drive letter";
+                    if (_owner.UsedDriveLetters.Contains(DriveLetter)) return $"{DriveLetter}: already exists on the server, pick another letter";
                     if (_owner.DriveMaps.Count(d => d.DriveLetter == DriveLetter) > 1) return $"{DriveLetter}: is used more than once";
                     break;
                 case nameof(UserName):
