@@ -65,6 +65,8 @@ If that happens, see below for steps to manually remove it for a clean installat
 
 You only need the .NET SDK, Visual Studio is optional. Run `.\build.ps1` in PowerShell, it builds everything and puts the installer into the `artifacts` folder. The WiX toolset is downloaded automatically on the first run.
 
+The installer needs WiX 3.14 or later. If an older WiX is installed (the `WIX` environment variable points to it), either install [WiX 3.14.1](https://github.com/wixtoolset/wix3/releases) or run `$env:WIX = $null; .\build.ps1` so the script downloads 3.14.1. This also applies when building the installer in Visual Studio.
+
 
 # Manual Uninstallation
 To completely remove the PlexService application, do the following:

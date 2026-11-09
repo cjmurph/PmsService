@@ -1,6 +1,8 @@
 <Project>
   <PropertyGroup>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <!-- keep x86 builds in bin\<Configuration>\, the installer looks for PlexService.exe there -->
+    <AppendPlatformToOutputPath>false</AppendPlatformToOutputPath>
     <Nullable>disable</Nullable>
   </PropertyGroup>
 </Project>
