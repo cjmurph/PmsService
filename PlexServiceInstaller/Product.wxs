@@ -45,6 +45,11 @@
             <ComponentRef Id="SystemMemoryComponent"/>
             <ComponentRef Id="SystemNumericsVectorsComponent"/>
             <ComponentRef Id="SystemUnsafeComponent"/>
+            <ComponentRef Id="SystemDiagnosticSourceComponent"/>
+            <ComponentRef Id="SystemChannelsComponent"/>
+            <ComponentRef Id="SystemTasksExtensionsComponent"/>
+            <ComponentRef Id="PlexServiceConfigComponent"/>
+            <ComponentRef Id="PlexServiceTrayConfigComponent"/>
 			<ComponentRef Id="OokiiComponent"/>			
             <ComponentRef Id="SerilogCoreComponent"/>
 			<ComponentRef Id="SerilogAsyncComponent"/>
@@ -173,6 +178,21 @@
                     </Component>
                     <Component Id="SystemUnsafeComponent" Guid="*">
                         <File Id="SystemUnsafeDll" Source="$(var.PlexServiceTray.TargetDir)System.Runtime.CompilerServices.Unsafe.dll"/>
+                    </Component>
+                    <Component Id="SystemDiagnosticSourceComponent" Guid="*">
+                        <File Id="SystemDiagnosticSourceDll" Source="$(var.PlexServiceTray.TargetDir)System.Diagnostics.DiagnosticSource.dll"/>
+                    </Component>
+                    <Component Id="SystemChannelsComponent" Guid="*">
+                        <File Id="SystemChannelsDll" Source="$(var.PlexServiceTray.TargetDir)System.Threading.Channels.dll"/>
+                    </Component>
+                    <Component Id="SystemTasksExtensionsComponent" Guid="*">
+                        <File Id="SystemTasksExtensionsDll" Source="$(var.PlexServiceTray.TargetDir)System.Threading.Tasks.Extensions.dll"/>
+                    </Component>
+                    <Component Id="PlexServiceConfigComponent" Guid="*">
+                        <File Id="PlexServiceConfig" Source="$(var.PlexService.TargetDir)PlexService.exe.config"/>
+                    </Component>
+                    <Component Id="PlexServiceTrayConfigComponent" Guid="*">
+                        <File Id="PlexServiceTrayConfig" Source="$(var.PlexServiceTray.TargetDir)PlexServiceTray.exe.config"/>
                     </Component>
                     <Component Id="SerilogCoreComponent" Guid="*">
                         <File Id="SerilogCoreDll"
