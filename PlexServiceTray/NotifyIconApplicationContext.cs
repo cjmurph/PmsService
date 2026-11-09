@@ -26,6 +26,7 @@ namespace PlexServiceTray
         private TrayApplicationSettings _traySettings;
         private SettingsWindow? _settingsWindow;
         private LibraryUpdateWindow? _libraryWindow;
+        private readonly SessionEndWindow _sessionWindow;
 
         public NotifyIconApplicationContext(System.Threading.WaitHandle showSettingsSignal, bool openSettings, SettingsPage startPage = SettingsPage.General)
         {
@@ -51,7 +52,43 @@ namespace PlexServiceTray
             TrayMenuRenderer.RoundCorners(_notifyIcon.ContextMenuStrip);
             ApplyMenuTheme();
 
+            _sessionWindow = new SessionEndWindow(ExitThread);
+
             if (_service.EnsureConnected()) UpdateTooltip(_service.GetStatus());
+        }
+
+        /// <summary>
+        /// Without a visible window nobody answers when Windows or an installer asks the app to close
+        /// </summary>
+        private sealed class SessionEndWindow : NativeWindow
+        {
+            private const int WmQueryEndSession = 0x0011;
+            private const int WmEndSession = 0x0016;
+
+            private readonly Action _exit;
+
+            public SessionEndWindow(Action exit)
+            {
+                _exit = exit;
+                CreateHandle(new CreateParams());
+            }
+
+            protected override void WndProc(ref Message m)
+            {
+                switch (m.Msg)
+                {
+                    case WmQueryEndSession:
+                        m.Result = (IntPtr)1;
+                        return;
+                    case WmEndSession:
+                        if (m.WParam != IntPtr.Zero) _exit();
+                        m.Result = IntPtr.Zero;
+                        return;
+                    default:
+                        base.WndProc(ref m);
+                        return;
+                }
+            }
         }
 
         /// <summary>
@@ -61,6 +98,7 @@ namespace PlexServiceTray
         {
             if (disposing)
             {
+                _sessionWindow.DestroyHandle();
                 _service.Dispose();
                 _notifyIcon.Visible = false;
                 _components.Dispose();
