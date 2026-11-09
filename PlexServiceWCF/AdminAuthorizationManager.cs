@@ -18,7 +18,7 @@ namespace PlexServiceWCF
             "GetStatus", "GetSettings", "GetWebLink", "GetPmsDataPath", "IsAuxAppRunning",
             "GetLogPath", "Subscribe", "UnSubscribe", "LogMessage", "CanControl", "GetUsedDriveLetters",
             // a library scan is harmless, anyone may trigger it
-            "UpdateAllLibraries"
+            "UpdateAllLibraries", "UpdateLibraries", "GetLibraries"
         };
 
         private static readonly SecurityIdentifier Administrators = new(WellKnownSidType.BuiltinAdministratorsSid, null);

@@ -25,6 +25,7 @@ https://forums.plex.tv/discussion/93994/pms-as-a-service
 - Option to not start Plex on drive map failures, preventing accidental library deletion with auto-clean.
 - Option to log auxiliary application output to the PlexService log.
 - Option to start auxiliary applications before Plex, e.g. a tuner Plex needs on startup.
+- Update all or only selected Plex libraries from the tray.
 - Separate credentials per network share, tested before they are saved.
 - Start, stop and restart Plex from the command line.
 - Supports silent installation.

@@ -1,4 +1,4 @@
-using System.ServiceModel;
+﻿using System.ServiceModel;
 using Serilog.Events;
 
 namespace PlexServiceCommon.Interface
@@ -20,6 +20,12 @@ namespace PlexServiceCommon.Interface
 
         [OperationContract]
         void UpdateAllLibraries();
+
+        [OperationContract]
+        void UpdateLibraries(string[] keys);
+
+        [OperationContract]
+        PlexLibrary[] GetLibraries();
 
         [OperationContract]
         void SetSettings(Settings settings);

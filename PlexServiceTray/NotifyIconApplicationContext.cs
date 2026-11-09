@@ -25,6 +25,7 @@ namespace PlexServiceTray
         private readonly ServiceClient _service;
         private TrayApplicationSettings _traySettings;
         private SettingsWindow? _settingsWindow;
+        private LibraryUpdateWindow? _libraryWindow;
 
         public NotifyIconApplicationContext(System.Threading.WaitHandle showSettingsSignal, bool openSettings, SettingsPage startPage = SettingsPage.General)
         {
@@ -147,7 +148,7 @@ namespace PlexServiceTray
                 Add("Start Plex", (_, _) => Run(c => c.Start())).Enabled = canControl && state == PlexState.Stopped;
                 Add("Stop Plex", (_, _) => Run(c => c.Stop())).Enabled = canControl && state is PlexState.Running or PlexState.Pending;
                 Add("Restart Plex", (_, _) => Run(c => c.Restart())).Enabled = canControl && state == PlexState.Running;
-                Add("Update Plex Libraries", (_, _) => UpdateLibraries()).Enabled = state == PlexState.Running;
+                Add("Update Plex Libraries...", (_, _) => UpdateLibraries()).Enabled = state == PlexState.Running;
                 items.Add(new ToolStripSeparator());
 
                 var settings = _service.Call(c => c.GetSettings(), null);
@@ -199,8 +200,18 @@ namespace PlexServiceTray
 
         private void UpdateLibraries()
         {
-            if (_service.Call(c => { c.UpdateAllLibraries(); return true; }, false))
-                _notifyIcon.ShowBalloonTip(2000, "Plex Service", "Library update requested", ToolTipIcon.Info);
+            if (_libraryWindow != null)
+            {
+                _libraryWindow.Activate();
+                return;
+            }
+
+            var viewModel = new LibraryUpdateViewModel(_service);
+            viewModel.Updated += (_, _) => _notifyIcon.ShowBalloonTip(2000, "Plex Service", "Library update requested", ToolTipIcon.Info);
+            _libraryWindow = new LibraryUpdateWindow(viewModel, _traySettings.Theme);
+            _libraryWindow.Closed += (_, _) => _libraryWindow = null;
+            _libraryWindow.Show();
+            _libraryWindow.Activate();
         }
 
         private void ShowError(Exception ex)

@@ -1,9 +1,12 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.ServiceModel;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
 using PlexServiceCommon;
 using PlexServiceCommon.Interface;
 using Serilog;
@@ -108,28 +111,69 @@ namespace PlexServiceWCF
         /// </summary>
         public void UpdateAllLibraries()
         {
-            //fire the request off in another thread so the tray isn't kept waiting
+            RefreshLibraries(new[] { "all" });
+        }
+
+        /// <summary>
+        /// Ask the local plex server to update the given libraries
+        /// </summary>
+        /// <param name="keys">section keys as returned by <see cref="GetLibraries"/></param>
+        public void UpdateLibraries(string[] keys)
+        {
+            // the keys end up in a url, plex only uses numbers for them
+            var valid = keys?.Where(k => !string.IsNullOrEmpty(k) && k.All(c => c >= '0' && c <= '9')).Distinct().ToArray();
+            if (valid is { Length: > 0 }) RefreshLibraries(valid);
+        }
+
+        /// <summary>
+        /// Returns the libraries of the local plex server, null if plex can't be asked
+        /// </summary>
+        public PlexLibrary[] GetLibraries()
+        {
+            try
+            {
+                using var response = PlexRequest("/library/sections", 8000);
+                using var stream = response.GetResponseStream();
+                return XDocument.Load(stream).Root?.Elements("Directory")
+                    .Select(d => new PlexLibrary { Key = (string)d.Attribute("key"), Title = (string)d.Attribute("title"), Type = (string)d.Attribute("type") })
+                    .OrderBy(l => l.Title, StringComparer.CurrentCultureIgnoreCase)
+                    .ToArray();
+            }
+            catch (Exception ex) when (ex is WebException or XmlException)
+            {
+                Log.Warning("Unable to read the libraries from plex: " + ex.Message);
+                return null;
+            }
+        }
+
+        private static void RefreshLibraries(string[] keys)
+        {
+            //fire the requests off in another thread so the tray isn't kept waiting
             Task.Run(() =>
             {
-                var address = "http://localhost:32400/library/sections/all/refresh";
-                //include the token if we can find one, localhost is usually trusted without it
-                var token = PlexRegistryHelper.ReadUserRegistryValue("PlexOnlineToken");
-                if (!string.IsNullOrEmpty(token))
+                foreach (var key in keys)
                 {
-                    address += "?X-Plex-Token=" + token;
-                }
-                try
-                {
-                    var request = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(address);
-                    request.Timeout = 30000;
-                    using var response = (System.Net.HttpWebResponse)request.GetResponse();
-                    Log.Write(LogEventLevel.Information, "Update of all libraries requested, plex responded: " + response.StatusCode);
-                }
-                catch (Exception ex)
-                {
-                    Log.Warning("Exception requesting library update: " + ex.Message);
+                    try
+                    {
+                        using var response = PlexRequest($"/library/sections/{key}/refresh", 30000);
+                        Log.Write(LogEventLevel.Information, $"Update of library '{key}' requested, plex responded: " + response.StatusCode);
+                    }
+                    catch (WebException ex)
+                    {
+                        Log.Warning($"Exception requesting update of library '{key}': " + ex.Message);
+                    }
                 }
             });
+        }
+
+        private static HttpWebResponse PlexRequest(string path, int timeout)
+        {
+            var request = (HttpWebRequest)WebRequest.Create("http://localhost:32400" + path);
+            request.Timeout = timeout;
+            //include the token if we can find one, localhost is usually trusted without it
+            var token = PlexRegistryHelper.ReadUserRegistryValue("PlexOnlineToken");
+            if (!string.IsNullOrEmpty(token)) request.Headers["X-Plex-Token"] = token;
+            return (HttpWebResponse)request.GetResponse();
         }
 
         /// <summary>
