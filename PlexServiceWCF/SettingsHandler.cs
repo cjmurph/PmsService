@@ -1,6 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Newtonsoft.Json;
 using PlexServiceCommon;
+using Serilog;
 
 namespace PlexServiceWCF
 {
@@ -11,7 +13,7 @@ namespace PlexServiceWCF
     /// </summary>
     public static class SettingsHandler
     {
-        #region Load/Save
+        private static readonly object Sync = new();
 
         private static string GetSettingsFile()
         {
@@ -23,19 +25,26 @@ namespace PlexServiceWCF
         /// </summary>
         internal static void Save(Settings settings)
         {
+            settings.Sanitize();
             var filePath = GetSettingsFile();
-
-            if (!Directory.Exists(Path.GetDirectoryName(filePath))) {
+            lock (Sync)
+            {
                 var dir = Path.GetDirectoryName(filePath);
                 if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
+
+                // write to a temp file first so a crash can't leave an empty settings file behind
+                var tempFile = filePath + ".tmp";
+                File.WriteAllText(tempFile, JsonConvert.SerializeObject(settings, Formatting.Indented));
+                if (File.Exists(filePath))
+                {
+                    File.Replace(tempFile, filePath, null);
+                }
+                else
+                {
+                    File.Move(tempFile, filePath);
+                }
             }
-
-            using var sw = new StreamWriter(filePath, false);
-            sw.Write(JsonConvert.SerializeObject(settings, Formatting.Indented));
-            var tc = new TrayCallback();
-            tc.OnSettingChange(settings);
         }
-
 
         /// <summary>
         /// Load the settings from disk
@@ -44,20 +53,50 @@ namespace PlexServiceWCF
         public static Settings Load()
         {
             var filePath = GetSettingsFile();
-            Settings settings;
-            if (File.Exists(filePath)) {
-                using var sr = new StreamReader(filePath);
-                var rawSettings = sr.ReadToEnd();
-                settings = JsonConvert.DeserializeObject<Settings>(rawSettings);
+            Settings settings = null;
+            lock (Sync)
+            {
+                if (File.Exists(filePath))
+                {
+                    try
+                    {
+                        settings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(filePath));
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warning($"Settings file is damaged, using defaults. {ex.Message}");
+                        TryBackup(filePath);
+                    }
+                }
             }
-            else
+
+            if (settings == null)
             {
                 settings = new Settings();
-                Save(settings);
+                try
+                {
+                    Save(settings);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning("Unable to save default settings: " + ex.Message);
+                }
             }
+
+            settings.Sanitize();
             return settings;
         }
 
-        #endregion
+        private static void TryBackup(string filePath)
+        {
+            try
+            {
+                File.Copy(filePath, filePath + ".bad", true);
+            }
+            catch
+            {
+                // nothing we can do
+            }
+        }
     }
 }

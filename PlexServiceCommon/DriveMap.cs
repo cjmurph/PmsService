@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Runtime.InteropServices;
 using Serilog;
@@ -8,10 +8,10 @@ namespace PlexServiceCommon
     [JsonObject(MemberSerialization=MemberSerialization.OptIn)]
     public class DriveMap
     {
-        [DllImport("mpr.dll")] private static extern int WNetAddConnection2A(ref NetworkResource netRes, string password, string username, int flags);
-        [DllImport("mpr.dll")] private static extern int WNetCancelConnection2A(string name, int flags, int force);
+        [DllImport("mpr.dll", CharSet = CharSet.Unicode)] private static extern int WNetAddConnection2W(ref NetworkResource netRes, string password, string username, int flags);
+        [DllImport("mpr.dll", CharSet = CharSet.Unicode)] private static extern int WNetCancelConnection2W(string name, int flags, int force);
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         private struct NetworkResource
         {
             public int Scope;
@@ -73,7 +73,7 @@ namespace PlexServiceCommon
                     }
                 }
                 //call and return
-                var i = WNetAddConnection2A(ref netRes, null, null, 0);
+                var i = WNetAddConnection2W(ref netRes, null, null, 0);
 
                 if (i > 0)
                     throw new System.ComponentModel.Win32Exception(i);
@@ -95,7 +95,7 @@ namespace PlexServiceCommon
                 var drive = DriveLetter.Substring(0, 1) + ":";
 
                 //call unmap and return
-                var i = WNetCancelConnection2A(drive, 0, Convert.ToInt32(force));
+                var i = WNetCancelConnection2W(drive, 0, Convert.ToInt32(force));
 
                 if (i > 0)
                     throw new System.ComponentModel.Win32Exception(i);

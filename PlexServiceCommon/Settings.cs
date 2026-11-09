@@ -83,6 +83,21 @@ namespace PlexServiceCommon
             DriveMaps = new List<DriveMap>();
         }
 
+        /// <summary>
+        /// Fix values that would break the service, older versions wrote 0 for the port and restart delay.
+        /// </summary>
+        public void Sanitize()
+        {
+            AuxiliaryApplications ??= new List<AuxiliaryApplication>();
+            AuxiliaryApplications.RemoveAll(a => a == null);
+            DriveMaps ??= new List<DriveMap>();
+            DriveMaps.RemoveAll(d => d == null);
+            if (ServerPort is <= 0 or > 65535) ServerPort = 8787;
+            if (RestartDelay < 0) RestartDelay = 5;
+            if (AutoRemountCount < 1) AutoRemountCount = 1;
+            if (AutoRemountDelay < 0) AutoRemountDelay = 5;
+        }
+
     }
 }
 

@@ -7,68 +7,62 @@ using PlexServiceCommon;
 using PlexServiceCommon.Interface;
 using Serilog;
 using Serilog.Events;
-using static System.Net.WebRequestMethods;
 
 namespace PlexServiceWCF
 {
     /// <summary>
     /// WCF service implementation
     /// </summary>
-    [ServiceBehavior(ConfigurationName = "PlexServiceWCF:PlexServiceWCF.TrayInteraction", InstanceContextMode = InstanceContextMode.Single)]
+    [ServiceBehavior(ConfigurationName = "PlexServiceWCF:PlexServiceWCF.TrayInteraction", InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
     public class TrayInteraction : ITrayInteraction
     {
         public static readonly string AppDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Plex Service\");
 
+        private const int MaxLogMessageLength = 4000;
+
         private readonly PmsMonitor _pms;
 
-        private static readonly List<ITrayCallback> CallbackChannels = new();
-        private readonly ITrayInteraction _trayInteractionImplementation;
+        private readonly List<ITrayCallback> _callbackChannels = new();
 
         public TrayInteraction() {
-            _trayInteractionImplementation = this;
             _pms = new PmsMonitor();
             _pms.StateChange += PlexStateChange;
             _pms.PlexStop += PlexStopped;
-            //Start plex
-            Start();
+        }
+
+        private List<ITrayCallback> GetCallbacks()
+        {
+            lock (_callbackChannels)
+            {
+                // drop channels of trays that went away
+                _callbackChannels.RemoveAll(c => c is not ICommunicationObject { State: CommunicationState.Opened });
+                return new List<ITrayCallback>(_callbackChannels);
+            }
         }
 
         private void PlexStopped(object sender, EventArgs e)
         {
-            if (_pms != null)
-            {
-                CallbackChannels.ForEach(callback => {
-                    if (callback == null) {
-                        return;
-                    }
-
-                    try
-                    {
-                        callback.OnPlexStopped();
-                    } catch (Exception ex) {
-                        Log.Warning("Exception running callback: " + ex.Message);
-                    }
-                });
-            }
+            GetCallbacks().ForEach(callback => {
+                try
+                {
+                    callback.OnPlexStopped();
+                } catch (Exception ex) {
+                    Log.Warning("Exception running callback: " + ex.Message);
+                }
+            });
         }
 
         private void PlexStateChange(object sender, EventArgs e)
         {
-            if (_pms != null)
-            {
-                CallbackChannels.ForEach(callback => {
-                    if (callback == null) {
-                        return;
-                    }
-
-                    try
-                    {
-                        callback.OnPlexStateChange(_pms.State);
-                    } catch (Exception ex) {
-                        Log.Warning("Exception on plex state change callback: " + ex.Message);
-                    }
-                });
-            }
+            var state = _pms.State;
+            GetCallbacks().ForEach(callback => {
+                try
+                {
+                    callback.OnPlexStateChange(state);
+                } catch (Exception ex) {
+                    Log.Warning("Exception on plex state change callback: " + ex.Message);
+                }
+            });
         }
 
         /// <summary>
@@ -77,7 +71,7 @@ namespace PlexServiceWCF
         public void Start()
         {
             //do this in another thread to return immediately so we don't hold up the service starting
-            Task.Factory.StartNew(() => _pms.Start());
+            Task.Run(() => _pms.Start());
         }
 
         /// <summary>
@@ -85,7 +79,7 @@ namespace PlexServiceWCF
         /// </summary>
         public void Stop()
         {
-            Task.Factory.StartNew(() => _pms.Stop());
+            Task.Run(() => _pms.Stop());
         }
 
         /// <summary>
@@ -94,10 +88,15 @@ namespace PlexServiceWCF
         public void Restart()
         {
             //stop and restart plex and the auxiliary apps
-            Task.Factory.StartNew(() =>
-                {
-                    _pms.Restart(5000);
-                });
+            Task.Run(() => _pms.Restart());
+        }
+
+        /// <summary>
+        /// Stops plex and everything that belongs to it and waits for it to finish. Used when the service shuts down.
+        /// </summary>
+        public void Shutdown(TimeSpan timeout)
+        {
+            _pms.StopAndWait(timeout);
         }
 
         /// <summary>
@@ -106,11 +105,16 @@ namespace PlexServiceWCF
         /// <param name="settings">Json serialised Settings instance</param>
         public void SetSettings(Settings settings)
         {
+            if (settings == null) return;
             SettingsHandler.Save(settings);
         }
 
         public void LogMessage(string message, LogEventLevel level=LogEventLevel.Debug) {
-            Log.Write(level,message);
+            if (string.IsNullOrEmpty(message)) return;
+            if (message.Length > MaxLogMessageLength) message = message.Substring(0, MaxLogMessageLength);
+            // keep the client from forging extra log lines
+            message = message.Replace('\r', ' ').Replace('\n', ' ');
+            Log.Write(level, "[Tray] " + message);
         }
 
         /// <summary>
@@ -119,9 +123,7 @@ namespace PlexServiceWCF
         /// <returns></returns>
         public string GetLog()
         {
-            var res = LogWriter.Read().Result;
-            Log.Debug("Res is " + res.Length);
-            return res;
+            return LogWriter.Read().GetAwaiter().GetResult();
         }
 
         public string GetLogPath() {
@@ -147,12 +149,17 @@ namespace PlexServiceWCF
         /// <returns></returns>
         public PlexState GetStatus()
         {
-            if (_pms != null)
-                return _pms.State;
-            return PlexState.Stopped;
+            return _pms.State;
         }
 
-        
+        /// <summary>
+        /// Lets the tray know if the calling user is allowed to change anything
+        /// </summary>
+        public bool CanControl()
+        {
+            return AdminAuthorizationManager.IsPrivileged(ServiceSecurityContext.Current?.WindowsIdentity);
+        }
+
         /// <summary>
         /// A request from the client for the running status of a specific auxiliary application
         /// </summary>
@@ -175,134 +182,99 @@ namespace PlexServiceWCF
 
         public string GetWebLink()
         {
-            Log.Write(LogEventLevel.Information, "WebLink requested, plex version is: " + _pms.PlexVersion.ToString());
             var address = "http://localhost:32400/web";
+            var version = _pms.PlexVersion;
+            Log.Information("WebLink requested, plex version is: " + (version?.ToString() ?? "unknown"));
 
-            if (_pms.PlexVersion > new Version("1.32.0.0"))
+            if (version == null || version <= new Version("1.32.0.0")) return address;
+
+            //try to read the token
+            var token = PlexRegistryHelper.ReadUserRegistryValue("PlexOnlineToken");
+            if (!string.IsNullOrEmpty(token)) return address;
+
+            Log.Information("Plex online token is empty or cannot be read, checking for claim url...");
+            //empty token means the server is unclaimed and we should try and hit the claim url
+            var dataDir = PlexDirHelper.GetPlexDataDir();
+            if (string.IsNullOrEmpty(dataDir)) return address;
+
+            var claimUrlFile = Path.Combine(dataDir, ".claimURL");
+            var setupPlex = Path.Combine(dataDir, "Setup Plex.html");
+            if (File.Exists(claimUrlFile))
             {
-                Log.Write(LogEventLevel.Information, "Plex version is greater than 1.32, checking for token and server claim status");
-                //try to read the token
-                var token = PlexRegistryHelper.ReadUserRegistryValue("PlexOnlineToken");
-                if (string.IsNullOrEmpty(token))
+                var claimUrl = File.ReadAllText(claimUrlFile).Trim();
+                if (Uri.TryCreate(claimUrl, UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
                 {
-                    Log.Write(LogEventLevel.Information, "Plex online token is empty or cannot be read, checking for claim url...");
-                    //empty token means the server is unclaimed and we should try and hit the claim url
-                    var dataDir = PlexDirHelper.GetPlexDataDir();
-                    var claimUrlFile = Path.Combine(dataDir, ".claimURL");
-                    var setupPlex = Path.Combine(dataDir, "Setup Plex.html");
-                    if (System.IO.File.Exists(claimUrlFile))
-                    {
-                        var claimUrl = System.IO.File.ReadAllText(claimUrlFile);
-                        //return the claim url or if for some reason its empty, return the setup plex html
-                        if (string.IsNullOrEmpty(claimUrl))
-                        {
-                            Log.Write(LogEventLevel.Information, "No claim url found, returning the setup address");
-                            address = setupPlex;
-                        }
-                        else
-                        {
-                            Log.Write(LogEventLevel.Information, "Claim url found: " + claimUrl);
-                            address = claimUrl;
-                        }
-                    }
-                    else
-                    {
-                        Log.Write(LogEventLevel.Information, "No claim file found, returning the setup address");
-                        address = setupPlex;
-                    }
-
+                    Log.Information("Claim url found: " + claimUrl);
+                    return claimUrl;
                 }
             }
+
+            if (File.Exists(setupPlex))
+            {
+                Log.Information("No claim url found, returning the setup address");
+                return setupPlex;
+            }
+
             return address;
         }
 
         public void Subscribe()
         {
             var channel = OperationContext.Current.GetCallbackChannel<ITrayCallback>();
-            if (!CallbackChannels.Contains(channel)) //if CallbackChannels not contain current one.
+            lock (_callbackChannels)
             {
-                CallbackChannels.Add(channel);
+                if (!_callbackChannels.Contains(channel)) _callbackChannels.Add(channel);
             }
         }
 
         public void UnSubscribe()
         {
             var channel = OperationContext.Current.GetCallbackChannel<ITrayCallback>();
-            if (CallbackChannels.Contains(channel)) //if CallbackChannels not contain current one.
+            lock (_callbackChannels)
             {
-                CallbackChannels.Remove(channel);
+                _callbackChannels.Remove(channel);
             }
         }
 
-        public void Abort() {
-            _trayInteractionImplementation.Abort();
-        }
+        #region ICommunicationObject
 
-        public void Close() {
-            _trayInteractionImplementation.Close();
-        }
+        // The contract inherits ICommunicationObject so the client proxy exposes the channel state.
+        // None of this is meaningful for the service implementation itself.
 
-        public void Close(TimeSpan timeout) {
-            _trayInteractionImplementation.Close(timeout);
-        }
+        public void Abort() { }
 
-        public IAsyncResult BeginClose(AsyncCallback callback, object state) {
-            return _trayInteractionImplementation.BeginClose(callback, state);
-        }
+        public void Close() { }
 
-        public IAsyncResult BeginClose(TimeSpan timeout, AsyncCallback callback, object state) {
-            return _trayInteractionImplementation.BeginClose(timeout, callback, state);
-        }
+        public void Close(TimeSpan timeout) { }
 
-        public void EndClose(IAsyncResult result) {
-            _trayInteractionImplementation.EndClose(result);
-        }
+        public IAsyncResult BeginClose(AsyncCallback callback, object state) => throw new NotSupportedException();
 
-        public void Open() {
-            _trayInteractionImplementation.Open();
-        }
+        public IAsyncResult BeginClose(TimeSpan timeout, AsyncCallback callback, object state) => throw new NotSupportedException();
 
-        public void Open(TimeSpan timeout) {
-            _trayInteractionImplementation.Open(timeout);
-        }
+        public void EndClose(IAsyncResult result) => throw new NotSupportedException();
 
-        public IAsyncResult BeginOpen(AsyncCallback callback, object state) {
-            return _trayInteractionImplementation.BeginOpen(callback, state);
-        }
+        public void Open() { }
 
-        public IAsyncResult BeginOpen(TimeSpan timeout, AsyncCallback callback, object state) {
-            return _trayInteractionImplementation.BeginOpen(timeout, callback, state);
-        }
+        public void Open(TimeSpan timeout) { }
 
-        public void EndOpen(IAsyncResult result) {
-            _trayInteractionImplementation.EndOpen(result);
-        }
+        public IAsyncResult BeginOpen(AsyncCallback callback, object state) => throw new NotSupportedException();
 
-        public CommunicationState State => _trayInteractionImplementation.State;
+        public IAsyncResult BeginOpen(TimeSpan timeout, AsyncCallback callback, object state) => throw new NotSupportedException();
 
-        public event EventHandler Closed {
-            add => _trayInteractionImplementation.Closed += value;
-            remove => _trayInteractionImplementation.Closed -= value;
-        }
+        public void EndOpen(IAsyncResult result) => throw new NotSupportedException();
 
-        public event EventHandler Closing {
-            add => _trayInteractionImplementation.Closing += value;
-            remove => _trayInteractionImplementation.Closing -= value;
-        }
+        public CommunicationState State => CommunicationState.Opened;
 
-        public event EventHandler Faulted {
-            add => _trayInteractionImplementation.Faulted += value;
-            remove => _trayInteractionImplementation.Faulted -= value;
-        }
+        public event EventHandler Closed { add { } remove { } }
 
-        public event EventHandler Opened {
-            add => _trayInteractionImplementation.Opened += value;
-            remove => _trayInteractionImplementation.Opened -= value;
-        }
+        public event EventHandler Closing { add { } remove { } }
 
-        public event EventHandler Opening {
-            add => _trayInteractionImplementation.Opening += value;
-            remove => _trayInteractionImplementation.Opening -= value;
-        }
+        public event EventHandler Faulted { add { } remove { } }
+
+        public event EventHandler Opened { add { } remove { } }
+
+        public event EventHandler Opening { add { } remove { } }
+
+        #endregion
     }
 }

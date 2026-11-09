@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension"
      xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">	
-    <Product Id="*" Name="Plex Service" Language="1033" Version="1.2.3.1" Manufacturer="cjmurph"
+    <Product Id="*" Name="Plex Service" Language="1033" Version="1.3.0.0" Manufacturer="cjmurph"
              UpgradeCode="daa483bb-c7e1-4c79-a4d6-3c2c4c3d9daf">
         <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" SummaryCodepage="1252"/>
         <Binary Id="success_bmp" SourceFile="$(sys.SOURCEFILEDIR)success.bmp"/>
@@ -23,30 +23,28 @@
         <Property Id="ARPURLINFOABOUT" Value="https://github.com/cjmurph/PmsService"/>
         <Property Id="ARPHELPLINK" Value="https://forums.plex.tv/index.php/topic/93994-pms-as-a-service/"/>
         <Property Id="ASSISTANCE_START_VIA_REGISTRY">1</Property>
-        <Property Id="WIX_IS_NETFRAMEWORK_472_OR_LATER_INSTALLED">
-            <RegistrySearch Id="NET472Installed" Root="HKLM" Key="SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full"
-                            Name="Release" Type="raw"/>
-        </Property>
         <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed."/>
         <Media Id="1" Cabinet="PlexService.cab" EmbedCab="yes"/>
         <Property Id="SERVICE_USER" Admin="yes"/>
-        <Property Id="SERVICE_PASSWORD" Admin="yes"/>
+        <Property Id="SERVICE_PASSWORD" Admin="yes" Hidden="yes"/>
+        <Property Id="LOGON_PASSWORD" Hidden="yes"/>
         <PropertyRef Id='WIX_IS_NETFRAMEWORK_472_OR_LATER_INSTALLED'/>
         <Condition Message='This setup requires the .NET Framework 4.7.2 (or greater) to be installed.'>
             <![CDATA[Installed OR WIX_IS_NETFRAMEWORK_472_OR_LATER_INSTALLED]]>
         </Condition>
-        <Feature Id="PlexServiceFeature" Title="Plex Service" Description="Plex Service 1.2.3.1" Level="1"
+        <Feature Id="PlexServiceFeature" Title="Plex Service" Description="Plex Service 1.3.0.0" Level="1"
                  ConfigurableDirectory='INSTALLDIR'>
             <ComponentRef Id="PlexServiceComponent"/>
             <ComponentRef Id="PlexServiceWCFComponent"/>
             <ComponentRef Id="PlexServiceCommonComponent"/>
             <ComponentRef Id="PlexServiceTrayComponent"/>
-			<ComponentRef Id="ControlzEzComponent"/>
-            <ComponentRef Id="FontAwesomeWpfDll"/>            
-            <ComponentRef Id="MahAppsComponent"/>
-            <ComponentRef Id="MahAppsResComponent"/>            
-            <ComponentRef Id="XamlBehaviorsComponent"/>
 			<ComponentRef Id="NewtonsoftJsonComponent"/>
+            <ComponentRef Id="WpfUiComponent"/>
+            <ComponentRef Id="WpfUiAbstractionsComponent"/>
+            <ComponentRef Id="SystemBuffersComponent"/>
+            <ComponentRef Id="SystemMemoryComponent"/>
+            <ComponentRef Id="SystemNumericsVectorsComponent"/>
+            <ComponentRef Id="SystemUnsafeComponent"/>
 			<ComponentRef Id="OokiiComponent"/>			
             <ComponentRef Id="SerilogCoreComponent"/>
 			<ComponentRef Id="SerilogAsyncComponent"/>
@@ -147,9 +145,6 @@
                     <Component Id="PlexServiceTrayComponent" Guid="*">
                         <File Id="PlexServiceTrayExe" Source="$(var.PlexServiceTray.TargetPath)"/>
                     </Component>
-                    <Component>
-                        <File Id="FontAwesomeWpfDll" Source="$(var.PlexServiceTray.TargetDir)FontAwesome.WPF.dll"/>
-                    </Component>
                     <Component Id="PlexServiceTrayAutostart" Guid="*">
                         <RegistryValue Id="PlexServiceTrayAs.rst" Root="HKLM" Action="write"
                                        Key="Software\Microsoft\Windows\CurrentVersion\Run"
@@ -161,19 +156,23 @@
                     <Component Id="NewtonsoftJsonComponent" Guid="*">
                         <File Id="NewtonsoftJsonDll" Source="$(var.PlexService.TargetDir)Newtonsoft.Json.dll"/>
                     </Component>
-                    <Component Id="MahAppsComponent" Guid="*">
-                        <File Id="MahAppsDll" Source="$(var.PlexServiceTray.TargetDir)MahApps.Metro.dll"/>
+                    <Component Id="WpfUiComponent" Guid="*">
+                        <File Id="WpfUiDll" Source="$(var.PlexServiceTray.TargetDir)Wpf.Ui.dll"/>
                     </Component>
-                    <Component Id="MahAppsResComponent" Guid="*">
-                        <File Id="MahAppsResDll"
-                              Source="$(var.PlexServiceTray.TargetDir)de\MahApps.Metro.resources.dll"/>
+                    <Component Id="WpfUiAbstractionsComponent" Guid="*">
+                        <File Id="WpfUiAbstractionsDll" Source="$(var.PlexServiceTray.TargetDir)Wpf.Ui.Abstractions.dll"/>
                     </Component>
-                    <Component Id="ControlzEzComponent" Guid="*">
-                        <File Id="ControlzEzDll" Source="$(var.PlexServiceTray.TargetDir)ControlzEx.dll"/>
+                    <Component Id="SystemBuffersComponent" Guid="*">
+                        <File Id="SystemBuffersDll" Source="$(var.PlexServiceTray.TargetDir)System.Buffers.dll"/>
                     </Component>
-                    <Component Id="XamlBehaviorsComponent" Guid="*">
-                        <File Id="XamlBehaviorsDll"
-                              Source="$(var.PlexServiceTray.TargetDir)Microsoft.Xaml.Behaviors.dll"/>
+                    <Component Id="SystemMemoryComponent" Guid="*">
+                        <File Id="SystemMemoryDll" Source="$(var.PlexServiceTray.TargetDir)System.Memory.dll"/>
+                    </Component>
+                    <Component Id="SystemNumericsVectorsComponent" Guid="*">
+                        <File Id="SystemNumericsVectorsDll" Source="$(var.PlexServiceTray.TargetDir)System.Numerics.Vectors.dll"/>
+                    </Component>
+                    <Component Id="SystemUnsafeComponent" Guid="*">
+                        <File Id="SystemUnsafeDll" Source="$(var.PlexServiceTray.TargetDir)System.Runtime.CompilerServices.Unsafe.dll"/>
                     </Component>
                     <Component Id="SerilogCoreComponent" Guid="*">
                         <File Id="SerilogCoreDll"
@@ -193,14 +192,12 @@
                     <Component Id="OokiiComponent" Guid="*">
                         <File Id="OokiiDll" Source="$(var.PlexServiceTray.TargetDir)Ookii.Dialogs.Wpf.dll"/>
                     </Component>
-                    <Component Id="LicensesComponent" Guid="9C268F52-1375-490C-8126-BB0B39DADBD5">
+                    <Component Id="LicensesComponent" Guid="F941195D-88C8-4738-9D26-48B94577D2E9">
                         <File Id="NewtonsoftJsonLic"
                               Source="$(var.SolutionDir)\ThirdPartyLibraries\Newtonsoft.Json-license.txt"/>
                         <File Id="MsiExtLic" Source="$(var.SolutionDir)\ThirdPartyLibraries\msiext-license.txt"/>
-                        <File Id="MahAppsLic" Source="$(var.SolutionDir)\ThirdPartyLibraries\mahapps-license.txt"/>
+                        <File Id="WpfUiLic" Source="$(var.SolutionDir)\ThirdPartyLibraries\wpfui-license.txt"/>
                         <File Id="OokiiLic" Source="$(var.SolutionDir)\ThirdPartyLibraries\ookiidialogs-license.txt"/>
-                        <File Id="FontAwesomeWPFLic"
-                              Source="$(var.SolutionDir)\ThirdPartyLibraries\FontAwesome-WPF.txt"/>
                         <File Id="PlexServiceLic" Source="$(var.PlexServiceTray.TargetDir)LICENCE.rtf"/>
                     </Component>
                     <Component Id="PlexServiceTrayStartMenu" Guid="*">
@@ -212,6 +209,9 @@
                                   Name="Plex Service Tray" Target="[INSTALLDIR]PlexServiceTray.exe"
                                   WorkingDirectory='INSTALLDIR' Icon="PlexServiceTray.exe" IconIndex="0"
                                   Advertise="no"/>
+                        <Shortcut Id="PlexServiceSettingsStartMenu" Directory="PlexServiceProgramMenuFolder"
+                                  Name="Plex Service Settings" Target="[INSTALLDIR]PlexServiceTray.exe" Arguments="--settings"
+                                  WorkingDirectory="INSTALLDIR" Icon="PlexServiceTray.exe" IconIndex="0" Advertise="no"/>
                         <Shortcut Id="UninstallProduct"
                                   Name="Uninstall Plex Service"
                                   Target="[SystemFolder]msiexec.exe"

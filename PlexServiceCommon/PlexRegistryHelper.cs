@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +19,7 @@ namespace PlexServiceCommon
 
                 if (pmsDataKey is not null)
                 {
-                    return pmsDataKey.GetValue(name).ToString();
+                    return pmsDataKey.GetValue(name)?.ToString() ?? string.Empty;
                 }
             }
             catch { }
@@ -36,7 +36,7 @@ namespace PlexServiceCommon
 
                 if (pmsDataKey is not null)
                 {
-                    return pmsDataKey.GetValue(name).ToString();
+                    return pmsDataKey.GetValue(name)?.ToString() ?? string.Empty;
                 }
             }
             catch { }

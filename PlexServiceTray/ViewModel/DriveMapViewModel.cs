@@ -1,48 +1,67 @@
-﻿using PlexServiceCommon;
-using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using PlexServiceCommon;
 
 namespace PlexServiceTray.ViewModel
 {
-    public class DriveMapViewModel : ObservableObject
+    public class DriveMapViewModel : ViewModelBase
     {
-        [Required(ErrorMessage = "Please enter a UNC path to map")]
-        [RegularExpression(@"^\\\\[a-zA-Z0-9\.\-_]{1,}(\\[a-zA-Z0-9\.\x20\-_]{1,}[\$]{0,1}){1,}$", ErrorMessage = "Please enter a UNC path to map")]
+        private static readonly Regex UncPath = new(@"^\\\\[^\\/:*?""<>|]+(\\[^\\/:*?""<>|]+)+\\?$");
+
+        public static IReadOnlyList<string> DriveLetters { get; } = Enumerable.Range('A', 26).Select(c => ((char)c).ToString()).ToList();
+
+        private readonly SettingsViewModel _owner;
+        private string _shareName;
+        private string _driveLetter;
+
+        public DriveMapViewModel(DriveMap driveMap, SettingsViewModel owner)
+        {
+            _owner = owner;
+            _shareName = driveMap.ShareName ?? string.Empty;
+            _driveLetter = string.IsNullOrEmpty(driveMap.DriveLetter) ? "Z" : driveMap.DriveLetter.Substring(0, 1).ToUpperInvariant();
+        }
+
         public string ShareName
         {
-            get => _driveMap.ShareName;
-            set 
+            get => _shareName;
+            set
             {
-                if (_driveMap.ShareName == value) return;
-
-                _driveMap.ShareName = value;
-                OnPropertyChanged(nameof(ShareName));
+                if (SetProperty(ref _shareName, value?.Trim())) _owner.MarkDirty();
             }
         }
 
-        [Required(ErrorMessage = "Please enter a single character A-Z")]
-        [RegularExpression("[a-zA-Z]", ErrorMessage = "Please enter a single character A-Z")]
         public string DriveLetter
         {
-            get => _driveMap.DriveLetter;
-            set 
+            get => _driveLetter;
+            set
             {
-                if (_driveMap.DriveLetter == value) return;
-
-                _driveMap.DriveLetter = value;
-                OnPropertyChanged(nameof(DriveLetter));
+                if (!SetProperty(ref _driveLetter, value)) return;
+                _owner.MarkDirty();
+                _owner.RevalidateDriveMaps();
             }
         }
 
-        private readonly DriveMap _driveMap;
-        public DriveMapViewModel(DriveMap driveMap)
+        internal void Revalidate() => OnPropertyChanged(nameof(DriveLetter));
+
+        protected override IEnumerable<string> ValidatedProperties => new[] { nameof(ShareName), nameof(DriveLetter) };
+
+        protected override string Validate(string propertyName)
         {
-            _driveMap = driveMap;
-            ValidationContext = this;
+            switch (propertyName)
+            {
+                case nameof(ShareName):
+                    if (string.IsNullOrWhiteSpace(ShareName)) return "Enter the network share, e.g. \\\\server\\share";
+                    if (!UncPath.IsMatch(ShareName)) return "Must be a share like \\\\server\\share, a server on its own can't be mapped";
+                    break;
+                case nameof(DriveLetter):
+                    if (string.IsNullOrEmpty(DriveLetter)) return "Pick a drive letter";
+                    if (_owner.DriveMaps.Count(d => d.DriveLetter == DriveLetter) > 1) return $"{DriveLetter}: is used more than once";
+                    break;
+            }
+            return null;
         }
 
-        public DriveMap GetDriveMap()
-        {
-            return _driveMap;
-        }
+        public DriveMap ToModel() => new(ShareName, DriveLetter);
     }
 }

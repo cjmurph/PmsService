@@ -167,3 +167,8 @@ pip-log.txt
 # Mac crap
 .DS_Store
 /.vs/PlexMediaServerService/v15/sqlite3/storage.ide
+
+# local build output
+artifacts/
+.tools/
+

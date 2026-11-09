@@ -5,27 +5,14 @@ namespace PlexServiceTray.ViewModel
 {
     public class RelayCommand : ICommand
     {
-        #region Fields
+        private readonly Action<object> _execute;
+        private readonly Predicate<object> _canExecute;
 
-        readonly Action<object> _execute;
-        readonly Predicate<object> _canExecute;
-
-        #endregion // Fields
-
-        #region Constructors
-
-        public RelayCommand(Action<object> execute)
-            : this(execute, null) { }
-
-        public RelayCommand(Action<object> execute, Predicate<object> canExecute)
+        public RelayCommand(Action<object> execute, Predicate<object> canExecute = null)
         {
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
         }
-
-        #endregion // Constructors
-
-        #region ICommand Members
 
         public bool CanExecute(object parameter)
         {
@@ -42,7 +29,5 @@ namespace PlexServiceTray.ViewModel
         {
             _execute(parameter);
         }
-
-        #endregion // RelayCommand Members
     }
 }
