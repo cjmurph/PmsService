@@ -147,6 +147,7 @@ namespace PlexServiceTray
                 Add("Start Plex", (_, _) => Run(c => c.Start())).Enabled = canControl && state == PlexState.Stopped;
                 Add("Stop Plex", (_, _) => Run(c => c.Stop())).Enabled = canControl && state is PlexState.Running or PlexState.Pending;
                 Add("Restart Plex", (_, _) => Run(c => c.Restart())).Enabled = canControl && state == PlexState.Running;
+                Add("Update Plex Libraries", (_, _) => UpdateLibraries()).Enabled = state == PlexState.Running;
                 items.Add(new ToolStripSeparator());
 
                 var settings = _service.Call(c => c.GetSettings(), null);
@@ -194,6 +195,12 @@ namespace PlexServiceTray
         private void Run(Action<PlexServiceCommon.Interface.ITrayInteraction> action)
         {
             _service.Call(action);
+        }
+
+        private void UpdateLibraries()
+        {
+            if (_service.Call(c => { c.UpdateAllLibraries(); return true; }, false))
+                _notifyIcon.ShowBalloonTip(2000, "Plex Service", "Library update requested", ToolTipIcon.Info);
         }
 
         private void ShowError(Exception ex)
