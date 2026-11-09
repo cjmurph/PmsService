@@ -117,6 +117,28 @@ namespace PlexServiceTray
 
         public PlexState? GetStatus() => Call<PlexState?>(c => c.GetStatus(), null);
 
+        /// <summary>
+        /// Tests a share from the service, null if the service can't be reached
+        /// </summary>
+        public DriveMapTestResult? TestDriveMap(DriveMap map)
+        {
+            return Call<DriveMapTestResult?>(c =>
+            {
+                // the service gives up after 30 seconds, way longer than other calls are allowed to take
+                var channel = (IContextChannel)c;
+                var timeout = channel.OperationTimeout;
+                channel.OperationTimeout = TimeSpan.FromSeconds(45);
+                try
+                {
+                    return c.TestDriveMap(map);
+                }
+                finally
+                {
+                    channel.OperationTimeout = timeout;
+                }
+            }, null);
+        }
+
         public bool CanControl()
         {
             // services before this version didn't know about permissions, assume yes

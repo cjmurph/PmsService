@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.ServiceModel;
@@ -19,6 +19,8 @@ namespace PlexServiceWCF
         public static readonly string AppDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Plex Service\");
 
         private const int MaxLogMessageLength = 4000;
+
+        private static readonly TimeSpan ShareTestTimeout = TimeSpan.FromSeconds(30);
 
         private readonly PmsMonitor _pms;
 
@@ -136,7 +138,35 @@ namespace PlexServiceWCF
         public void SetSettings(Settings settings)
         {
             if (settings == null) return;
+            DriveMapSecrets.Apply(settings, SettingsHandler.Load());
             SettingsHandler.Save(settings);
+        }
+
+        /// <summary>
+        /// Checks from the service, with the account the mapping would use, that a share can be connected and read
+        /// </summary>
+        public DriveMapTestResult TestDriveMap(DriveMap map)
+        {
+            if (string.IsNullOrWhiteSpace(map?.ShareName)) return new DriveMapTestResult(false, "Enter the network share first.");
+
+            string password;
+            try
+            {
+                password = DriveMapSecrets.ForTest(map, SettingsHandler.Load());
+            }
+            catch (InvalidOperationException ex)
+            {
+                return new DriveMapTestResult(false, ex.Message);
+            }
+            if (map.HasUserName && string.IsNullOrEmpty(password)) return new DriveMapTestResult(false, "Enter the password for this account.");
+
+            // an unreachable server can block for a long time, the task finishes and cleans up on its own
+            var test = Task.Run(() => map.TestConnection(password));
+            var result = test.Wait(ShareTestTimeout)
+                ? test.Result
+                : new DriveMapTestResult(false, $"The server didn't answer within {ShareTestTimeout.TotalSeconds:0} seconds.");
+            Log.Information($"Test of share {map.ShareName}: {result.Message}");
+            return result;
         }
 
         public void LogMessage(string message, LogEventLevel level=LogEventLevel.Debug) {
@@ -170,7 +200,9 @@ namespace PlexServiceWCF
         /// <returns></returns>
         public Settings GetSettings()
         {
-            return SettingsHandler.Load();
+            var settings = SettingsHandler.Load();
+            DriveMapSecrets.Redact(settings, CanControl());
+            return settings;
         }
 
         /// <summary>

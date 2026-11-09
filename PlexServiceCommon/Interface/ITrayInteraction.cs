@@ -1,4 +1,4 @@
-﻿using System.ServiceModel;
+using System.ServiceModel;
 using Serilog.Events;
 
 namespace PlexServiceCommon.Interface
@@ -38,6 +38,9 @@ namespace PlexServiceCommon.Interface
 
         [OperationContract]
         Settings GetSettings();
+
+        [OperationContract]
+        DriveMapTestResult TestDriveMap(DriveMap map);
 
         [OperationContract]
         PlexState GetStatus();

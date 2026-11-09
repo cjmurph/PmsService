@@ -25,12 +25,19 @@ https://forums.plex.tv/discussion/93994/pms-as-a-service
 - Option to not start Plex on drive map failures, preventing accidental library deletion with auto-clean.
 - Option to log auxiliary application output to the PlexService log.
 - Option to start auxiliary applications before Plex, e.g. a tuner Plex needs on startup.
+- Separate credentials per network share, tested before they are saved.
 - Start, stop and restart Plex from the command line.
 - Supports silent installation.
 
 # Permissions
 
 Everybody who can sign in to the computer can see the state of Plex in the tray. Changing settings, starting or stopping Plex and controlling auxiliary applications is limited to administrators and to the account the service runs as.
+
+# Drive mappings
+
+Without a user name a share is accessed with the account the service runs as. A user name and password can be set per share, the password is encrypted for the service account. If the service later runs as another account, the password has to be entered again. Windows only allows one account per server, so all shares on the same server have to use the same one.
+
+New or changed shares are tested by the service before they are saved, with the account the mapping will use. Changes take effect the next time Plex starts.
 
 # Command line
 
@@ -46,7 +53,7 @@ sc control PlexService 130   (restart Plex)
 
 # Installation
 
-Simply download the [latest release](https://github.com/cjmurph/PmsService/releases/latest), run the installer, and enter the user information when prompted.
+Simply download the [latest release](https://github.com/cjmurph/PmsService/releases/latest), run the installer, and enter the user information when prompted. The account needs a password, Windows doesn't allow a service to run as an account without one.
 
 You can also silently install the package using the following syntax:
 

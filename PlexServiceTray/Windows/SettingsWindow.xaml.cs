@@ -40,6 +40,7 @@ namespace PlexServiceTray.Windows
 
             // undo a theme preview that wasn't saved
             if (ViewModel.IsDirty) Theme.Apply(_savedTheme);
+            ViewModel.Abandoned = true;
             base.OnClosing(e);
         }
     }

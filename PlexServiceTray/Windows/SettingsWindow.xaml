@@ -47,6 +47,25 @@
             <Setter Property="Margin" Value="0,2,0,0" />
         </Style>
 
+        <!-- replaces the square red box WPF draws around invalid fields -->
+        <ControlTemplate x:Key="FieldError">
+            <Border BorderBrush="{DynamicResource SystemFillColorCriticalBrush}" BorderThickness="1" CornerRadius="4">
+                <AdornedElementPlaceholder />
+            </Border>
+        </ControlTemplate>
+
+        <Style x:Key="ShareTestMessage" TargetType="TextBlock" BasedOn="{StaticResource RowDescription}">
+            <Setter Property="Margin" Value="0" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding TestState}" Value="Passed">
+                    <Setter Property="Foreground" Value="{DynamicResource SystemFillColorSuccessBrush}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding TestState}" Value="Failed">
+                    <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCriticalBrush}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
         <Style x:Key="FieldLabel" TargetType="TextBlock">
             <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
             <Setter Property="Margin" Value="0,0,0,6" />
@@ -74,11 +93,13 @@
             <Setter Property="SmallChange" Value="1" />
             <Setter Property="ClearButtonEnabled" Value="False" />
             <Setter Property="SpinButtonPlacementMode" Value="Inline" />
+            <Setter Property="Validation.ErrorTemplate" Value="{StaticResource FieldError}" />
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
 
         <Style x:Key="Field" TargetType="ui:TextBox" BasedOn="{StaticResource {x:Type ui:TextBox}}">
             <Setter Property="ClearButtonEnabled" Value="False" />
+            <Setter Property="Validation.ErrorTemplate" Value="{StaticResource FieldError}" />
         </Style>
 
         <Style x:Key="Pages" TargetType="TabControl">
@@ -467,7 +488,7 @@
                                 <StackPanel MaxWidth="900">
                                     <TextBlock Text="Drive mappings" Style="{StaticResource PageTitle}" />
                                     <TextBlock Style="{StaticResource PageDescription}"
-                                               Text="Network shares the service connects before starting Plex. Drives mapped in your own session aren't visible to a service, so libraries on a NAS need to be mapped here." />
+                                               Text="Network shares the service connects before starting Plex. Drives mapped in your own session aren't visible to a service, so libraries on a NAS need to be mapped here. Without a user name the share is accessed with the account of the service. New or changed shares are tested when you save." />
                                     <ui:InfoBar Title="Read only" Message="{Binding ServerNotice}" IsOpen="{Binding HasServerNotice, Mode=OneWay}"
                                                 IsClosable="False" Severity="Warning" Margin="0,0,0,12" />
 
@@ -489,6 +510,7 @@
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <Border Style="{StaticResource Panel}" Padding="16,12">
+                                                        <StackPanel>
                                                         <Grid>
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="Auto" />
@@ -498,7 +520,7 @@
                                                                 <ColumnDefinition Width="Auto" />
                                                             </Grid.ColumnDefinitions>
                                                             <ui:SymbolIcon Grid.Column="0" Symbol="HardDrive20" FontSize="20" Margin="2,0,16,0" />
-                                                            <ComboBox Grid.Column="1" VerticalAlignment="Center"
+                                                            <ComboBox Grid.Column="1" VerticalAlignment="Center" Validation.ErrorTemplate="{StaticResource FieldError}"
                                                                       ItemsSource="{Binding DataContext.DriveLetters, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                       SelectedItem="{Binding DriveLetter, ValidatesOnDataErrors=True}">
                                                                 <ComboBox.ItemTemplate>
@@ -514,6 +536,31 @@
                                                                        Command="{Binding DataContext.RemoveDriveMapCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                        CommandParameter="{Binding}" />
                                                         </Grid>
+                                                        <Grid Margin="38,10,48,0">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="12" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <ui:TextBox Grid.Column="0" Style="{StaticResource Field}" PlaceholderText="User name (optional)"
+                                                                        Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+                                                            <ui:PasswordBox Grid.Column="2" PlaceholderText="{Binding PasswordHint}" Validation.ErrorTemplate="{StaticResource FieldError}"
+                                                                            Password="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" />
+                                                        </Grid>
+                                                        <DockPanel Margin="38,10,48,2">
+                                                            <ui:Button DockPanel.Dock="Left" Content="Test connection" Icon="{ui:SymbolIcon PlugConnected24}" VerticalAlignment="Top"
+                                                                       Command="{Binding TestCommand}" />
+                                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,8,0" DockPanel.Dock="Left">
+                                                                <ui:ProgressRing IsIndeterminate="True" Width="16" Height="16"
+                                                                                 Visibility="{Binding IsTesting, Converter={StaticResource BoolToVisibility}}" />
+                                                                <ui:SymbolIcon Symbol="CheckmarkCircle20" FontSize="18" Foreground="{DynamicResource SystemFillColorSuccessBrush}"
+                                                                               Visibility="{Binding IsPassed, Converter={StaticResource BoolToVisibility}}" />
+                                                                <ui:SymbolIcon Symbol="ErrorCircle20" FontSize="18" Foreground="{DynamicResource SystemFillColorCriticalBrush}"
+                                                                               Visibility="{Binding IsFailed, Converter={StaticResource BoolToVisibility}}" />
+                                                            </StackPanel>
+                                                            <TextBlock Text="{Binding TestMessage}" VerticalAlignment="Center" Style="{StaticResource ShareTestMessage}" />
+                                                        </DockPanel>
+                                                        </StackPanel>
                                                     </Border>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
@@ -660,7 +707,7 @@
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
                                 <ui:SymbolIcon Symbol="Warning24" Margin="0,0,8,0" Foreground="{DynamicResource SystemFillColorCriticalBrush}"
                                                Visibility="{Binding ValidationSummary, Converter={StaticResource NullToCollapsed}}" />
-                                <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
+                                <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="300">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Text" Value="{Binding ValidationSummary}" />
