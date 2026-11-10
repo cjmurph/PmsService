@@ -17,6 +17,7 @@ using System.Runtime.InteropServices;
 // to COM components.  If you need to access a type in this assembly from 
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("PlexService.Tests")]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("36ad1780-13a9-4959-bb88-189f7a775cb0")]

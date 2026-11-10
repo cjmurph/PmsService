@@ -30,17 +30,22 @@ namespace PlexServiceWCF
         protected override bool CheckAccessCore(OperationContext operationContext)
         {
             var action = operationContext.IncomingMessageHeaders.Action ?? string.Empty;
-            var operation = action.Substring(action.LastIndexOf('/') + 1);
-
-            // metadata exchange and anything that isn't part of our contract is left to WCF
-            if (!action.Contains("/ITrayInteraction/")) return true;
-            if (ReadOnlyOperations.Contains(operation)) return true;
+            if (IsOpenToEveryone(action)) return true;
 
             var identity = operationContext.ServiceSecurityContext?.WindowsIdentity;
             if (IsPrivileged(identity)) return true;
 
-            Log.Warning($"Denied '{operation}' for {identity?.Name ?? "anonymous"}, administrator rights are required");
+            Log.Warning($"Denied '{OperationName(action)}' for {identity?.Name ?? "anonymous"}, administrator rights are required");
             return false;
+        }
+
+        private static string OperationName(string action) => action.Substring(action.LastIndexOf('/') + 1);
+
+        internal static bool IsOpenToEveryone(string action)
+        {
+            // metadata exchange and anything that isn't part of our contract is left to WCF
+            if (!action.Contains("/ITrayInteraction/")) return true;
+            return ReadOnlyOperations.Contains(OperationName(action));
         }
 
         internal static bool IsPrivileged(WindowsIdentity identity)
