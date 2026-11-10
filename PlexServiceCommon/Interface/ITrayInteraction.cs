@@ -22,6 +22,12 @@ namespace PlexServiceCommon.Interface
         void UpdateAllLibraries();
 
         [OperationContract]
+        void UpdateLibraries(string[] keys);
+
+        [OperationContract]
+        PlexLibrary[] GetLibraries();
+
+        [OperationContract]
         void SetSettings(Settings settings);
 
         [OperationContract]
@@ -38,6 +44,12 @@ namespace PlexServiceCommon.Interface
 
         [OperationContract]
         Settings GetSettings();
+
+        [OperationContract]
+        DriveMapTestResult TestDriveMap(DriveMap map);
+
+        [OperationContract]
+        string[] GetUsedDriveLetters();
 
         [OperationContract]
         PlexState GetStatus();

@@ -189,6 +189,8 @@ namespace PlexServiceWCF
                 var drivesMapped = true;
                 if (_settings.DriveMaps.Count > 0) {
                     Log.Information("Mapping Network Drives");
+                    // all at once, a connection with the old account would block a new one to the same server
+                    _settings.DriveMaps.ForEach(UnMap);
                     drivesMapped = _settings.DriveMaps.Select(map => TryMap(map, _settings)).ToList().All(x => x);
                 }
 
@@ -221,15 +223,39 @@ namespace PlexServiceWCF
             }
         }
 
+        private static void UnMap(DriveMap map)
+        {
+            try
+            {
+                map.UnMapDrive(true);
+            }
+            catch (Exception ex)
+            {
+                // usually just means the drive wasn't mapped
+                Log.Debug($"Drive '{map.DriveLetter}' not unmapped: {ex.Message}");
+            }
+        }
+
         private static bool TryMap(DriveMap map, Settings settings)
         {
+            string password;
+            try
+            {
+                password = DriveMapSecrets.Reveal(map);
+            }
+            catch (InvalidOperationException ex)
+            {
+                Log.Warning($"Unable to map share {map.ShareName} to letter '{map.DriveLetter}': {ex.Message}");
+                return false;
+            }
+
             var count = settings.AutoRemount ? Math.Max(1, settings.AutoRemountCount) : 1;
 
             while (count > 0)
             {
                 try
                 {
-                    map.MapDrive(true);
+                    map.MapDrive(false, password);
                     Log.Information($"Map share {map.ShareName} to letter '{map.DriveLetter}' successful");
                     return true;
                 }

@@ -25,6 +25,8 @@ namespace PlexServiceTray
         private readonly ServiceClient _service;
         private TrayApplicationSettings _traySettings;
         private SettingsWindow? _settingsWindow;
+        private LibraryUpdateWindow? _libraryWindow;
+        private readonly SessionEndWindow _sessionWindow;
 
         public NotifyIconApplicationContext(System.Threading.WaitHandle showSettingsSignal, bool openSettings, SettingsPage startPage = SettingsPage.General)
         {
@@ -50,7 +52,43 @@ namespace PlexServiceTray
             TrayMenuRenderer.RoundCorners(_notifyIcon.ContextMenuStrip);
             ApplyMenuTheme();
 
+            _sessionWindow = new SessionEndWindow(ExitThread);
+
             if (_service.EnsureConnected()) UpdateTooltip(_service.GetStatus());
+        }
+
+        /// <summary>
+        /// Without a visible window nobody answers when Windows or an installer asks the app to close
+        /// </summary>
+        private sealed class SessionEndWindow : NativeWindow
+        {
+            private const int WmQueryEndSession = 0x0011;
+            private const int WmEndSession = 0x0016;
+
+            private readonly Action _exit;
+
+            public SessionEndWindow(Action exit)
+            {
+                _exit = exit;
+                CreateHandle(new CreateParams());
+            }
+
+            protected override void WndProc(ref Message m)
+            {
+                switch (m.Msg)
+                {
+                    case WmQueryEndSession:
+                        m.Result = (IntPtr)1;
+                        return;
+                    case WmEndSession:
+                        if (m.WParam != IntPtr.Zero) _exit();
+                        m.Result = IntPtr.Zero;
+                        return;
+                    default:
+                        base.WndProc(ref m);
+                        return;
+                }
+            }
         }
 
         /// <summary>
@@ -60,6 +98,7 @@ namespace PlexServiceTray
         {
             if (disposing)
             {
+                _sessionWindow.DestroyHandle();
                 _service.Dispose();
                 _notifyIcon.Visible = false;
                 _components.Dispose();
@@ -147,7 +186,7 @@ namespace PlexServiceTray
                 Add("Start Plex", (_, _) => Run(c => c.Start())).Enabled = canControl && state == PlexState.Stopped;
                 Add("Stop Plex", (_, _) => Run(c => c.Stop())).Enabled = canControl && state is PlexState.Running or PlexState.Pending;
                 Add("Restart Plex", (_, _) => Run(c => c.Restart())).Enabled = canControl && state == PlexState.Running;
-                Add("Update Plex Libraries", (_, _) => UpdateLibraries()).Enabled = state == PlexState.Running;
+                Add("Update Plex Libraries...", (_, _) => UpdateLibraries()).Enabled = state == PlexState.Running;
                 items.Add(new ToolStripSeparator());
 
                 var settings = _service.Call(c => c.GetSettings(), null);
@@ -199,8 +238,18 @@ namespace PlexServiceTray
 
         private void UpdateLibraries()
         {
-            if (_service.Call(c => { c.UpdateAllLibraries(); return true; }, false))
-                _notifyIcon.ShowBalloonTip(2000, "Plex Service", "Library update requested", ToolTipIcon.Info);
+            if (_libraryWindow != null)
+            {
+                _libraryWindow.Activate();
+                return;
+            }
+
+            var viewModel = new LibraryUpdateViewModel(_service);
+            viewModel.Updated += (_, _) => _notifyIcon.ShowBalloonTip(2000, "Plex Service", "Library update requested", ToolTipIcon.Info);
+            _libraryWindow = new LibraryUpdateWindow(viewModel, _traySettings.Theme);
+            _libraryWindow.Closed += (_, _) => _libraryWindow = null;
+            _libraryWindow.Show();
+            _libraryWindow.Activate();
         }
 
         private void ShowError(Exception ex)
