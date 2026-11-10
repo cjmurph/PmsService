@@ -386,7 +386,7 @@ namespace PlexServiceWCF
         private void Plex_Exited(object sender, EventArgs e)
         {
             Log.Information("Plex Media Server has stopped!");
-            bool restart;
+            bool restart, requested;
             lock (_sync)
             {
                 if (sender is Process exited)
@@ -429,7 +429,8 @@ namespace PlexServiceWCF
 
                 //restart as required
                 _settings = SettingsHandler.Load();
-                restart = (State != PlexState.Stopping && _settings.AutoRestart) || _restartRequested;
+                requested = _restartRequested;
+                restart = (State != PlexState.Stopping && _settings.AutoRestart) || requested;
                 _restartRequested = false;
 
                 if (!restart)
@@ -442,8 +443,10 @@ namespace PlexServiceWCF
                 State = PlexState.Pending;
             }
 
-            Log.Information($"Waiting {_settings.RestartDelay} seconds before re-starting the Plex process.");
-            Task.Delay(TimeSpan.FromSeconds(Math.Max(0, _settings.RestartDelay))).ContinueWith(_ =>
+            // the delay is for a plex that died on its own, a restart someone asked for happens right away
+            var delay = requested ? 0 : Math.Max(0, _settings.RestartDelay);
+            if (delay > 0) Log.Information($"Waiting {delay} seconds before re-starting the Plex process.");
+            Task.Delay(TimeSpan.FromSeconds(delay)).ContinueWith(_ =>
             {
                 // the user may have stopped plex in the meantime
                 if (State == PlexState.Pending) Start();

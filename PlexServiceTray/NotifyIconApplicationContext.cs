@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using System.Windows.Forms.Integration;
 using PlexServiceCommon;
 using PlexServiceTray.ViewModel;
 using PlexServiceTray.Windows;
@@ -248,6 +249,7 @@ namespace PlexServiceTray
             viewModel.Updated += (_, _) => _notifyIcon.ShowBalloonTip(2000, "Plex Service", "Library update requested", ToolTipIcon.Info);
             _libraryWindow = new LibraryUpdateWindow(viewModel, _traySettings.Theme);
             _libraryWindow.Closed += (_, _) => _libraryWindow = null;
+            ElementHost.EnableModelessKeyboardInterop(_libraryWindow);
             _libraryWindow.Show();
             _libraryWindow.Activate();
         }
@@ -278,6 +280,8 @@ namespace PlexServiceTray
             };
             _settingsWindow = new SettingsWindow(viewModel);
             _settingsWindow.Closed += (_, _) => _settingsWindow = null;
+            // the message loop belongs to windows forms, without this typed characters never reach the wpf window
+            ElementHost.EnableModelessKeyboardInterop(_settingsWindow);
             _settingsWindow.Show();
             _settingsWindow.Activate();
         }
