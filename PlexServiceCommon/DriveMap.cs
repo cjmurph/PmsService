@@ -197,8 +197,9 @@ namespace PlexServiceCommon
             }
             finally
             {
-                // with a share name this only removes connections without a drive letter
-                WNetCancelConnection2W(share, 0, 1);
+                // with a share name this only removes connections without a drive letter. Not forced, Plex runs
+                // as the same account and may have files open on this share, the connection then simply stays.
+                WNetCancelConnection2W(share, 0, 0);
             }
         }
 

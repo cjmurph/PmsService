@@ -15,7 +15,8 @@ namespace PlexService.Tests
         private static readonly string[] OpenToEveryone =
         {
             "GetStatus", "GetSettings", "GetWebLink", "GetPmsDataPath", "IsAuxAppRunning", "GetLogPath",
-            "Subscribe", "UnSubscribe", "LogMessage", "CanControl", "UpdateAllLibraries"
+            "Subscribe", "UnSubscribe", "LogMessage", "CanControl", "GetUsedDriveLetters",
+            "UpdateAllLibraries", "UpdateLibraries", "GetLibraries"
         };
 
         [Fact]
