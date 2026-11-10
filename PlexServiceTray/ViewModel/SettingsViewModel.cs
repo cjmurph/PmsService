@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using Microsoft.Win32;
 using PlexServiceCommon;
 
@@ -183,7 +185,15 @@ namespace PlexServiceTray.ViewModel
 
         public ObservableCollection<DriveMapViewModel> DriveMaps { get; } = new();
 
-        public IReadOnlyList<string> DriveLetters => DriveMapViewModel.DriveLetters;
+        /// <summary>
+        /// Letters of drives that already exist on the server
+        /// </summary>
+        internal IReadOnlyCollection<string> UsedDriveLetters { get; private set; } = new string[0];
+
+        internal void RefreshAvailableLetters(DriveMapViewModel changed = null)
+        {
+            foreach (var map in DriveMaps.Where(m => !ReferenceEquals(m, changed))) map.RefreshAvailableLetters();
+        }
 
         private bool _autoRemount;
         public bool AutoRemount
@@ -229,6 +239,16 @@ namespace PlexServiceTray.ViewModel
         {
             foreach (var map in DriveMaps) map.Revalidate();
         }
+
+        internal DriveMapTestResult TestDriveMap(DriveMap map)
+        {
+            return _service.TestDriveMap(map) ?? new DriveMapTestResult(false, "The service can't be reached. " + _service.LastError);
+        }
+
+        /// <summary>
+        /// A share is being tested or the settings are being saved
+        /// </summary>
+        internal bool IsBusy => _saving || DriveMaps.Any(m => m.IsTesting);
 
         #endregion
 
@@ -428,8 +448,10 @@ namespace PlexServiceTray.ViewModel
                 AutoRemountDelay = settings.AutoRemountDelay;
                 StartPlexOnMountFail = settings.StartPlexOnMountFail;
 
+                UsedDriveLetters = IsConnected ? _service.Call(c => c.GetUsedDriveLetters(), new string[0]) : new string[0];
                 DriveMaps.Clear();
                 settings.DriveMaps.ForEach(d => DriveMaps.Add(new DriveMapViewModel(d, this)));
+                RefreshAvailableLetters();
                 AuxiliaryApplications.Clear();
                 settings.AuxiliaryApplications.ForEach(a => AuxiliaryApplications.Add(new AuxiliaryApplicationViewModel(a, this)));
                 SelectedAuxApplication = AuxiliaryApplications.FirstOrDefault();
@@ -443,19 +465,55 @@ namespace PlexServiceTray.ViewModel
             IsDirty = false;
         }
 
-        private bool CanSave => IsDirty && ValidationSummary == null;
+        private bool CanSave => IsDirty && !IsBusy && ValidationSummary == null;
 
         private RelayCommand _saveCommand;
-        public RelayCommand SaveCommand => _saveCommand ??= new RelayCommand(_ =>
+        public RelayCommand SaveCommand => _saveCommand ??= new RelayCommand(async _ =>
         {
-            if (Save()) CloseRequested?.Invoke(this, EventArgs.Empty);
+            if (await SaveAsync()) CloseRequested?.Invoke(this, EventArgs.Empty);
         }, _ => CanSave);
 
         private RelayCommand _applyCommand;
-        public RelayCommand ApplyCommand => _applyCommand ??= new RelayCommand(_ => Save(), _ => CanSave);
+        public RelayCommand ApplyCommand => _applyCommand ??= new RelayCommand(async _ => await SaveAsync(), _ => CanSave);
 
         private RelayCommand _cancelCommand;
         public RelayCommand CancelCommand => _cancelCommand ??= new RelayCommand(_ => CloseRequested?.Invoke(this, EventArgs.Empty));
+
+        private bool _saving;
+
+        /// <summary>
+        /// Set when the window was closed, a test that is still running must not lead to a save anymore
+        /// </summary>
+        internal bool Abandoned { get; set; }
+
+        /// <summary>
+        /// New or changed shares have to work before anything is saved
+        /// </summary>
+        private async Task<bool> SaveAsync()
+        {
+            _saving = true;
+            try
+            {
+                var allPassed = true;
+                if (CanEditServer && _settings != null)
+                {
+                    foreach (var map in DriveMaps.Where(m => m.NeedsTest).ToList())
+                    {
+                        if (!await map.TestAsync()) allPassed = false;
+                    }
+                }
+
+                if (Abandoned) return false;
+                if (allPassed) return Save();
+                SelectedPage = SettingsPage.DriveMappings;
+                return false;
+            }
+            finally
+            {
+                _saving = false;
+                CommandManager.InvalidateRequerySuggested();
+            }
+        }
 
         private bool Save()
         {
@@ -590,9 +648,9 @@ namespace PlexServiceTray.ViewModel
         private RelayCommand _addDriveMapCommand;
         public RelayCommand AddDriveMapCommand => _addDriveMapCommand ??= new RelayCommand(_ =>
         {
-            var used = DriveMaps.Select(d => d.DriveLetter).ToList();
-            var letter = Enumerable.Range(0, 26).Select(i => ((char)('Z' - i)).ToString()).FirstOrDefault(l => !used.Contains(l)) ?? "Z";
+            var letter = DriveMapViewModel.FirstFreeLetter(DriveMaps.Select(d => d.DriveLetter).Concat(UsedDriveLetters));
             DriveMaps.Add(new DriveMapViewModel(new DriveMap(string.Empty, letter), this));
+            RefreshAvailableLetters();
             MarkDirty();
         }, _ => CanEditServer);
 
@@ -602,6 +660,7 @@ namespace PlexServiceTray.ViewModel
             if (p is not DriveMapViewModel map) return;
             DriveMaps.Remove(map);
             RevalidateDriveMaps();
+            RefreshAvailableLetters();
             MarkDirty();
         }, p => CanEditServer && p is DriveMapViewModel);
 

@@ -1,0 +1,66 @@
+<ui:FluentWindow x:Class="PlexServiceTray.Windows.LibraryUpdateWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                 xmlns:controls="clr-namespace:PlexServiceTray.Controls"
+                 Title="Update Plex libraries" Width="440" Height="520" MinWidth="360" MinHeight="340"
+                 WindowStartupLocation="CenterScreen"
+                 ExtendsContentIntoTitleBar="True" WindowBackdropType="Mica" WindowCornerPreference="Round"
+                 Icon="/PlexServiceTray;component/PlexService_Bar.ico">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <controls:NullToCollapsedConverter x:Key="NullToCollapsed" />
+        <controls:ZeroToVisibleConverter x:Key="ZeroToVisible" />
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ui:TitleBar Grid.Row="0" Title="Update Plex libraries" ShowMaximize="False" ShowMinimize="False">
+            <ui:TitleBar.Icon>
+                <ui:ImageIcon Source="/PlexServiceTray;component/PlexService_Bar.ico" />
+            </ui:TitleBar.Icon>
+        </ui:TitleBar>
+
+        <StackPanel Grid.Row="1" Margin="24,8,24,12">
+            <TextBlock Text="Choose the libraries Plex should scan for changes." TextWrapping="Wrap"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+            <CheckBox Content="All libraries" Margin="17,14,0,0" IsChecked="{Binding AllSelected}"
+                      Visibility="{Binding HasLibraries, Converter={StaticResource BoolToVisibility}}" />
+        </StackPanel>
+
+        <Grid Grid.Row="2" Margin="24,0">
+            <ui:ProgressRing IsIndeterminate="True" Width="32" Height="32" HorizontalAlignment="Center" VerticalAlignment="Center"
+                             Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
+            <ui:InfoBar Title="Libraries" Message="{Binding Message}" IsOpen="True" IsClosable="False" Severity="Warning" VerticalAlignment="Top"
+                        Visibility="{Binding Message, Converter={StaticResource NullToCollapsed}}" />
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Libraries}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1" CornerRadius="8" Padding="16,6" Margin="0,0,0,4">
+                                <CheckBox IsChecked="{Binding IsSelected}" HorizontalAlignment="Stretch">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                        <TextBlock Text="{Binding Type}" FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+                                </CheckBox>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="24,12,24,16">
+            <ui:Button Content="Cancel" MinWidth="100" Margin="0,0,8,0" IsCancel="True" Click="Cancel_Click" />
+            <ui:Button Content="{Binding UpdateText}" MinWidth="130" Appearance="Primary" Command="{Binding UpdateCommand}" />
+        </StackPanel>
+    </Grid>
+</ui:FluentWindow>

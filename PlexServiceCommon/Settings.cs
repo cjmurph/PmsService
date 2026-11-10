@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace PlexServiceCommon
@@ -92,6 +93,7 @@ namespace PlexServiceCommon
             AuxiliaryApplications.RemoveAll(a => a == null);
             DriveMaps ??= new List<DriveMap>();
             DriveMaps.RemoveAll(d => d == null);
+            DriveMaps.Where(d => string.IsNullOrEmpty(d.Id)).ToList().ForEach(d => d.Id = System.Guid.NewGuid().ToString("N"));
             if (ServerPort is <= 0 or > 65535) ServerPort = 8787;
             if (RestartDelay < 0) RestartDelay = 5;
             if (AutoRemountCount < 1) AutoRemountCount = 1;
